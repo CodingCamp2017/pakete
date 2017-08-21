@@ -32,5 +32,18 @@ $(function() {
                 }
 
     console.log(data);
+
+    var jqxhr = $.post( "http://localhost:8000", data, function() {
+      console.log("Request successful")
+      })
+      .done(function() {
+        console.log( "second success" );
+      })
+      .fail(function() {
+        console.log( "error" );
+      })
+      .always(function() {
+        console.log( "finished" );
+      });
   });
 });
