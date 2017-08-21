@@ -40,44 +40,48 @@
     </nav>
 
     <!-- Page Content -->
-    <div class="pageContent" id="register_container">
+    <div class="mx-auto pageContent" id="register_container">
       <h1 class="mt-5">Register packet</h1>
       <p>
 
         <form>            
-          <p>Absender</p>
-          <input type="text" placeholder="Straße" id="sender_street" /><br>
-          <input type="text" placeholder="PLZ" id="sender_zip" />
+          <p><b>Absender</b><br>
+          <input type="text" placeholder="Straße" id="sender_street" />
+         
+		  <input type="text" placeholder="PLZ" id="sender_zip" />
           <input type="text" placeholder="Stadt" id="sender_city" />
-          
-          <p>Empfänger</p>
-          <input type="text" placeholder="Straße" id="receiver_street" /><br>
+		  
+          </p>
+          <p><b>Empfänger</b><br>
+          <input type="text" placeholder="Straße" id="receiver_street" />
           <input type="text" placeholder="PLZ" id="receiver_zip" />
           <input type="text" placeholder="Stadt" id="receiver_city" />
-          
-          <p>Größe</p>
+          </p>
+          <p><b>Größe</b><br>
           <input type="radio" name="size" value="small" checked id="size_small" /> klein <br>
           <input type="radio" name="size" value="normal" id="size_normal" /> normal <br>
           <input type="radio" name="size" value="big" id="size_big" /> groß
-          
-          <p>Gewicht</p>
+          </p>
+          <p><b>Gewicht</b><br>
           <input type="text" name="weight" placeholder="10" id="weight" /> kg <br>
-          
+          </p>
           <input type="submit" value="Paket registrieren" id="register_packet_button" />
         </form>
       </p>
     </div>
 
-    <div id="update_container">
+    <div class="pageContent" id="update_container">
       <h1 class="mt-5">Update packet</h1>
       <p>
         <form>
-          <label for="packet_id">ID</label><input type="text" id="packet_id" /><br />
-          <label for="is_delivered">Ausgeliefert</label><input type="checkbox" id="is_delivered" /><br />
+          <input type="text"  placeholder="ID" id="packet_id" />
+		  <div class="checkboxMargin">
+          <input type="checkbox" id="is_delivered" /> <label for="is_delivered">Ausgeliefert</label>
+		  </div>
           <div id="station_container">
-            <label for="station">Station</label><input type="text" id="station" />
+           <input type="text"  placeholder="Station"  id="station" />
           </div>
-
+			<br />
           <input type="submit" value="Paket updaten" id="update_packet_button" />
         </form>
       </p>

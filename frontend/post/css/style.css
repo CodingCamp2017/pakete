@@ -8,11 +8,10 @@ body {
     padding-top: 54px;
 }
 .pageContent {
-    margin: 54px;
+	width: 90%;
 }
-
-.cell{
-	width: 100px;
+.checkboxMargin{
+	margin-top: 6px;
 }
 
 #update_container {
@@ -23,5 +22,8 @@ body {
     body {
         padding-top: 56px;
     }
+	.pageContent {
+	width: 570px;
+	}
 }
 
