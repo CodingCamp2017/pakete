@@ -7,7 +7,9 @@
 body {
     padding-top: 54px;
 }
-
+.spacing {
+    margin: 54px;
+}
 #update_container {
 	display: none;
 }
@@ -17,3 +19,4 @@ body {
         padding-top: 56px;
     }
 }
+
