@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <h1>Paket registrieren</h1>
+        
+        <form action="index.html">
+            
+            <p>Absender</p>
+            <input type="text" name="senderStreet" placeholder="Straße"/><br>
+            <input type="text" name="senderZIP" placeholder="PLZ"/>
+            <input type="text" name="senderCity" placeholder="Stadt"/>
+            
+            <p>Empfänger</p>
+            <input type="text" name="receiverStreet" placeholder="Straße"/><br>
+            <input type="text" name="receiverZIP" placeholder="PLZ"/>
+            <input type="text" name="receiverCity" placeholder="Stadt"/>
+            
+            <p>Größe</p>
+            <input type="radio" name="size" value="small" checked /> klein <br>
+            <input type="radio" name="size" value="normal" /> normal <br>
+            <input type="radio" name="size" value="big" /> groß
+            
+            <p>Gewicht</p>
+            <input type="text" name="weight" placeholder="10"> kg <br>
+            
+            <input type="submit" value="Paket registrieren">
+        </form>
+        
+        <h1>Paketstatus ändern</h1>
+        
+        <form action="index.html">
+            
+            <p>ID</p>
+            <input type="text" name="packetId" placeholder="12345"/><br>
+            
+            <p>Standort</p>
+            <input type="text" name="packetLockation" placeholder="München"/><br>
+            
+            <input type="submit" value="Status ändern">
+        </form>
+    </body>
+</html>
