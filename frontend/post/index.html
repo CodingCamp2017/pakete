@@ -68,14 +68,14 @@
       </p>
     </div>
 
-    <div id="update_container">
+    <div class="pageContent" id="update_container">
       <h1 class="mt-5">Update packet</h1>
       <p>
         <form>
-          <label for="packet_id">ID</label><input type="text" id="packet_id" /><br />
-          <label for="is_delivered">Ausgeliefert</label><input type="checkbox" id="is_delivered" /><br />
+          <input type="text" placeholder="ID" id="packet_id" /><br />
+          <label class="cell" for="is_delivered">Ausgeliefert</label><input type="checkbox" id="is_delivered" /><br />
           <div id="station_container">
-            <label for="station">Station</label><input type="text" id="station" />
+            <label class="cell" for="station">Station</label><input type="text" id="station" />
           </div>
 
           <input type="submit" value="Paket updaten" id="update_packet_button" />
