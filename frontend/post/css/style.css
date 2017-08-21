@@ -1,15 +1,11 @@
-/*!
- * Start Bootstrap - Logo Nav (http://startbootstrap.com/template-overviews/logo-nav)
- * Copyright 2013-2017 Start Bootstrap
- * Licensed under MIT (https://github.com/BlackrockDigital/startbootstrap-logo-nav/blob/master/LICENSE)
- */
-
 body {
     padding-top: 54px;
 }
+
 .pageContent {
 	width: 90%;
 }
+
 .checkboxMargin{
 	margin-top: 6px;
 }
@@ -18,12 +14,16 @@ body {
 	display: none;
 }
 
+.zip_input {
+	width: 4em;
+}
+
 @media (min-width: 992px) {
     body {
         padding-top: 56px;
     }
+
 	.pageContent {
-	width: 570px;
+		width: 650px;
 	}
 }
-
