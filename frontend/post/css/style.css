@@ -7,6 +7,13 @@
 body {
     padding-top: 54px;
 }
+.pageContent {
+    margin: 54px;
+}
+
+.cell{
+	width: 100px;
+}
 
 #update_container {
 	display: none;
@@ -17,3 +24,4 @@ body {
         padding-top: 56px;
     }
 }
+
