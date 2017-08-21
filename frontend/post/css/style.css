@@ -7,9 +7,14 @@
 body {
     padding-top: 54px;
 }
-.spacing {
+.pageContent {
     margin: 54px;
 }
+
+.cell{
+	width: 100px;
+}
+
 #update_container {
 	display: none;
 }
