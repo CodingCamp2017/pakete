@@ -6,9 +6,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
-    <meta name="author" content="CodingCamp">
+    <meta name="author" content="Coding-Camp 2017">
 
-    <title>Logo Nav - Start Bootstrap Template</title>
+    <title>Post Management</title>
 
     <!-- Bootstrap core CSS -->
     <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">    
@@ -28,12 +28,10 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarResponsive">
           <ul class="navbar-nav ml-auto">
-            <li class="nav-item active">
-              <a class="nav-link" href="#" id="register_link">Register packet
-                <span class="sr-only">(current)</span>
-              </a>
+            <li class="nav-item" id="register_link_container">
+              <a class="nav-link" href="#" id="register_link">Register packet</a>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" id="update_link_container">
               <a class="nav-link" href="#" id="update_link">Update packet</a>
             </li>
           </ul>
@@ -45,26 +43,27 @@
     <div class="pageContent" id="register_container">
       <h1 class="mt-5">Register packet</h1>
       <p>
-      <form action="index.html">            
-        <p>Absender</p>
-        <input class="cell" type="text" name="senderStreet" placeholder="Straße"/><br>
-        <input class="cell" type="text" name="senderZIP" placeholder="PLZ"/>
-        <input class="cell" type="text" name="senderCity" placeholder="Stadt"/>
-        
-        <p>Empfänger</p>
-        <input type="text" name="receiverStreet" placeholder="Straße"/><br>
-        <input type="text" name="receiverZIP" placeholder="PLZ"/>
-        <input type="text" name="receiverCity" placeholder="Stadt"/>
-        
-        <p>Größe</p>
-        <input type="radio" name="size" value="small" checked /> klein <br>
-        <input type="radio" name="size" value="normal" /> normal <br>
-        <input type="radio" name="size" value="big" /> groß
-        
-        <p>Gewicht</p>
-        <input type="text" name="weight" placeholder="10"> kg <br>
-        
-        <input type="submit" value="Paket registrieren">
+
+        <form>            
+          <p>Absender</p>
+          <input type="text" placeholder="Straße" id="sender_street" /><br>
+          <input type="text" placeholder="PLZ" id="sender_zip" />
+          <input type="text" placeholder="Stadt" id="sender_city" />
+          
+          <p>Empfänger</p>
+          <input type="text" placeholder="Straße" id="receiver_street" /><br>
+          <input type="text" placeholder="PLZ" id="receiver_zip" />
+          <input type="text" placeholder="Stadt" id="receiver_city" />
+          
+          <p>Größe</p>
+          <input type="radio" name="size" value="small" checked id="size_small" /> klein <br>
+          <input type="radio" name="size" value="normal" id="size_normal" /> normal <br>
+          <input type="radio" name="size" value="big" id="size_big" /> groß
+          
+          <p>Gewicht</p>
+          <input type="text" name="weight" placeholder="10" id="weight" /> kg <br>
+          
+          <input type="submit" value="Paket registrieren" id="register_packet_button" />
         </form>
       </p>
     </div>
@@ -78,6 +77,8 @@
           <div id="station_container">
             <label for="station">Station</label><input type="text" id="station" />
           </div>
+
+          <input type="submit" value="Paket updaten" id="update_packet_button" />
         </form>
       </p>
     </div>
