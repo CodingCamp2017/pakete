@@ -43,7 +43,7 @@
     <div id="register_container">
       <h1 class="mt-5">Register packet</h1>
       <p>
-        <form action="index.html">            
+        <form>            
           <p>Absender</p>
           <input type="text" placeholder="Straße" id="sender_street" /><br>
           <input type="text" placeholder="PLZ" id="sender_zip" />
@@ -60,9 +60,9 @@
           <input type="radio" name="size" value="big" id="size_big" /> groß
           
           <p>Gewicht</p>
-          <input type="text" name="weight" placeholder="10" id="weight"> kg <br>
+          <input type="text" name="weight" placeholder="10" id="weight" /> kg <br>
           
-          <input type="submit" value="Paket registrieren">
+          <input type="submit" value="Paket registrieren" id="register_packet_button" />
         </form>
       </p>
     </div>
@@ -76,6 +76,8 @@
           <div id="station_container">
             <label for="station">Station</label><input type="text" id="station" />
           </div>
+
+          <input type="submit" value="Paket updaten" id="update_packet_button" />
         </form>
       </p>
     </div>
