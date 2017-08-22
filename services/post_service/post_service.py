@@ -23,6 +23,7 @@ class PostService:
         self.regex_city = '[\w( \-)?]+'
         self.regex_size = '(small|normal|big)'
         self.regex_weight = '[+-]?(\\d*\\.)?\\d+'
+        self.regex_vehicle = '(car|foor|plane|rocket)'
         self.syntax_register = [('sender_name', self.regex_name),
                                 ('sender_street',self.regex_street), 
                                 ('sender_zip', self.regex_zip), 
@@ -34,7 +35,8 @@ class PostService:
                                 ('size', self.regex_size), 
                                 ('weight', self.regex_weight)]
         self.syntax_update = [('packet_id', self.regex_id),
-                              ('station', self.regex_city)]
+                              ('station', self.regex_city),
+                              ('vehicle', self.regex_vehicle)]
         self.syntax_delivered = [('packet_id', self.regex_id)]
         
         
@@ -132,4 +134,5 @@ def test_regex():
     
         
 if __name__ == '__main__':
+    test_checkAvailable()
     test_regex()

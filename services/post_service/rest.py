@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from flask import Flask, request, abort, jsonify, make_response
+import json
+from flask import Flask, request, abort, jsonify, make_response, Response
 from post_service import PostService
 import mykafka
 from Exceptions import InvalidActionException, CommandFailedException
@@ -15,13 +16,19 @@ def getData(response):
     elif response.form != None:
         return response.form
     raise InvalidActionException("Didn't find parameter data, required either json or form data")
+    
+def createResponse(code, jsonobj):
+    string = json.dumps(jsonobj)
+    response = Response(response=string, status=code, mimetype="application/json")
+    #response.headers["Content-Type"] = "
+    return response
 
 @app.route('/register', methods=['POST'])
 def restRegister():
     try:
         data = getData(request)
         packet_id = post_service.register_package(data)
-        return jsonify({"id":packet_id})
+        return createResponse(200, {"id":str(packet_id)})
     except InvalidActionException as e:
         abort(400, e)
     except CommandFailedException as e:
@@ -32,7 +39,7 @@ def restUpdateLocation():
     try:
         data = getData(request)
         post_service.update_package_location(data)
-        return make_response(jsonify({}), 200)
+        return createResponse(200, {})
     except InvalidActionException as e:
         abort(400, e)
     except CommandFailedException as e:
@@ -43,7 +50,7 @@ def restDelivered():
     try:
         data = getData(request)
         post_service.mark_delivered(data)
-        return make_response(jsonify({}), 200)
+        return createResponse(200, {})
     except InvalidActionException as e:
         abort(400, e)
     except CommandFailedException as e:
