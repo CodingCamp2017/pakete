@@ -22,7 +22,6 @@ class PostService:
         self.regex_city = '[\w( \-)?]+'
         self.regex_size = '(small|normal|big)'
         self.regex_weight = '[+-]?(\\d*\\.)?\\d+'
-        self.regex_station = '\\w+'
         self.syntax_register = [('sender_name', self.regex_name),
                                 ('sender_street',self.regex_street), 
                                 ('sender_zip', self.regex_zip), 
@@ -34,7 +33,7 @@ class PostService:
                                 ('size', self.regex_size), 
                                 ('weight', self.regex_weight)]
         self.syntax_update = [('packet_id', self.regex_id),
-                              ('station', self.regex_station)]
+                              ('station', self.regex_city)]
         self.syntax_delivered = [('packet_id', self.regex_id)]
         
         
@@ -62,19 +61,19 @@ class PostService:
         self.checkAvailable(jobj, self.syntax_register)
         package_id = self.assign_package_id()
         newjobj = { key : value for (key, value) in jobj.items()}
-        newjobj['id'] = package_id
-        mykafka.sendSync(self.producer, 'package', 'registered', 1, newjobj)
+        newjobj['id'] = str(package_id)
+        mykafka.sendSync(self.producer, 'threadingtest', 'registered', 1, newjobj)
         return package_id
     
     def update_package_location(self, jobj):
         print("Update Package Location")
         self.checkAvailable(jobj, self.syntax_update)
-        mykafka.sendSync(self.producer, 'package', 'updated_location', 1, jobj)
+        mykafka.sendSync(self.producer, 'threadingtest', 'updated_location', 1, jobj)
         
     def mark_delivered(self, jobj):
         print("Mark delivered", flush=True)
         self.checkAvailable(jobj, self.syntax_delivered)
-        mykafka.sendSync(self.producer, 'package', 1, jobj)
+        mykafka.sendSync(self.producer, 'threadingtest', 1, jobj)
         
         
 def test_checkAvailable():

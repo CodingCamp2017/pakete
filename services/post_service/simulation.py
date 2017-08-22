@@ -34,15 +34,14 @@ def create_random_package():
     package = {}
     package['sender_name'] = sender['name']
     package['sender_street'] = sender['street']
-    package['sender_ZIP'] = randint(10000,99999)
+    package['sender_zip'] = str(randint(10000,99999))
     package['sender_city'] = sender['city']
     package['receiver_name'] = receiver['name']
     package['receiver_street'] = receiver['street']
-    package['receiver_ZIP'] = randint(10000,99999)
+    package['receiver_zip'] = str(randint(10000,99999))
     package['receiver_city'] = receiver['city']
     package['size'] = sizes[randint(0,2)]
-    package['weight'] = sender['weight']
-    #package = json.dumps(package)
+    package['weight'] = str(sender['weight'])
     return package
 
 def simulate_register():
@@ -50,7 +49,7 @@ def simulate_register():
         package = create_random_package()
         with lock:
             id = post_service.register_package(package)
-            packageList.append(id)
+            packageList.append(str(id))
         time.sleep(randint(100,2000)/1000.0)
 
 def simulate_update():
@@ -62,7 +61,7 @@ def simulate_update():
             if not packageList:
                 continue
             id = packageList[randint(0, len(packageList)-1)]
-            post_service.update_package_location({'id':id,'station':fakecity})
+            post_service.update_package_location({'packet_id':id,'station':fakecity})
         time.sleep(randint(200,2000)/1000.0)
 
 def simulate_deliver():
@@ -71,7 +70,8 @@ def simulate_deliver():
             if not packageList:
                 continue
             id = packageList[randint(0, len(packageList)-1)]
-            post_service.mark_delivered({'id':id})
+            post_service.mark_delivered({'packet_id':id})
+            packageList.remove(id) 
         time.sleep(randint(1000,4000)/1000.0)
 
 if __name__ == '__main__':
