@@ -39,21 +39,16 @@ $(function() {
     console.log(data);
 	var set = "#register_form fieldset";
 	var butt = "#register_packet_button";
-    var jqxhr = $.ajax({type: "POST", 
-                        url : "http://127.0.0.1:8000", 
-                        data : JSON.stringify(data), 
-                        success : function(result) {
-		                      serverReturnd("Ihr Paket wurde registrieren. Es hat die ID #######",set,butt);		
-                          }, 
-                        contentType : "application/json", 
-                        dataType : "json"});
-      /*.done(function() {
+    var jqxhr = $.post( "http://localhost:8000", JSON.stringify(data), function(result) {
+		serverReturnd("Ihr Paket wurde registrieren. Es hat die ID #######",set,butt);		
+      }, "json")
+      .done(function() {
         console.log( "second success" );
       })
       .fail(function() {
 		failReturnd(set,butt);
 	  })
-      .always(cleanUp);*/
+      .always(cleanUp);
 	  
 	waitOnServer(set,butt);
     return false;
