@@ -45,19 +45,20 @@
       <div class="mx-auto pageContent" id="register_container">
         <h1 class="mt-5">Register packet</h1>
         <p>
-          <form id="register_form">            
+          <form id="register_form" >   
+			<fieldset>		  
             <p><b>Absender</b><br>
-			      <input type="text" class="form-control" placeholder="Name" id="sender_name" />
-            <input type="text" class="form-control" placeholder="Straße" id="sender_street" />            
-            <input type="text" class="form-control" placeholder="PLZ" id="sender_zip" pattern="[0-9]{5}" />
-            <input type="text" class="form-control" placeholder="Stadt" id="sender_city" />        
+				<input type="text" class="form-control" placeholder="Name" id="sender_name" />
+				<input type="text" class="form-control" placeholder="Straße" id="sender_street" />            
+				<input type="text" class="form-control" placeholder="PLZ" id="sender_zip" pattern="[0-9]{5}" />
+				<input type="text" class="form-control" placeholder="Stadt" id="sender_city" />        
             </p>
 
             <p><b>Empfänger</b><br>
-			      <input type="text" class="form-control" placeholder="Name" id="receiver_name" />
-            <input type="text" class="form-control" placeholder="Straße" id="receiver_street" />
-            <input type="text" class="form-control" placeholder="PLZ" id="receiver_zip" class="zip_input" pattern="[0-9]{5}" />
-            <input type="text" class="form-control" placeholder="Stadt" id="receiver_city" />
+			    <input type="text" class="form-control" placeholder="Name" id="receiver_name" />
+				<input type="text" class="form-control" placeholder="Straße" id="receiver_street" />
+				<input type="text" class="form-control" placeholder="PLZ" id="receiver_zip" class="zip_input" pattern="[0-9]{5}" />
+				<input type="text" class="form-control" placeholder="Stadt" id="receiver_city" />
             </p>
 
             <p><b>Größe</b><br>
@@ -70,14 +71,18 @@
             <input type="text" class="form-control" name="weight" placeholder="10" id="weight" /> <br>
             </p>
             <input type="submit" value="Paket registrieren" id="register_packet_button" class="btn btn-primary" />
-		      </form>
+			
+		    </fieldset>	
+			</form>
         <!--bestätigung ID-->
-        <div hidden>
-        <i class="fa fa-spinner fa-spin" style="font-size:50px"></i><br/>
-        Ihr Paket wurde registrieren. Es hat die ID <a id ="id_number">#######</a><br/>
-        <input type="submit" value="noch ein Paket registrieren" id="next_packet_button" class="btn btn-primary"/>
-        </div>
-         
+		<i hidden class="fa fa-spinner fa-spin" style="font-size:50px" id="spinner"></i><br/>
+		<div hidden id="server_answer"></div>
+		
+		<br/>
+        <input hidden  type="submit" value="noch ein Paket registrieren" id="next_packet_button" class="btn btn-primary"/>
+        
+		
+       
         </p>
       </div>
 
