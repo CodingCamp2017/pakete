@@ -20,6 +20,7 @@ def getData(response):
 def createResponse(code, jsonobj):
     string = json.dumps(jsonobj)
     response = Response(response=string, status=code, mimetype="application/json")
+    response.headers["Access-Control-Allow-Origin"] = "*"
     #response.headers["Content-Type"] = "
     return response
 
@@ -57,4 +58,4 @@ def restDelivered():
         abort(504, e)
     
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5000)
