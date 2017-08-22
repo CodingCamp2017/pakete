@@ -52,20 +52,17 @@ class PostService:
         self.id_counter = self.id_counter+1
         return id
     
-    def register_package(self, jsons):
-        jobj = json.dumps(jsons)
+    def register_package(self, jobj):
         self.checkAvailable(jobj, self.syntax_register)
         package_id = self.assign_package_id()
         jobj['id'] = package_id
-        mykafka.send(self.producer, 'package', 'registered', 1, jobj)
+        mykafka.sendSync(self.producer, 'package', 'registered', 1, jobj)
         return package_id
     
-    def update_package_location(self, jsons):
-        jobj = json.dumps(jsons)
+    def update_package_location(self, jobj):
         self.checkAvailable(jobj, self.syntax_update)
-        mykafka.send(self.producer, 'package', 'updated_location', 1, jobj)
+        mykafka.sendSync(self.producer, 'package', 'updated_location', 1, jobj)
         
-    def mark_delivered(self, jsons):
-        jobj = json.dumbs(jsons)
+    def mark_delivered(self, jobj):
         self.checkAvailable(jobj, self.syntax_delivered)
-        mykafka.send(self.producer, 'delivered', 1, jobj)
+        mykafka.sendSync(self.producer, 'delivered', 1, jobj)

@@ -22,4 +22,9 @@ def send(producer, topic, event_type, version, payload = None):
     message['time'] = datetime.now().strftime('%Y/%m/%d %H:%M:%S')
     if payload:
         message['payload'] = payload
-    producer.send(topic, message)
+    return producer.send(topic, message)
+    
+def sendSync(producer, topic, event_type, version, payload = None):
+    meta = send(producer, topic, event_type, version, payload)
+    return meta.get(timeout=10)#This raises KafkaError on failure
+        
