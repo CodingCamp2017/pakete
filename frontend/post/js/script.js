@@ -1,5 +1,6 @@
 $(function() {
-	
+  var server_url = "http://localhost:5000/";
+
   $("#register_link").click(function() {
     $("#update_container").hide();
     $("#update_link_container").removeClass("active");
@@ -22,7 +23,7 @@ $(function() {
     }
   });
 
-//Send registation
+  //Send registation
   $("#register_form").submit(function() {
     var data = {"sender_name" :     $("#sender_name").val(),
 				        "sender_street" :   $("#sender_street").val(),
@@ -36,33 +37,34 @@ $(function() {
                 "weight" :          $("#weight").val()
                 }
 
-    console.log(data);
-	var set = "#register_form fieldset";
-	var butt = "#register_packet_button";
-    var jqxhr = $.post( "http://localhost:8000", JSON.stringify(data), function(result) {
-		serverReturnd("Ihr Paket wurde registrieren. Es hat die ID #######",set,butt);		
-      }, "json")
+      var set = "#register_form fieldset";
+      var butt = "#register_packet_button";
+      var jqxhr = $.post(server_url + "register", data, function(result) {
+        serverReturnd("Ihr Paket wurde registrieren. Es hat die ID #######",set,butt);		
+      })
       .done(function() {
         console.log( "second success" );
       })
       .fail(function() {
-		failReturnd(set,butt);
-	  })
+        failReturnd(set,butt);
+	    })
       .always(cleanUp);
 	  
-	waitOnServer(set,butt);
-    return false;
+	    waitOnServer(set,butt);
+      return false;
   });
+
  //Send Location update
   $("#update_form").submit(function() {
-    var data = {"packet_id" :   $("#packet_id").val()         
-                }
-	var adresse = "http://localhost:8000";
+    var data = {"packet_id" : $("#packet_id").val() } 
+
 	if(!$("#is_delivered").prop("checked")){
 		data.station = $("#station").val();
-		adresse = "http://localhost:8000";
-	}
-    console.log(data);
+		adresse = server_url + "updateLocation";
+	} else {
+    adresse = server_url + "delivered";    
+  }
+
 	var set = "#update_form fieldset";
 	var butt = "#update_packet_button";
     var jqxhr = $.post( adresse, data, function() {
