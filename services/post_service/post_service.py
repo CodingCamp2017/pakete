@@ -8,6 +8,7 @@ import mykafka
 import re
 import json
 import codecs
+from kafka.errors import KafkaError
 
 
 
@@ -61,19 +62,28 @@ class PostService:
         self.checkAvailable(jobj, self.syntax_register)
         package_id = self.assign_package_id()
         newjobj = { key : value for (key, value) in jobj.items()}
-        newjobj['id'] = str(package_id)
-        mykafka.sendSync(self.producer, 'threadingtest', 'registered', 1, newjobj)
+        newjobj['id'] = package_id
+        try:
+            mykafka.sendSync(self.producer, 'package', 'registered', 1, newjobj)
+        except KafkaError as e:
+            raise CommandFailedException("Kafka Error: "+str(e))
         return package_id
     
     def update_package_location(self, jobj):
         print("Update Package Location")
         self.checkAvailable(jobj, self.syntax_update)
-        mykafka.sendSync(self.producer, 'threadingtest', 'updated_location', 1, jobj)
+        try:
+            mykafka.sendSync(self.producer, 'package', 'updated_location', 1, jobj)
+        except KafkaError as e:
+            raise CommandFailedException("Kafka Error: "+str(e))
         
     def mark_delivered(self, jobj):
         print("Mark delivered", flush=True)
         self.checkAvailable(jobj, self.syntax_delivered)
-        mykafka.sendSync(self.producer, 'threadingtest', 1, jobj)
+        try:
+            mykafka.sendSync(self.producer, 'package', 1, jobj)
+        except KafkaError as e:
+            raise CommandFailedException("Kafka Error: "+str(e))
         
         
 def test_checkAvailable():
