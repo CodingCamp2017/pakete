@@ -9,9 +9,9 @@ def create_producer(url, port, serializer = lambda m: json.dumps(m).encode('asci
     return KafkaProducer(bootstrap_servers=url+":"+str(port),
                          value_serializer=serializer)
     
-def create_consumer(url, port, topic, deserializer = lambda m: json.loads(m.decode('ascii')), from_beginning = False):
+def create_consumer(url, port, topic, deserializer = lambda m: json.loads(m.decode('ascii')), from_beginning = True):
     return KafkaConsumer(topic,bootstrap_servers=url+":"+str(port),
-                         value_deserializer=deserializer,
+                         #value_deserializer=deserializer, # crashes if input not in json format
                          auto_offset_reset='earliest' if from_beginning else 'latest')
     
     
@@ -23,3 +23,13 @@ def send(producer, topic, event_type, version, payload = None):
     if payload:
         message['payload'] = payload
     producer.send(topic, message)
+    
+def read_from_start(consumer):
+        
+    #??print('printing messages:')
+        
+    for message in consumer:
+        # message is raw byte string -- decode if necessary! # e.g., for unicode: `message.decode('utf-8')` 
+        print(message.value)
+        
+    print('done')

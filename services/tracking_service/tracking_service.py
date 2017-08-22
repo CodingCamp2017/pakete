@@ -18,7 +18,9 @@ class TrackingService:
         
         # read the whole kafka log and create package model
         def read_packages(self):
-            pass
+            print('read_packages')
+            mykafka.read_from_start(self.consumer)
+            return "blub"
 
         def package_status(self, jsons):
             #jobj = ? # convert json string to object

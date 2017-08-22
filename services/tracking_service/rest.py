@@ -7,11 +7,12 @@ import mykafka
 from Exceptions import InvalidActionException, CommandFailedException
 
 app = Flask(__name__)
-tracking_service = TrackingService(mykafka.create_consumer('ec2-35-159-21-220.eu-central-1.compute.amazonaws.com', 9092, 'pakete'))
+tracking_service = TrackingService(mykafka.create_consumer('ec2-35-159-21-220.eu-central-1.compute.amazonaws.com', 9092, 'packages'))
 
 @app.route('/', methods=['GET'])
 def restRoot():
-    return "REST Error: No route specified"
+    response = tracking_service.read_packages()
+    return "Test: " + response
 
 @app.route('/packageStatus', methods=['GET'])
 def restPackageStatus():
