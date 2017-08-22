@@ -28,6 +28,7 @@ $(function() {
                 "receiver_street" : $("#receiver_street").val(),
                 "receiver_zip" :    $("#receiver_zip").val(),
                 "receiver_city" :   $("#receiver_city").val(),
+                "size" :            $('input[name=size]:checked').val(),
                 "weight" :          $("#weight").val()
                 }
 
