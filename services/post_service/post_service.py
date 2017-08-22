@@ -12,6 +12,26 @@ import json
 class PostService:
     def __init__(self, producer):
         self.producer = producer
+        self.id_counter = 0
+        self.regex_name = '\\w+'
+        self.regex_id = '\\d+'
+        self.regex_zip = '\\d5'
+        self.regex_street = '\\w+'
+        self.regex_city = '\\w+'
+        self.regex_size = '(small|normal|big)'
+        self.regex_weight = '[+-]?(\\d*\\.)?\\d+'
+        self.regex_station = '\\w+'
+        self.syntax_register = [('sender_name', self.regex_name),
+                                ('sender_street',self.regex_street), 
+                                ('sender_ZIP', self.regex_zip), 
+                                ('sender_city', self.regex_city), 
+                                ('receiver_street', self.regex_street), 
+                                ('receiver_city', self.regex_city), 
+                                ('size', self.regex_size), 
+                                ('weight', self.regex_weight)]
+        self.syntax_update = [('packet_id', self.regex_id),
+                              ('station', self.regex_station)]
+        self.syntax_delivered = [('packet_id', self.regex_id)]
         
         
     def regex_matches_exactly(self, regex, string):
@@ -28,11 +48,13 @@ class PostService:
             raise InvalidActionException("Unknown keys")
     
     def assign_package_id(self):
-        return 0
+        id = self.id_counter
+        self.id_counter = self.id_counter+1
+        return id
     
     def register_package(self, jsons):
         jobj = json.dumps(jsons)
-        self.checkAvailable(jobj, [])
+        self.checkAvailable(jobj, self.syntax_register)
         package_id = self.assign_package_id()
         jobj['id'] = package_id
         mykafka.send(self.producer, 'package', 'registered', 1, jobj)
@@ -40,10 +62,10 @@ class PostService:
     
     def update_package_location(self, jsons):
         jobj = json.dumps(jsons)
-        self.checkAvailable(jobj, [])
+        self.checkAvailable(jobj, self.syntax_update)
         mykafka.send(self.producer, 'package', 'updated_location', 1, jobj)
         
     def mark_delivered(self, jsons):
         jobj = json.dumbs(jsons)
-        self.checkAvailable(jobj, [])
+        self.checkAvailable(jobj, self.syntax_delivered)
         mykafka.send(self.producer, 'delivered', 1, jobj)
