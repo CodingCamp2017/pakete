@@ -23,10 +23,11 @@ class PostService:
         self.regex_station = '\\w+'
         self.syntax_register = [('sender_name', self.regex_name),
                                 ('sender_street',self.regex_street), 
-                                ('sender_ZIP', self.regex_zip), 
+                                ('sender_zip', self.regex_zip), 
                                 ('sender_city', self.regex_city),
                                 ('receiver_name', self.regex_name),
                                 ('receiver_street', self.regex_street), 
+                                ('receiver_zip', self.regex_zip),
                                 ('receiver_city', self.regex_city), 
                                 ('size', self.regex_size), 
                                 ('weight', self.regex_weight)]
@@ -57,8 +58,9 @@ class PostService:
         print("Register Package")
         self.checkAvailable(jobj, self.syntax_register)
         package_id = self.assign_package_id()
-        jobj['id'] = package_id
-        mykafka.sendSync(self.producer, 'package', 'registered', 1, jobj)
+        newjobj = { key : value for (key, value) in jobj.items()}
+        newjobj['id'] = package_id
+        mykafka.sendSync(self.producer, 'package', 'registered', 1, newjobj)
         return package_id
     
     def update_package_location(self, jobj):
