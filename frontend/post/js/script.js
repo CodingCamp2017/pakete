@@ -25,10 +25,10 @@ $(function() {
 //Send registation
   $("#register_form").submit(function() {
     var data = {"sender_name" :     $("#sender_name").val(),
-				"sender_street" :   $("#sender_street").val(),
+				        "sender_street" :   $("#sender_street").val(),
                 "sender_zip" :      $("#sender_zip").val(),
                 "sender_city" :     $("#sender_city").val(),
-				"receiver_name" :   $("#receiver_name").val(),
+				        "receiver_name" :   $("#receiver_name").val(),
                 "receiver_street" : $("#receiver_street").val(),
                 "receiver_zip" :    $("#receiver_zip").val(),
                 "receiver_city" :   $("#receiver_city").val(),
