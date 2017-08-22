@@ -37,66 +37,72 @@ $(function() {
                 }
 
     console.log(data);
-
+	var set = "#register_form fieldset";
+	var butt = "#register_packet_button";
     var jqxhr = $.post( "http://localhost:8000", data, function(result) {
-      console.log("Request successful")
-		$("#server_answer").text("Ihr Paket wurde registrieren. Es hat die ID #######");
-		$("#next_packet_button").prop("hidden",false);
-		
+		serverReturnd("Ihr Paket wurde registrieren. Es hat die ID #######",set,butt);		
       })
       .done(function() {
         console.log( "second success" );
       })
       .fail(function() {
-        console.log( "error" );
-		$("#server_answer").text("Ups. Etwas ist schief gegangen. Überprüfen sie ihre Internetverbindung und versuchens sie es nochmal.")
-		$("#register_form fieldset").prop("disabled", false);
-		$("#register_packet_button").prop("hidden",false);
+		failReturnd(set,butt);
 	  })
-      .always(function() {
-		$("#server_answer").prop("hidden",false);
-		$("#spinner").prop("hidden",true);
-        console.log( "finished" );
-      });
+      .always(cleanUp);
 	  
-	$("#register_form fieldset").prop("disabled", true);
-	$("#register_packet_button").prop("hidden",true);
-	$("#spinner").prop("hidden",false);
-	$("#server_answer").prop("hidden",true);
+	waitOnServer(set,butt);
     return false;
   });
  //Send Location update
-  $("#update_packet_button").submit(function() {
-    var data = {"packet_id" :   $("#packet_id").val(),
-                "is_delivered" :$("#is_delivered").val(),
-                "station" :     $("#station").val()
+  $("#update_form").submit(function() {
+    var data = {"packet_id" :   $("#packet_id").val()         
                 }
-
+	var adresse = "http://localhost:8000";
+	if(!$("#is_delivered").prop("checked")){
+		data.station = $("#station").val();
+		adresse = "http://localhost:8000";
+	}
     console.log(data);
-
-    var jqxhr = $.post( "http://localhost:8000", data, function() {
-      console.log("Request successful")
+	var set = "#update_form fieldset";
+	var butt = "#update_packet_button";
+    var jqxhr = $.post( adresse, data, function() {
+      serverReturnd("Verbleib des Pakets wurde aktualisiert.",set,butt);
       })
       .done(function() {
         console.log( "second success" );
       })
       .fail(function() {
-        console.log( "error" );
-      })
-      .always(function() {
-        console.log( "finished" );
-      });
-  });
-  $("#update_form").submit(function() {
-    console.log("update form submit")
+		failReturnd(set,butt);
+	  })
+      .always(cleanUp);
+	waitOnServer(set,butt);
     return false;
   });
-  //allwo a second packge to be send
-  $("#next_packet_button").click(function() {
-    $("#next_packet_button").prop("hidden",true);
-	$("#register_form fieldset").prop("disabled", false);
-	$("#register_packet_button").prop("hidden",false);
-	$("#server_answer").prop("hidden",true);
-	return false;
-  });
+  
 });
+
+//Sichtbarkeit ändern
+function waitOnServer(fset,pbutton){
+	$(fset).prop("disabled", true);
+	$(pbutton).prop("hidden",true);
+	$("#spinner").prop("hidden",false);
+	$("#server_answer").prop("hidden",true);
+}
+function serverReturnd(info,fset,pbutton){
+	console.log("Request successful");
+	$(fset).prop("disabled", false);
+	$(pbutton).prop("hidden",false);
+	$("#server_answer").text(info);		
+}
+
+function failReturnd(fset,pbutton){
+	console.log( "error" );
+	$(fset).prop("disabled", false);
+	$(pbutton).prop("hidden",false);
+	$("#server_answer").text("Ups. Etwas ist schief gegangen. Überprüfen sie ihre Internetverbindung und versuchens sie es nochmal.");	
+}
+function cleanUp() {
+	$("#server_answer").prop("hidden",false);
+	$("#spinner").prop("hidden",true);
+	console.log( "finished" );
+}
