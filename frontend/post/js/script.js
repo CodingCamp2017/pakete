@@ -21,11 +21,14 @@ $(function() {
       $("#station_container").show()
     }
   });
+
 //Send registation
-  $("#register_packet_button").click(function() {
-    var data = {"sender_street" :   $("#sender_street").val(),
+  $("#register_form").submit(function() {
+    var data = {"sender_name" :     $("#sender_name").val(),
+				"sender_street" :   $("#sender_street").val(),
                 "sender_zip" :      $("#sender_zip").val(),
                 "sender_city" :     $("#sender_city").val(),
+				"receiver_name" :   $("#receiver_name").val(),
                 "receiver_street" : $("#receiver_street").val(),
                 "receiver_zip" :    $("#receiver_zip").val(),
                 "receiver_city" :   $("#receiver_city").val(),
@@ -46,9 +49,11 @@ $(function() {
       .always(function() {
         console.log( "finished" );
       });
+
+    return false;
   });
  //Send Location update
-  $("#update_packet_button").click(function() {
+  $("#update_packet_button").submit(function() {
     var data = {"packet_id" :   $("#packet_id").val(),
                 "is_delivered" :$("#is_delivered").val(),
                 "station" :     $("#station").val()
@@ -69,4 +74,8 @@ $(function() {
         console.log( "finished" );
       });
   });
+  $("#update_form").submit(function() {
+    console.log("update form submit")
+    return false;
+  })
 });
