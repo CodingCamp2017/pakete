@@ -16,9 +16,7 @@
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 </head>
-
   <body>
-
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
       <div class="container">
@@ -41,60 +39,68 @@
       </div>
     </nav>
 
-    <!-- Page Content -->
-    <div class="mx-auto pageContent" id="register_container">
-      <h1 class="mt-5">Register packet</h1>
-      <p>
+<div class="row justify-content-center">
+    <div class="col-8">
+      <!-- Page Content -->
+      <div class="mx-auto pageContent" id="register_container">
+        <h1 class="mt-5">Register packet</h1>
+        <p>
 
-        <form>            
-          <p><b>Absender</b><br>
-          <input type="text" placeholder="Straße" id="sender_street" />         
-		      <input type="text" placeholder="PLZ" id="sender_zip" class="zip_input" pattern="[0-9]{5}" />
-          <input type="text" placeholder="Stadt" id="sender_city" />
-		  
-          </p>
-          <p><b>Empfänger</b><br>
-          <input type="text" placeholder="Straße" id="receiver_street" />
-          <input type="text" placeholder="PLZ" id="receiver_zip" class="zip_input" pattern="[0-9]{5}" />
-          <input type="text" placeholder="Stadt" id="receiver_city" />
-          </p>
-          <p><b>Größe</b><br>
-          <input type="radio" name="size" value="small" checked id="size_small" /> klein <br>
-          <input type="radio" name="size" value="normal" id="size_normal" /> normal <br>
-          <input type="radio" name="size" value="big" id="size_big" /> groß
-          </p>
-          <p><b>Gewicht</b><br>
-          <input type="text" name="weight" placeholder="10" id="weight" /> kg <br>
-          </p>
-          <input type="submit" value="Paket registrieren" id="register_packet_button" />
-		  <!--bestätigung ID-->
-		  <div>
-		  <i class="fa fa-spinner fa-spin" style="font-size:50px"></i><br/>
-		  <i class="fa fa-refresh fa-spin" style="font-size:50px"></i><br/>
-		  Ihr Paket wurde registrieren. Es hat die ID <a>#######</a><br/>
-		  <input type="submit" value="noch ein Paket registrieren" id="next_packet_button" />
-		  </div>
-        </form>
-      </p>
-    </div>
+          <form id="register_form">            
+            <p><b>Absender</b><br>
+            <input type="text" class="form-control" placeholder="Straße" id="sender_street" />            
+            <input type="text" class="form-control" placeholder="PLZ" id="sender_zip" pattern="[0-9]{5}" />
+            <input type="text" class="form-control" placeholder="Stadt" id="sender_city" />        
+            </p>
 
-    <div class="mx-auto pageContent" id="update_container">
-      <h1 class="mt-5">Update packet</h1>
-      <p>
-        <form>
-          <input type="text"  placeholder="ID" id="packet_id" />
-		  <div class="checkboxMargin">
-          <input type="checkbox" id="is_delivered" /> <label for="is_delivered">Ausgeliefert</label>
-		  </div>
-          <div id="station_container">
-           <input type="text"  placeholder="Station"  id="station" />
-          </div>
-			<br />
-          <input type="submit"  value="Paket updaten" id="update_packet_button" />
-        </form>
-      </p>
+            <p><b>Empfänger</b><br>
+            <input type="text" class="form-control" placeholder="Straße" id="receiver_street" />
+            <input type="text" class="form-control" placeholder="PLZ" id="receiver_zip" class="zip_input" pattern="[0-9]{5}" />
+            <input type="text" class="form-control" placeholder="Stadt" id="receiver_city" />
+            </p>
+
+            <p><b>Größe</b><br>
+            <input type="radio" name="size" value="small" checked id="size_small" /> klein <br>
+            <input type="radio" name="size" value="normal" id="size_normal" /> normal <br>
+            <input type="radio" name="size" value="big" id="size_big" /> groß
+            </p>
+
+            <p><b>Gewicht (kg)</b><br>
+            <input type="text" class="form-control" name="weight" placeholder="10" id="weight" /> <br>
+            </p>
+            <input type="submit" value="Paket registrieren" id="register_packet_button" class="btn btn-primary" />
+        <!--bestätigung ID-->
+        <div>
+        <i class="fa fa-spinner fa-spin" style="font-size:50px"></i><br/>
+        <i class="fa fa-refresh fa-spin" style="font-size:50px"></i><br/>
+        Ihr Paket wurde registrieren. Es hat die ID <a>#######</a><br/>
+        <input type="submit" value="noch ein Paket registrieren" id="next_packet_button" />
+        </div>
+          </form>
+        </p>
+      </div>
+
+      <div class="mx-auto pageContent" id="update_container">
+        <h1 class="mt-5">Update packet</h1>
+        <p>
+          <form id="update_form">
+            <input type="text" class="form-control" placeholder="ID" id="packet_id" />
+            <div class="checkboxMargin">
+                <input type="checkbox" id="is_delivered" /> <label for="is_delivered">Ausgeliefert</label>
+            </div>
+            <div id="station_container">
+             <input type="text" class="form-control" placeholder="Station"  id="station" />
+            </div>
+            <br />
+            <input type="submit"  value="Paket updaten" id="update_packet_button" class="btn btn-primary" />
+          </form>
+        </p>
+      </div>
+      <!-- /.container -->
     </div>
-    <!-- /.container -->
+  </div>
+
+    
 
     <!-- Bootstrap core JavaScript -->
     <script src="vendor/jquery/jquery.min.js"></script>

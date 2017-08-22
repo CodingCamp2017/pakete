@@ -21,7 +21,7 @@ $(function() {
     }
   });
 
-  $("#register_packet_button").click(function() {
+  $("#register_form").submit(function() {
     var data = {"sender_street" :   $("#sender_street").val(),
                 "sender_zip" :      $("#sender_zip").val(),
                 "sender_city" :     $("#sender_city").val(),
@@ -45,5 +45,12 @@ $(function() {
       .always(function() {
         console.log( "finished" );
       });
+
+    return false;
   });
+
+  $("#update_form").submit(function() {
+    console.log("update form submit")
+    return false;
+  })
 });
