@@ -24,12 +24,12 @@ def send(producer, topic, event_type, version, payload = None):
         message['payload'] = payload
     producer.send(topic, message)
     
-def read_from_start(consumer):
+def read_from_start(consumer, trackingService):
         
     #??print('printing messages:')
         
     for message in consumer:
         # message is raw byte string -- decode if necessary! # e.g., for unicode: `message.decode('utf-8')` 
-        print(message.value)
+        trackingService.packageStore.addPackage(message.value.decode('utf-8'))
         
     print('done')
