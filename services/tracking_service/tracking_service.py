@@ -11,25 +11,63 @@ import json
 import threading
 
 class Package:
-    id = -1
+    id = ""
+    senderName = ""
     
-    def __init__(self, id):
+    def __init__(self, id, senderName):
         self.id = id
+        self.senderName = senderName
     
 class PackageStore:
     packages = list()
     
     def addPackage(self, event):
-        id = event # TODO extract information from the event (= json)
+        print('event message: ' + event)
         
-        self.packages.append(Package(id))
+        try:
+            packageInformation = json.loads(event)  
+        except (Exception) as e:
+            print('wrong event')
+            return
+        
+        try:
+            payload = packageInformation['payload']
+            id = payload['id']
+            senderName = payload['sender_name']
+        except (Exception) as e:
+            print('Missing information')
+            return
+        
+        # TODO extract information from the event (= json)
+        
+        package = Package(id, senderName)
+        self.packages.append(package)
+        
+    def findPackage(self, id):
+        for p in self.packages:
+            print(p.id)
+            if(p.id == id):
+                return p
+        
+    def packageStatus(self, id):
+        package = self.findPackage(id)
+
+        if package is None:
+            return "Package not found"
+                    
+        packageDict = dict()
+        
+        packageDict.update({'id':str(id)})
+        packageDict.update({'sender_name':str(package.senderName)})
+
+        return packageDict
         
     def toString(self):
         s = ""
         
         for p in self.packages:
-            s = s + p.id + "\n"
-            
+            #s = "%s %s \n" % (s, p.id)            
+            s = s + str(p.id) + "\n"
         return s
         
 
@@ -53,8 +91,5 @@ class TrackingService:
             
             return "blub"
 
-        def package_status(self, jsons):
-            #jobj = ? # convert json string to object
-            package_id = 0 # jobj['id']
-            #return "status of package" + package_id
-            return self.packageStore.toString()
+        def package_status(self, package_id):
+            return self.packageStore.packageStatus(package_id)
