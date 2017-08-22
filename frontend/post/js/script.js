@@ -49,13 +49,10 @@ $(function() {
       })
       .fail(function() {
         console.log( "error" );
-		//$("#server_answer").text("Ups. Etwas ist schief gegangen. Überprüfen sie ihre Internetverbindung und versuchens sie es nochmal.")
-		//$("#register_form fieldset").prop("disabled", false);
-		//$("#register_packet_button").prop("hidden",false);
-		$("#server_answer").text("Ihr Paket wurde registrieren. Es hat die ID #######");
-		$("#next_packet_button").prop("hidden",false);
-		
-      })
+		$("#server_answer").text("Ups. Etwas ist schief gegangen. Überprüfen sie ihre Internetverbindung und versuchens sie es nochmal.")
+		$("#register_form fieldset").prop("disabled", false);
+		$("#register_packet_button").prop("hidden",false);
+	  })
       .always(function() {
 		$("#server_answer").prop("hidden",false);
 		$("#spinner").prop("hidden",true);
