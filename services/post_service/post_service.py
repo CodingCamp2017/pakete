@@ -7,17 +7,19 @@ sys.path.append(os.path.relpath('../mykafka'))
 import mykafka
 import re
 import json
+import codecs
+
 
 
 class PostService:
     def __init__(self, producer):
         self.producer = producer
         self.id_counter = 0
-        self.regex_name = '\\w+'
+        self.regex_name = '[\w ]+'
         self.regex_id = '\\d+'
         self.regex_zip = '\\d{5}'
-        self.regex_street = '\\w+'
-        self.regex_city = '\\w+'
+        self.regex_street = '[\w( \-\.)?]+'#'[\w[ \.-]?]+\d+'
+        self.regex_city = '[\w( \-)?]+'
         self.regex_size = '(small|normal|big)'
         self.regex_weight = '[+-]?(\\d*\\.)?\\d+'
         self.regex_station = '\\w+'
@@ -37,7 +39,8 @@ class PostService:
         
         
     def regex_matches_exactly(self, regex, string):
-        match = re.compile(regex).match(string)
+        compRegex = re.compile(regex)
+        match = compRegex.match(string)
         return match != None and match.end() == len(string)
     
     def checkAvailable(self, dic, req_list):
@@ -71,7 +74,7 @@ class PostService:
     def mark_delivered(self, jobj):
         print("Mark delivered", flush=True)
         self.checkAvailable(jobj, self.syntax_delivered)
-        mykafka.sendSync(self.producer, 'delivered', 1, jobj)
+        mykafka.sendSync(self.producer, 'package', 1, jobj)
         
         
 def test_checkAvailable():
@@ -102,7 +105,22 @@ def test_checkAvailable():
     except InvalidActionException as e:
         pass
     print("test_checkAvailable#4")
+          
+def test_regex():
+    fakedata = json.load(codecs.open('fakedata.json', 'r', 'utf-8-sig'))['data']
+    post_service = PostService(mykafka.create_producer('ec2-35-159-21-220.eu-central-1.compute.amazonaws.com', 9092))
+
+    for i in range(len(fakedata)-1):
+        if not post_service.regex_matches_exactly(post_service.regex_name, fakedata[i]['name']):
+            print('Name \'' + fakedata[i]['name'] + '\' does not match regex.')
+        if not post_service.regex_matches_exactly(post_service.regex_street, fakedata[i]['street']):
+            print('Street \'' + fakedata[i]['street'] + '\' does not match regex.')
+        if not post_service.regex_matches_exactly(post_service.regex_city, fakedata[i]['city']):
+            print('City \'' + fakedata[i]['city'] + '\' does not match regex.')
+        if not post_service.regex_matches_exactly(post_service.regex_weight, str(fakedata[i]['weight'])):
+            print('Weight \'' + fakedata[i]['weight'] + '\' does not match regex.')
+        
+    
         
 if __name__ == '__main__':
-    test_checkAvailable()
-        
+    test_regex()
