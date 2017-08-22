@@ -29,10 +29,10 @@
         <div class="collapse navbar-collapse" id="navbarResponsive">
           <ul class="navbar-nav ml-auto">
             <li class="nav-item active" id="register_link_container">
-              <a class="nav-link" href="#" id="register_link">Register packet</a>
+              <a class="nav-link" href="#" id="register_link">Regiestrierung Pakete</a>
             </li>
             <li class="nav-item" id="update_link_container">
-              <a class="nav-link" href="#" id="update_link">Update packet</a>
+              <a class="nav-link" href="#" id="update_link">Standortupdate Pakete</a>
             </li>
           </ul>
         </div>
@@ -43,7 +43,7 @@
     <div class="col-8">
       <!-- Page Content -->
       <div class="mx-auto pageContent" id="register_container">
-        <h1 class="mt-5">Register packet</h1>
+        <h1 class="mt-5">Regiestrierung Pakete</h1>
         <p>
           <form id="register_form" >   
 			<fieldset>		  
@@ -78,7 +78,7 @@
       </div>
 
       <div class="mx-auto pageContent" id="update_container">
-        <h1 class="mt-5">Update packet</h1>
+        <h1 class="mt-5">Standortupdate Pakete</h1>
         <p>
           <form id="update_form">
 		  <fieldset>
@@ -88,8 +88,22 @@
             </div>
             <div id="station_container">
              <input type="text" class="form-control" placeholder="Station"  id="station" />
-            </div>
-            <br />
+            
+			<p>
+			<div class="btn-group" data-toggle="buttons">
+			 <label class="btn btn-primary active">
+			 <input checked type="radio" name="vehicle" value="car" id="size_small" /><i class="fa fa-car"></i> Auto<br>
+        	</label><label class="btn btn-primary"> 
+			<input type="radio" name="vehicle" value="foot"  id="size_small" /><i class="fa fa-bicycle"></i> Träger<br>
+        	</label><label class="btn btn-primary">
+			<input type="radio" name="vehicle" value="plane"  id="size_small" /><i class="fa fa-plane"></i> Flugzeug<br>
+        	</label>
+			<label class="btn btn-primary">
+			<input type="radio" name="vehicle" value="rocket"  id="size_small" /><i class="fa fa-rocket"></i> Rakete<br>
+            </label>
+			</div>
+			</div>
+			</p>
             <input type="submit"  value="Paket updaten" id="update_packet_button" class="btn btn-primary" />
           </fieldset>
 		  </form>

@@ -2,18 +2,23 @@ $(function() {
   var server_url = "http://localhost:5000/";
 
   $("#register_link").click(function() {
-    $("#update_container").hide();
-    $("#update_link_container").removeClass("active");
-    $("#register_container").show();
+	  removeAll();
+   $("#register_container").show();
     $("#register_link_container").addClass("active");
   });
 
   $("#update_link").click(function() {
+	  removeAll();
     $("#update_container").show();
     $("#update_link_container").addClass("active");
-    $("#register_container").hide();
-    $("#register_link_container").removeClass("active");
   });
+  
+  function removeAll(){
+	$("#register_container").hide();
+    $("#register_link_container").removeClass("active"); 
+	$("#update_container").hide();
+    $("#update_link_container").removeClass("active");
+  }
 
   $("#is_delivered").click(function() {
     if ($("#is_delivered").prop("checked")) {           
@@ -60,11 +65,12 @@ $(function() {
 
 	if(!$("#is_delivered").prop("checked")){
 		data.station = $("#station").val();
+		data.vehicle = $('input[name=vehicle]:checked').val();
 		adresse = server_url + "updateLocation";
 	} else {
     adresse = server_url + "delivered";    
   }
-
+console.log( data);
 	var set = "#update_form fieldset";
 	var butt = "#update_packet_button";
     var jqxhr = $.post( adresse, data, function() {

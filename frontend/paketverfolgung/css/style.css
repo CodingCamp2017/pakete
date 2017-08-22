@@ -10,12 +10,6 @@ body {
 	margin-top: 6px;
 }
 
-#update_container {
-	display: none;
-}
-#tracking_container {
-	display: none;
-}
 .zip_input {
 	width: 4em;
 }
