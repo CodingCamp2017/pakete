@@ -53,7 +53,6 @@ public class RestInterface {
         httpURLConnection.setDoOutput(true);
         httpURLConnection.setRequestMethod("POST");
         httpURLConnection.setRequestProperty("Content-Type", "application/json");
-
         return httpURLConnection;
     }
 
@@ -99,6 +98,9 @@ public class RestInterface {
                         id = (new JSONObject(response)).getString("id");
                         System.out.println("resp msg" + connection.getResponseMessage());
                     } else {
+                        switch (statusCode) {
+                            case 400:
+                        }
                         System.out.println("error " + statusCode);
                         System.out.println("err stream" + convertStreamToString(connection.getErrorStream()));
                     }
