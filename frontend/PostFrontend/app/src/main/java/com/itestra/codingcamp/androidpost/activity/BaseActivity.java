@@ -2,12 +2,15 @@ package com.itestra.codingcamp.androidpost.activity;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -24,15 +27,25 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
     protected static int PERMISSION_REQUEST_CODE = 1;
     protected BottomNavigationView navigationView;
 
+    protected static String packet_id;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(getContentViewId());
 
         navigationView = (BottomNavigationView) findViewById(R.id.navigation);
         navigationView.setOnNavigationItemSelectedListener(this);
 
         restInterface = new RestInterface();
+
+        findViewById(R.id.floating_action_button_send).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendData();
+            }
+        });
     }
 
     @Override
@@ -117,4 +130,6 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
     abstract int getContentViewId();
 
     abstract int getNavigationMenuItemId();
+
+    abstract void sendData();
 }

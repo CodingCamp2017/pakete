@@ -20,4 +20,15 @@
     <string name="edittext_packet_id">Packet ID</string>
     <string name="edit_text_packet_station">Packet Station</string>
 
+    <!-- fontawesome icons -->
+    <string name="icon_car">&#xf1b9;</string>
+    <string name="icon_plane">&#xf072;</string>
+    <string name="icon_house">&#xf015;</string>
+    <string name="icon_rocket">&#xf135;</string>
+    <string name="icon_foot">&#xf183;</string>
+    <string name="icon_ship">&#xf21a;</string>
+    <string name="icon_truck">&#xf0d1;</string>
+    <string name="icon_train">&#xf238;</string>
+    <string name="icon_failed">&#xf071;</string>
+
 </resources>

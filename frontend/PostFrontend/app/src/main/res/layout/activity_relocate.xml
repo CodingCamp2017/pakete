@@ -35,14 +35,28 @@
                     android:text="@string/headline_title_packet"
                     android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
 
-                <EditText
-                    android:id="@+id/edittext_packet_id"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:ems="10"
-                    android:hint="@string/edittext_packet_id"
-                    android:inputType="text" />
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/edittext_packet_id"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:ems="10"
+                        android:hint="@string/edittext_packet_id"
+                        android:inputType="text" />
+
+                    <Button
+                        android:id="@+id/button_scan"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@android:drawable/ic_menu_camera" />
+                </LinearLayout>
 
                 <EditText
                     android:id="@+id/edittext_packet_station"
@@ -53,10 +67,105 @@
                     android:hint="@string/edit_text_packet_station"
                     android:inputType="text" />
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="horizontal">
+
+                    <ToggleButton
+                        android:id="@+id/toggleButton_car"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textOff="@string/icon_car"
+                        android:textOn="@string/icon_car" />
+
+                    <ToggleButton
+                        android:id="@+id/toggleButton_plane"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textOff="@string/icon_plane"
+                        android:textOn="@string/icon_plane" />
+
+                    <ToggleButton
+                        android:id="@+id/toggleButton_house"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textOff="@string/icon_house"
+                        android:textOn="@string/icon_house" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="horizontal">
+
+                    <ToggleButton
+                        android:id="@+id/toggleButton_rocket"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textOff="@string/icon_rocket"
+                        android:textOn="@string/icon_rocket" />
+
+                    <ToggleButton
+                        android:id="@+id/toggleButton_foot"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textOff="@string/icon_foot"
+                        android:textOn="@string/icon_foot" />
+
+                    <ToggleButton
+                        android:id="@+id/toggleButton_ship"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textOn="@string/icon_ship"
+                        android:textOff="@string/icon_ship"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="horizontal">
+
+                    <ToggleButton
+                        android:id="@+id/toggleButton_truck"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textOff="@string/icon_truck"
+                        android:textOn="@string/icon_truck" />
+
+                    <ToggleButton
+                        android:id="@+id/toggleButton_train"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textOff="@string/icon_train"
+                        android:textOn="@string/icon_train" />
+
+                    <ToggleButton
+                        android:id="@+id/toggleButton_failed"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textOff="@string/icon_failed"
+                        android:textOn="@string/icon_failed" />
+                </LinearLayout>
+
             </LinearLayout>
         </ScrollView>
 
-        <include layout="@layout/floating_action_button_scan" />
+        <include layout="@layout/floating_action_button_send" />
     </FrameLayout>
 
 
