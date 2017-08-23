@@ -28,10 +28,11 @@ def restRegister():
     except CommandFailedException as e:
         return rest_common.create_error_response(504, e)
 
-@app.route('/updateLocation', methods=['POST'])
-def restUpdateLocation():
+@app.route('/packet/<id>/update', methods=['POST'])
+def restUpdateLocation(id):
     try:
         data = rest_common.get_rest_data(request)
+        data["id"] = id
         post_service.update_package_location(data)
         return rest_common.create_response(200)
     except InvalidActionException as e:
@@ -39,10 +40,11 @@ def restUpdateLocation():
     except CommandFailedException as e:
         return rest_common.create_error_response(504, e)
     
-@app.route('/delivered', methods=['POST'])
-def restDelivered():
+@app.route('/packet/<id>/delivered', methods=['POST'])
+def restDelivered(id):
     try:
         data = rest_common.get_rest_data(request)
+        data["id"] = id
         post_service.mark_delivered(data)
         return rest_common.create_response(200)
     except InvalidActionException as e:
