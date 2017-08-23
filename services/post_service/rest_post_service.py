@@ -15,7 +15,8 @@ import rest_common
 app = Flask(__name__)
 post_service = PostService(mykafka.create_producer('ec2-35-159-21-220.eu-central-1.compute.amazonaws.com', 9092))
     
-    
+def copy_dict(d):
+    return { key : value for (key, value) in d.items()}
 
 @app.route('/register', methods=['POST'])
 def restRegister():
@@ -31,7 +32,8 @@ def restRegister():
 @app.route('/packet/<id>/update', methods=['POST'])
 def restUpdateLocation(id):
     try:
-        data = rest_common.get_rest_data(request)
+        request_data = rest_common.get_rest_data(request)
+        data = copy_dict(request_data)
         data["id"] = id
         post_service.update_package_location(data)
         return rest_common.create_response(200)
@@ -43,7 +45,8 @@ def restUpdateLocation(id):
 @app.route('/packet/<id>/delivered', methods=['POST'])
 def restDelivered(id):
     try:
-        data = rest_common.get_rest_data(request)
+        request_data = rest_common.get_rest_data(request)
+        data = copy_dict(request_data)
         data["id"] = id
         post_service.mark_delivered(data)
         return rest_common.create_response(200)
