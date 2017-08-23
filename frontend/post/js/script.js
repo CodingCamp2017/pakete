@@ -45,13 +45,18 @@ $(function() {
       var set = "#register_form fieldset";
       var butt = "#register_packet_button";
       var jqxhr = $.post(server_url + "register", data, function(result) {
-        serverReturnd("Ihr Paket wurde registrieren. Es hat die ID #######",set,butt);		
+		//var obj = JSON.parse(result);
+		if (this.readyState == 4 && this.status == 200) {
+			var obj = JSON.parse(this.responseText);
+			serverReturned("Ihr Paket wurde registrieren. Es hat die ID " + obj.id,set,butt);	
+		}
+        	
       })
       .done(function() {
         console.log( "second success" );
       })
       .fail(function() {
-        failReturnd(set,butt);
+        failReturned(set,butt);
 	    })
       .always(cleanUp);
 	  
@@ -74,13 +79,13 @@ console.log( data);
 	var set = "#update_form fieldset";
 	var butt = "#update_packet_button";
     var jqxhr = $.post( adresse, data, function() {
-      serverReturnd("Verbleib des Pakets wurde aktualisiert.",set,butt);
+      serverReturned("Verbleib des Pakets wurde aktualisiert.",set,butt);
       })
       .done(function() {
         console.log( "second success" );
       })
       .fail(function() {
-		failReturnd(set,butt);
+		failReturned(set,butt);
 	  })
       .always(cleanUp);
 	waitOnServer(set,butt);
@@ -96,14 +101,14 @@ function waitOnServer(fset,pbutton){
 	$("#spinner").prop("hidden",false);
 	$("#server_answer").prop("hidden",true);
 }
-function serverReturnd(info,fset,pbutton){
+function serverReturned(info,fset,pbutton){
 	console.log("Request successful");
 	$(fset).prop("disabled", false);
 	$(pbutton).prop("hidden",false);
 	$("#server_answer").text(info);		
 }
 
-function failReturnd(fset,pbutton){
+function failReturned(fset,pbutton){
 	console.log( "error" );
 	$(fset).prop("disabled", false);
 	$(pbutton).prop("hidden",false);
