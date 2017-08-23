@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html style="height: 95%">
+  <head>
+    <meta charset="utf-8">
+    <title>Map-Demo</title>
+    <style>
+       #map {
+        height: 100%;
+        width: 100%;
+       }
+    </style>
+  </head>
+  <body style="height: 100%">    
+    <div id="map"></div>
+    <script>
+      function address2coords(address) {
+        console.log(address)
+        return $.get("https://maps.googleapis.com/maps/api/geocode/json?key=AIzaSyASQQsfeuEWdnMjDjSKS8HhIjl6Gr6Qzfo&address=" + address)
+      }
+
+      function initMap() {
+        var address = encodeURI($("#addr").val())
+        
+        //var requests = [address2coords("Karlsruhe"), address2coords("Stuttgart"), address2coords("Berlin")]
+        var requests = ["Karlsruhe", "Berlin", "Hamburg", "Haslach"].map(function(item) { return address2coords(item)})
+        console.log(requests)
+        $.when.apply($, requests).done(function(){
+            var responses = arguments
+            coords = [];
+
+            for (var i = 0; i < responses.length; ++i) {
+              coords[i] = responses[i][0].results[0].geometry.location                      
+            }
+
+            var pos = coords[0]
+            var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 8,
+            center: pos
+          });
+          var marker = new google.maps.Marker({
+            position: pos,
+            map: map
+          });
+
+          var flightPath = new google.maps.Polyline({
+            path: coords,
+            geodesic: true,
+            strokeColor: '#FF0000',
+            strokeOpacity: 1.0,
+            strokeWeight: 2
+          });
+
+          flightPath.setMap(map);
+        });
+      }
+    </script>
+    <script src="jquery.min.js"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyASQQsfeuEWdnMjDjSKS8HhIjl6Gr6Qzfo&callback=initMap"></script>    
+  </body>
+</html>
