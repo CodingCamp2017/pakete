@@ -22,10 +22,11 @@ class Packet:
     stations = list()
     deliveryTime = None
     
-    def __init__(self, packetId, packetSize, packetWeight, senderName, 
+    def __init__(self, packetId, packetRegistrationTime, packetSize, packetWeight, senderName, 
                  senderStreet, senderZip, senderCity, receiverName, 
                  receiverStreet, receiverZip, receiverCity):
         self.packetId = packetId
+        self.packetRegistrationTime = packetRegistrationTime
         self.packetSize = packetSize
         self.packetWeight = packetWeight
         
@@ -49,7 +50,8 @@ class Packet:
     def toJson(self):
         pDict = dict()
         
-        pDict.update({'id':str(id)})
+        pDict.update({'id':str(self.packetId)})
+        pDict.update({'packetRegistrationTime': str(self.packetRegistrationTime)})
         pDict.update({'size':str(self.packetSize)})
         pDict.update({'weight':str(self.packetWeight)})
                 
@@ -84,6 +86,7 @@ class PacketStore:
             packetId = eventPayload['id']
             packetSize = eventPayload['size']
             packetWeight = eventPayload['weight']
+            packetRegistrationTime = eventTime
             
             senderName = eventPayload['sender_name']
             senderStreet = eventPayload['sender_street']
@@ -99,7 +102,7 @@ class PacketStore:
             print("Missing information in register event.")
             return False
                 
-        packet = Packet(packetId, packetSize, packetWeight, senderName, 
+        packet = Packet(packetId, packetRegistrationTime, packetSize, packetWeight, senderName, 
                  senderStreet, senderZip, senderCity, receiverName, 
                  receiverStreet, receiverZip, receiverCity)
         self.packets.append(packet)
