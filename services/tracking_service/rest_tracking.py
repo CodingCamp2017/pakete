@@ -9,7 +9,7 @@ import json
 import sys
 
 app = Flask(__name__)
-tracking_service = TrackingService(mykafka.create_consumer('ec2-35-159-21-220.eu-central-1.compute.amazonaws.com', 9092, 'package'))
+tracking_service = TrackingService(mykafka.create_consumer('ec2-35-159-21-220.eu-central-1.compute.amazonaws.com', 9092, 'packet'))
 
 def createResponse(code, jsonobj):
     string = json.dumps(jsonobj)
