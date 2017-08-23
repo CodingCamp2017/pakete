@@ -1,29 +1,35 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from flask import Flask, request, abort
+from flask import Flask, request, abort, Response
 from tracking_service import TrackingService
 import mykafka
 from Exceptions import InvalidActionException, CommandFailedException
 import json
+import sys
 
 app = Flask(__name__)
 tracking_service = TrackingService(mykafka.create_consumer('ec2-35-159-21-220.eu-central-1.compute.amazonaws.com', 9092, 'package'))
 
+def createResponse(code, jsonobj):
+    string = json.dumps(jsonobj)
+    response = Response(response=string, status=code, mimetype="application/json")
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    return response
+
+# TODO remove after testing
 @app.route('/', methods=['GET'])
-def restRoot():
-    response = tracking_service.read_packages()
-    return "Test: " + response
+def restRoot():    
+    return tracking_service.read_packages()
 
-@app.route('/packageStatus', methods=['GET'])
-def restPackageStatus():
-    id = request.args.get('id')
-    
+@app.route('/packageStatus/<id>', methods=['GET'])
+def restPackageStatus(id):
     if id is None:
-        return "ID not specified"
+        return "No ID specified."
     
-    return json.dumps(tracking_service.package_status(id))
-
+    res = tracking_service.package_status(id)
+    return createResponse(200, res)
 
 if __name__ == '__main__':
-    app.run(debug=True) 
+    port = int(sys.argv[1])
+    app.run(debug=True, host='0.0.0.0', port=port) 
