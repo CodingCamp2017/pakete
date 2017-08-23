@@ -1,5 +1,5 @@
 $(function() {
-  var server_url = "http://localhost:5000/";
+  var server_url = "http://packet.ec2-35-158-239-16.eu-central-1.compute.amazonaws.com/";
 
   $("#register_link").click(function() {
 	  removeAll();

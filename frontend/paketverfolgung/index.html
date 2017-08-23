@@ -51,12 +51,15 @@
           <form id="update_form">
 		  <fieldset>
             <input type="text" class="form-control" placeholder="ID" id="packet_id" /><br>
+			<input type="submit"  value="Paket suchen" id="update_packet_button" class="btn btn-primary" />
 		<!--Meta-->
-	  <form id="register_form" >  
-		<fieldset disabled>		  
+	  <form  >  
+		<fieldset id="meta_form" disabled hidden>
+<br>		
 			<div class="container">
 			  <div class="row">
 				<div class="col">
+				
 				 <p><b>Absender</b><br>
 						<input type="text" class="form-control" placeholder="Name" id="sender_name" />
 						<input type="text" class="form-control" placeholder="Straße" id="sender_street" />            
@@ -74,9 +77,8 @@
 				</div>
 				<div class="col">
 				 <p><b>Größe</b><br>
-					<input type="radio" name="size" value="small" checked id="size_small" /> klein <br>
-					<input type="radio" name="size" value="normal" id="size_normal" /> normal <br>
-					<input type="radio" name="size" value="big" id="size_big" /> groß
+					<input type="text" class="form-control" id="size" /><br>
+				
 					</p>
 
 
@@ -111,7 +113,7 @@
 	
 	<!--Neue Suche-->
 		 
-            <input type="submit"  value="Paket suchen" id="update_packet_button" class="btn btn-primary" />
+            
           </fieldset>
 		  </form>
         </p>
