@@ -14,18 +14,25 @@ class PacketStation:
     location = ""
     vehicle = ""
     
-    def __init(self, time, location, vehicle):
+    def __init__(self, time, location, vehicle):
         self.time = time
         self.location = location
         self.vehicle = vehicle
+        
+    def toJson(self):
+        info = {}
+        info.update({'time':str(self.time)})
+        info.update({'location':str(self.location)})
+        info.update({'vehicle':str(self.vehicle)})
+        return info
 
 class Packet:
     stations = list()
     
-    def __init__(self, id, packetSize, packetWeight, senderName, 
+    def __init__(self, packetId, packetSize, packetWeight, senderName, 
                  senderStreet, senderZip, senderCity, receiverName, 
                  receiverStreet, receiverZip, receiverCity):
-        self.id = id
+        self.packetId = packetId
         self.packetSize = packetSize
         self.packetWeight = packetWeight
         
@@ -40,7 +47,14 @@ class Packet:
         self.receiverCity = receiverCity
         
     def updateLocation(self, time, location, vehicle):
-        self.stations.append(PacketStation(time, location, vehicle))
+        station = PacketStation(time, location, vehicle)
+        self.stations.append(station)
+        
+    def stationsList(self):
+        l = list()
+        for station in self.stations:
+            l.append(station.toJson())
+        return l
         
 class PacketStore:
     packets = list()
@@ -74,9 +88,7 @@ class PacketStore:
         
         return True
         
-    def updatePacket(self, eventTime, eventPayload):
-        print("UPDATE: " + str(eventPayload))
-        
+    def updatePacket(self, eventTime, eventPayload):        
         try:
             packet_id = eventPayload['packet_id']
             stationLocation = eventPayload['station']
@@ -92,11 +104,11 @@ class PacketStore:
             return
             
         packet.updateLocation(eventTime, stationLocation, stationVehicle)
-        print("Successfully updated packet location.")
+        print("Updated packet (id=" + packet_id + ") location to " + stationLocation + ".")
 
-    def findPacket(self, id):
+    def findPacket(self, packetId):
         for p in self.packets:
-            if(p.id == id):
+            if(str(p.packetId) == str(packetId)):
                 return p
         
     def packetStatus(self, id):
@@ -122,6 +134,7 @@ class PacketStore:
         packetDict.update({'receiver_zip':str(packet.receiverZip)})
         packetDict.update({'receiver_city':str(packet.receiverCity)})
         
+        packetDict.update({'stations':packet.stationsList()})
 
         return packetDict
         
