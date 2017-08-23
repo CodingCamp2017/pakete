@@ -85,17 +85,11 @@ function failReturned(error,statu,fset,pbutton){
 	var errortext = "Ups. Etwas ist schief gegangen. ";
 		if(error === undefined){
 			errortext +="Server ist nicht erreichbar. Überprüfen Sie ihr Internetverbindung und versuchen Sie es später nochmal.";
-		}/**else if(statu == 400){
-			error = error +"";
-			if(error.includes("Invalid value")){
+		}else if(statu == 404){
 			
-			var index = error.lastIndexOf("key ")+4;
-			showError(error.substring(index,error.length-2));
-			errortext = "Ein Input ist nicht richtig."
-			}else{
-			errortext += error;
-			}	
-		}else if(statu == 504){
+			errortext = "Diese ID exitiert nicht."
+			
+		}/**else if(statu == 504){
 			errortext +="Der Server meldet einen Fehler. Versuchen Sie es später nochmal.";
 		}*/else{
 			errortext += error;

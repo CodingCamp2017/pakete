@@ -144,8 +144,6 @@ function showError(string){
 	$(string).keypress(function(){
 		$(string).removeClass("error");
 		$(string).off("keypress");
-		console.log("hallo welt");
-		//this.off()
 	});
 	prev = string;
 }
