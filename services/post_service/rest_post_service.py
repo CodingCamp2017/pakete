@@ -34,12 +34,14 @@ def restUpdateLocation(id):
     try:
         request_data = rest_common.get_rest_data(request)
         data = copy_dict(request_data)
-        data["id"] = id
+        data["packet_id"] = id
         post_service.update_package_location(data)
         return rest_common.create_response(200)
     except InvalidActionException as e:
+        print("InvalidAction: update for id '"+id+"' failed: "+str(e))
         return rest_common.create_error_response(400, e)
     except CommandFailedException as e:
+        print("CommandFailed: update for id '"+id+"' failed: "+str(e))
         return rest_common.create_error_response(504, e)
     
 @app.route('/packet/<id>/delivered', methods=['POST'])
@@ -47,12 +49,14 @@ def restDelivered(id):
     try:
         request_data = rest_common.get_rest_data(request)
         data = copy_dict(request_data)
-        data["id"] = id
+        data["packet_id"] = id
         post_service.mark_delivered(data)
         return rest_common.create_response(200)
     except InvalidActionException as e:
+        print("InvalidAction: register for id '"+id+"' failed: "+str(e))
         return rest_common.create_error_response(400, e)
     except CommandFailedException as e:
+        print("CommandFailed: register for id '"+id+"' failed: "+str(e))
         return rest_common.create_error_response(504, e)
         
 def print_help():
