@@ -33,8 +33,10 @@ def restRegister():
 def restUpdateLocation(id):
     try:
         request_data = rest_common.get_rest_data(request)
+        print(str(request_data))
         data = copy_dict(request_data)
         data["packet_id"] = id
+        print(str(data))
         post_service.update_package_location(data)
         return rest_common.create_response(200)
     except InvalidActionException as e:
