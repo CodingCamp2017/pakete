@@ -37,7 +37,8 @@ class PackageStore:
         try:
             packageInformation = json.loads(event)  
         except (Exception) as e:
-            return "Event could not be parsed."
+            print("Event could not be parsed.")
+            return False
         
         try:
             payload = packageInformation['payload']
@@ -57,7 +58,8 @@ class PackageStore:
             receiverCity = payload['receiver_city']
             
         except (Exception) as e:
-            return "Missing information in event."
+            print("Missing information in event.")
+            return False
                 
         package = Package(packageId, packageSize, packageWeight, senderName, 
                  senderStreet, senderZip, senderCity, receiverName, 
@@ -66,7 +68,7 @@ class PackageStore:
         
         print('Added package with id: ' + str(packageId))
         
-        return "Event successfully added."
+        return True
         
     def findPackage(self, id):
         for p in self.packages:
@@ -77,7 +79,8 @@ class PackageStore:
         package = self.findPackage(id)
 
         if package is None:
-            return "Package not found."
+            print("Package not found.")
+            return
                     
         packageDict = dict()
         
@@ -131,10 +134,13 @@ class TrackingService:
 
         def package_status(self, package_id):
             dictPackageStatus = self.packageStore.packageStatus(package_id)
+            if dictPackageStatus is None:
+                return
+                
             try:
                 strPackageStatus = json.dumps(dictPackageStatus)
                 
             except(Exception) as e:
-                return "Unable to parse package status dictionary"
+                return
             
             return strPackageStatus
