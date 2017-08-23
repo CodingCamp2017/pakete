@@ -1,25 +1,33 @@
 # -*- coding: utf-8 -*-
-from Exceptions import InvalidActionException, CommandFailedException
+#from Exceptions import InvalidActionException, CommandFailedException
 
 import sys
 import os
 sys.path.append(os.path.relpath('../mykafka'))
 
 import mykafka
-import re
 import json
 import threading
 
-class Package:
-    id = ""
-    senderName = ""
+class PacketStation:
+    time = ""
+    location = ""
+    vehicle = ""
     
-    def __init__(self, id, packageSize, packageWeight, senderName, 
+    def __init(self, time, location, vehicle):
+        self.time = time
+        self.location = location
+        self.vehicle = vehicle
+
+class Packet:
+    stations = list()
+    
+    def __init__(self, id, packetSize, packetWeight, senderName, 
                  senderStreet, senderZip, senderCity, receiverName, 
                  receiverStreet, receiverZip, receiverCity):
         self.id = id
-        self.packageSize = packageSize
-        self.packageWeight = packageWeight
+        self.packetSize = packetSize
+        self.packetWeight = packetWeight
         
         self.senderName = senderName
         self.senderStreet = senderStreet
@@ -30,117 +38,156 @@ class Package:
         self.receiverStreet = receiverStreet
         self.receiverZip = receiverZip
         self.receiverCity = receiverCity
-class PackageStore:
-    packages = list()
-    
-    def addPackage(self, event):        
-        try:
-            packageInformation = json.loads(event)  
-        except (Exception) as e:
-            print("Event could not be parsed.")
-            return False
         
-        try:
-            payload = packageInformation['payload']
+    def updateLocation(self, time, location, vehicle):
+        self.stations.append(PacketStation(time, location, vehicle))
+        
+class PacketStore:
+    packets = list()
+    
+    def addPacket(self, eventTime, eventPayload):        
+        try:            
+            packetId = eventPayload['id']
+            packetSize = eventPayload['size']
+            packetWeight = eventPayload['weight']
             
-            packageId = payload['id']
-            packageSize = payload['size']
-            packageWeight = payload['weight']
+            senderName = eventPayload['sender_name']
+            senderStreet = eventPayload['sender_street']
+            senderZip = eventPayload['sender_zip']
+            senderCity = eventPayload['sender_city']
             
-            senderName = payload['sender_name']
-            senderStreet = payload['sender_street']
-            senderZip = payload['sender_zip']
-            senderCity = payload['sender_city']
-            
-            receiverName = payload['receiver_name']
-            receiverStreet = payload['receiver_street']
-            receiverZip = payload['receiver_zip']
-            receiverCity = payload['receiver_city']
+            receiverName = eventPayload['receiver_name']
+            receiverStreet = eventPayload['receiver_street']
+            receiverZip = eventPayload['receiver_zip']
+            receiverCity = eventPayload['receiver_city']
             
         except (Exception) as e:
-            print("Missing information in event.")
+            print("Missing information in register event.")
             return False
                 
-        package = Package(packageId, packageSize, packageWeight, senderName, 
+        packet = Packet(packetId, packetSize, packetWeight, senderName, 
                  senderStreet, senderZip, senderCity, receiverName, 
                  receiverStreet, receiverZip, receiverCity)
-        self.packages.append(package)
+        self.packets.append(packet)
         
-        print('Added package with id: ' + str(packageId))
+        print('Added packet with id: ' + str(packetId))
         
         return True
         
-    def findPackage(self, id):
-        for p in self.packages:
+    def updatePacket(self, eventTime, eventPayload):
+        print("UPDATE: " + str(eventPayload))
+        
+        try:
+            packet_id = eventPayload['packet_id']
+            stationLocation = eventPayload['station']
+            stationVehicle = eventPayload['vehicle']
+        except(Exception) as e:
+            print("Missing information in update event.")
+            return
+            
+        packet = self.findPacket(packet_id)
+        
+        if(packet is None):
+            print("Packet not found")
+            return
+            
+        packet.updateLocation(eventTime, stationLocation, stationVehicle)
+        print("Successfully updated packet location.")
+
+    def findPacket(self, id):
+        for p in self.packets:
             if(p.id == id):
                 return p
         
-    def packageStatus(self, id):
-        package = self.findPackage(id)
+    def packetStatus(self, id):
+        packet = self.findPacket(id)
 
-        if package is None:
-            print("Package not found.")
+        if packet is None:
+            print("Packet not found.")
             return
                     
-        packageDict = dict()
+        packetDict = dict()
         
-        packageDict.update({'id':str(id)})
-        packageDict.update({'size':str(package.packageSize)})
-        packageDict.update({'weight':str(package.packageWeight)})
+        packetDict.update({'id':str(id)})
+        packetDict.update({'size':str(packet.packetSize)})
+        packetDict.update({'weight':str(packet.packetWeight)})
                 
-        packageDict.update({'sender_name':str(package.senderName)})
-        packageDict.update({'sender_street':str(package.senderStreet)})
-        packageDict.update({'sender_zip':str(package.senderZip)})
-        packageDict.update({'sender_city':str(package.senderCity)})
+        packetDict.update({'sender_name':str(packet.senderName)})
+        packetDict.update({'sender_street':str(packet.senderStreet)})
+        packetDict.update({'sender_zip':str(packet.senderZip)})
+        packetDict.update({'sender_city':str(packet.senderCity)})
         
-        packageDict.update({'receiver_name':str(package.receiverName)})
-        packageDict.update({'receiver_street':str(package.receiverStreet)})
-        packageDict.update({'receiver_zip':str(package.receiverZip)})
-        packageDict.update({'receiver_city':str(package.receiverCity)})
+        packetDict.update({'receiver_name':str(packet.receiverName)})
+        packetDict.update({'receiver_street':str(packet.receiverStreet)})
+        packetDict.update({'receiver_zip':str(packet.receiverZip)})
+        packetDict.update({'receiver_city':str(packet.receiverCity)})
+        
 
-        return packageDict
+        return packetDict
         
     def toString(self):
         s = ""
         
-        for p in self.packages:
+        for p in self.packets:
             s = s + str(p.id) + "\n"
         return s
         
 
 class TrackingService:
-        packageStore = PackageStore()
+        packetStore = PacketStore()
     
         def __init__(self, consumer):
             self.consumer = consumer
             self.consumerThread = 0
             
-            self.read_packages()
+            self.readPackets()
              
-        def start_consuming(self):
-            mykafka.read_from_start(self.consumer, self)
+        def startConsuming(self):
+            mykafka.readFromStart(self.consumer, self)
             
-        # read the whole kafka log and create package model
-        def read_packages(self):
-            print('Starting package reading...')
+        def consumeEvent(self, event):
+            eventJson = json.loads(event)  
+            
+            try:
+                eventVersion = eventJson['version']
+                eventType = eventJson['type']
+                eventTime = eventJson['time']
+                eventPayload = eventJson['payload']
+            except(Exception) as e:
+                print('Event information missing.')
+                return
+                
+            if eventVersion != 1:
+                print('Unexpected event version (expected: 1, found: ' + str(eventVersion) + ')')
+                return
+                
+            if eventType == 'registered':
+                self.packetStore.addPacket(eventTime, eventPayload)
+            
+            if eventType == 'updated_location':
+                self.packetStore.updatePacket(eventTime, eventPayload)
+            
+        # read the whole kafka log and create packet model
+        def readPackets(self):
+            print('Starting packet reading...')
             
             if(self.consumerThread == 0):
-                self.consumerThread = threading.Thread(target=self.start_consuming)
+                self.consumerThread = threading.Thread(target=self.startConsuming)
                 self.consumerThread.start()
-                return "Consumer started and reading packages."
+                return "Consumer started and reading packets."
             else:
                 return "Consumer already running."
             
 
-        def package_status(self, package_id):
-            dictPackageStatus = self.packageStore.packageStatus(package_id)
-            if dictPackageStatus is None:
+        def packetStatus(self, packet_id):
+            dictPacketStatus = self.packetStore.packetStatus(packet_id)
+            if dictPacketStatus is None:
                 return
                 
             try:
-                strPackageStatus = json.dumps(dictPackageStatus)
+                strPacketStatus = json.dumps(dictPacketStatus)
                 
             except(Exception) as e:
                 return
             
-            return strPackageStatus
+            return strPacketStatus
