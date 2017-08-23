@@ -79,4 +79,4 @@ if __name__ == '__main__':
         else:
             print("Unknown option "+opt)
             sys.exit(1)
-    app.run(debug=True, port=port)
+    app.run(debug=True, port=port, host="0.0.0.0")
