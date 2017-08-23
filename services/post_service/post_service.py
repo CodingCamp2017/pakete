@@ -23,7 +23,7 @@ class PostService:
         self.regex_city = '[\w( \-)?]+'
         self.regex_size = '(small|normal|big)'
         self.regex_weight = '[+-]?(\\d*\\.)?\\d+'
-        self.regex_vehicle = '(car|foor|plane|rocket)'
+        self.regex_vehicle = '(car|foot|plane|rocket)'
         self.syntax_register = [('sender_name', self.regex_name),
                                 ('sender_street',self.regex_street), 
                                 ('sender_zip', self.regex_zip), 
