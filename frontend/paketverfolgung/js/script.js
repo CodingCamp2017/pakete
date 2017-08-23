@@ -26,7 +26,6 @@ $(function() {
 			
 			$("#size").val(obj.size);
 			$("#weight").val(obj.weight);
-		
 			serverReturned(responseText,set,butt);
 		}
 		
@@ -48,7 +47,6 @@ $(function() {
 //int/String/String/String
 function addRow(index,symbol,loca,date){
 	$('#Nachverfolgung > tbody:last-child').append('<tr name="addedRow"><th scope="row">'+index+'</th><td><i class="'+symbol+'"></i></td><td>'+loca+'</td><td>'+date+'</td></tr>');
-    
 }
 function removeRows(){
 	$("[name='addedRow']").remove();
@@ -60,7 +58,6 @@ function waitOnServer(fset,pbutton){
 	$("#spinner").prop("hidden",false);
 	$("#server_answer").prop("hidden",true);
 	$("#meta_form").prop("hidden",true);
-	
 }
 function serverReturned(info,fset,pbutton){
 	console.log("Request successful");

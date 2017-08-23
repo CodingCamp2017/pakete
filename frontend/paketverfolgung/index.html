@@ -26,25 +26,29 @@
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
-		 <!--
+		 
         <div class="collapse navbar-collapse" id="navbarResponsive">
           <ul class="navbar-nav ml-auto">
-            <li class="nav-item active" id="register_link_container">
-              <a class="nav-link" href="#" id="register_link">Regiestrierung Pakete</a>
+            <li class="nav-item">
+              <input type="text loginMargin" class="form-control loginMargin" placeholder="E-Mail" id="email" />
             </li>
-            <li class="nav-item" id="update_link_container">
-              <a class="nav-link" href="#" id="update_link">Standortupdate Pakete</a>
+            <li class="nav-item loginMargin">
+              <input type="password" class=" form-control " placeholder="Passwort" id="password" />
+            </li>
+			<li class="nav-item">
+              <input type="submit"  value="Login" id="login" class="btn btn-primary loginMargin" />
+            </li>
+			<li class="nav-item">
+              <input type="submit"  value="Registreiren" id="register" class="btn btn-primary loginMargin" />
             </li>
           </ul>
-        </div>-->
+        </div>
       </div>
     </nav>
 
 <div class="row justify-content-center">
     <div class="col-8">
       <!-- Page Content -->
-      
-
       <div class="mx-auto pageContent" id="update_container">
         <h1 class="mt-5">Paketnachverfolgung</h1>
        <p>
@@ -52,10 +56,10 @@
 		  <fieldset>
             <input type="text" class="form-control" placeholder="ID" id="packet_id" /><br>
 			<input type="submit"  value="Paket suchen" id="update_packet_button" class="btn btn-primary" />
-		<!--Meta-->
+	<!--Meta-->
 	  <form  >  
 		<fieldset id="meta_form" disabled hidden>
-<br>		
+			<br>		
 			<div class="container">
 			  <div class="row">
 				<div class="col">
