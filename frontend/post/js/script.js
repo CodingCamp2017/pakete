@@ -27,6 +27,11 @@ $(function() {
       $("#station_container").show()
     }
   });
+  
+  //registration
+  $("#register").click(function() {
+      console.log("register clicked")
+  })
 
   //Send registation
   $("#register_form").submit(function() {
