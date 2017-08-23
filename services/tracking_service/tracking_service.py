@@ -9,142 +9,7 @@ import mykafka
 import json
 import threading
 
-class PacketStation:
-    time = ""
-    location = ""
-    vehicle = ""
-    
-    def __init__(self, time, location, vehicle):
-        self.time = time
-        self.location = location
-        self.vehicle = vehicle
-        
-    def toJson(self):
-        info = {}
-        info.update({'time':str(self.time)})
-        info.update({'location':str(self.location)})
-        info.update({'vehicle':str(self.vehicle)})
-        return info
-
-class Packet:
-    stations = list()
-    
-    def __init__(self, packetId, packetSize, packetWeight, senderName, 
-                 senderStreet, senderZip, senderCity, receiverName, 
-                 receiverStreet, receiverZip, receiverCity):
-        self.packetId = packetId
-        self.packetSize = packetSize
-        self.packetWeight = packetWeight
-        
-        self.senderName = senderName
-        self.senderStreet = senderStreet
-        self.senderZip = senderZip
-        self.senderCity = senderCity
-        
-        self.receiverName = receiverName
-        self.receiverStreet = receiverStreet
-        self.receiverZip = receiverZip
-        self.receiverCity = receiverCity
-        
-    def updateLocation(self, time, location, vehicle):
-        station = PacketStation(time, location, vehicle)
-        self.stations.append(station)
-        
-    def stationsList(self):
-        l = list()
-        for station in self.stations:
-            l.append(station.toJson())
-        return l
-        
-class PacketStore:
-    packets = list()
-    
-    def addPacket(self, eventTime, eventPayload):        
-        try:            
-            packetId = eventPayload['id']
-            packetSize = eventPayload['size']
-            packetWeight = eventPayload['weight']
-            
-            senderName = eventPayload['sender_name']
-            senderStreet = eventPayload['sender_street']
-            senderZip = eventPayload['sender_zip']
-            senderCity = eventPayload['sender_city']
-            
-            receiverName = eventPayload['receiver_name']
-            receiverStreet = eventPayload['receiver_street']
-            receiverZip = eventPayload['receiver_zip']
-            receiverCity = eventPayload['receiver_city']
-            
-        except (Exception) as e:
-            print("Missing information in register event.")
-            return False
-                
-        packet = Packet(packetId, packetSize, packetWeight, senderName, 
-                 senderStreet, senderZip, senderCity, receiverName, 
-                 receiverStreet, receiverZip, receiverCity)
-        self.packets.append(packet)
-        
-        print('Added packet with id: ' + str(packetId))
-        
-        return True
-        
-    def updatePacket(self, eventTime, eventPayload):        
-        try:
-            packet_id = eventPayload['packet_id']
-            stationLocation = eventPayload['station']
-            stationVehicle = eventPayload['vehicle']
-        except(Exception) as e:
-            print("Missing information in update event.")
-            return
-            
-        packet = self.findPacket(packet_id)
-        
-        if(packet is None):
-            print("Packet not found")
-            return
-            
-        packet.updateLocation(eventTime, stationLocation, stationVehicle)
-        print("Updated packet (id=" + packet_id + ") location to " + stationLocation + ".")
-
-    def findPacket(self, packetId):
-        for p in self.packets:
-            if(str(p.packetId) == str(packetId)):
-                return p
-        
-    def packetStatus(self, id):
-        packet = self.findPacket(id)
-
-        if packet is None:
-            print("Packet not found.")
-            return
-                    
-        packetDict = dict()
-        
-        packetDict.update({'id':str(id)})
-        packetDict.update({'size':str(packet.packetSize)})
-        packetDict.update({'weight':str(packet.packetWeight)})
-                
-        packetDict.update({'sender_name':str(packet.senderName)})
-        packetDict.update({'sender_street':str(packet.senderStreet)})
-        packetDict.update({'sender_zip':str(packet.senderZip)})
-        packetDict.update({'sender_city':str(packet.senderCity)})
-        
-        packetDict.update({'receiver_name':str(packet.receiverName)})
-        packetDict.update({'receiver_street':str(packet.receiverStreet)})
-        packetDict.update({'receiver_zip':str(packet.receiverZip)})
-        packetDict.update({'receiver_city':str(packet.receiverCity)})
-        
-        packetDict.update({'stations':packet.stationsList()})
-
-        return packetDict
-        
-    def toString(self):
-        s = ""
-        
-        for p in self.packets:
-            s = s + str(p.id) + "\n"
-        return s
-        
+from packet_model import PacketStore
 
 class TrackingService:
         packetStore = PacketStore()
@@ -180,7 +45,7 @@ class TrackingService:
             if eventType == 'updated_location':
                 self.packetStore.updatePacket(eventTime, eventPayload)
             
-        # read the whole kafka log and create packet model
+        # start consuming the whole kafka log to create packet model
         def readPackets(self):
             print('Starting packet reading...')
             
