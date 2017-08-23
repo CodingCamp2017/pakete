@@ -9,7 +9,6 @@ $(function() {
 	var butt = "#update_packet_button";
 	waitOnServer(set,butt);
 	var jqxhr = $.get( server_url + "packetStatus/"+$("#packet_id").val(), function(responseText) {
-		
 		var obj = JSON.parse(responseText);
 		//sender Adresse
 		$("#sender_name").val(obj.sender_name);
@@ -36,13 +35,17 @@ $(function() {
 			var row = obj.stations[i];
 			addRow(i+2,iconMap(row.vehicle),row.location,row.time);
 		}
+		//Letzte Spalte
+		if(obj.deliveryTime != undefined){
+			addRow(i+2,"fa fa-envelope-open-o",obj.receiver_city,obj.deliveryTime);
+		}
 		serverReturned(responseText,set,butt);
 		
       })
       .done(function() {
       })
-      .fail(function() {
-		 failReturned(set,butt);
+      .fail(function(xhr, status, error) {
+		 failReturned(xhr.responseText,xhr.status,set,butt);
 	 })
       .always(cleanUp);
 	
@@ -74,13 +77,31 @@ function serverReturned(info,fset,pbutton){
 	$("#server_answer").text(info);
 	$("#meta_form").prop("hidden",false);
 }
-
-function failReturned(fset,pbutton){
-	console.log( "error" );
+function failReturned(error,statu,fset,pbutton){
+	console.log( "error " + statu );
+	console.log( "error " + statu );
 	$(fset).prop("disabled", false);
 	$(pbutton).prop("hidden",false);
-	$("#server_answer").text("Ups. Etwas ist schief gegangen. Überprüfen sie ihre Internetverbindung und versuchens sie es nochmal.");	
-}
+	var errortext = "Ups. Etwas ist schief gegangen. ";
+		if(error === undefined){
+			errortext +="Server ist nicht erreichbar. Überprüfen Sie ihr Internetverbindung und versuchen Sie es später nochmal.";
+		}/**else if(statu == 400){
+			error = error +"";
+			if(error.includes("Invalid value")){
+			
+			var index = error.lastIndexOf("key ")+4;
+			showError(error.substring(index,error.length-2));
+			errortext = "Ein Input ist nicht richtig."
+			}else{
+			errortext += error;
+			}	
+		}else if(statu == 504){
+			errortext +="Der Server meldet einen Fehler. Versuchen Sie es später nochmal.";
+		}*/else{
+			errortext += error;
+		}
+	$("#server_answer").text(errortext);
+	}
 function cleanUp() {
 	$("#server_answer").prop("hidden",false);
 	$("#spinner").prop("hidden",true);

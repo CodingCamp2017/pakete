@@ -53,9 +53,7 @@ $(function() {
         console.log( "second success" );
       })
       .fail(function(xhr, status, error) {
-		  console.log(xhr.status);
-		  
-			failReturned(xhr.responseText,xhr.status,set,butt);
+		 failReturned(xhr.responseText,xhr.status,set,butt);
 		
 	    })
       .always(cleanUp);
@@ -122,14 +120,16 @@ function failReturned(error,statu,fset,pbutton){
 			if(error.includes("Invalid value")){
 			
 			var index = error.lastIndexOf("key ")+4;
-			errortext += "Der Input von \"" + error.substring(index,error.length-2) +"\" ist nicht richtig."
+			showError(error.substring(index,error.length-2));
+			
+			errortext = "Ein Input ist nicht richtig."
 			}else{
-			errortext += error+"bababab"
+			errortext += error
 			}	
 		}else if(statu == 504){
 			errortext +="Der Server meldet einen Fehler. Versuchen Sie es später nochmal.";
 		}else{
-			errortext += error+"!!!!"
+			errortext += error;
 		}
 	$("#server_answer").text(errortext);
 	}
@@ -137,4 +137,15 @@ function cleanUp() {
 	$("#server_answer").prop("hidden",false);
 	$("#spinner").prop("hidden",true);
 	console.log( "finished" );
+}
+function showError(string){
+	string = "#"+string;
+	$(string).addClass("error");
+	$(string).keypress(function(){
+		$(string).removeClass("error");
+		$(string).off("keypress");
+		console.log("hallo welt");
+		//this.off()
+	});
+	prev = string;
 }
