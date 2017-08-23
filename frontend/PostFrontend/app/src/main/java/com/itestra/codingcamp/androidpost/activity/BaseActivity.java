@@ -15,8 +15,11 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
 import com.itestra.codingcamp.androidpost.R;
+import com.itestra.codingcamp.androidpost.rest.RestInterface;
 
 public abstract class BaseActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
+
+    protected RestInterface restInterface;
 
     protected static int PERMISSION_REQUEST_CODE = 1;
     protected BottomNavigationView navigationView;
@@ -28,6 +31,8 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
 
         navigationView = (BottomNavigationView) findViewById(R.id.navigation);
         navigationView.setOnNavigationItemSelectedListener(this);
+
+        restInterface = new RestInterface();
     }
 
     @Override
