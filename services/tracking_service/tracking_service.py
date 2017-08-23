@@ -14,10 +14,22 @@ class Package:
     id = ""
     senderName = ""
     
-    def __init__(self, id, senderName):
+    def __init__(self, id, packageSize, packageWeight, senderName, 
+                 senderStreet, senderZip, senderCity, receiverName, 
+                 receiverStreet, receiverZip, receiverCity):
         self.id = id
+        self.packageSize = packageSize
+        self.packageWeight = packageWeight
+        
         self.senderName = senderName
-    
+        self.senderStreet = senderStreet
+        self.senderZip = senderZip
+        self.senderCity = senderCity
+        
+        self.receiverName = receiverName
+        self.receiverStreet = receiverStreet
+        self.receiverZip = receiverZip
+        self.receiverCity = receiverCity
 class PackageStore:
     packages = list()
     
@@ -31,11 +43,10 @@ class PackageStore:
             payload = packageInformation['payload']
             
             packageId = payload['id']
-            '''packageSize = payload['size']
-            packageWeight = payload['weight']'''
+            packageSize = payload['size']
+            packageWeight = payload['weight']
             
             senderName = payload['sender_name']
-            '''
             senderStreet = payload['sender_street']
             senderZip = payload['sender_zip']
             senderCity = payload['sender_city']
@@ -43,14 +54,14 @@ class PackageStore:
             receiverName = payload['receiver_name']
             receiverStreet = payload['receiver_street']
             receiverZip = payload['receiver_zip']
-            receiverCity = payload['receiver_city']'''
+            receiverCity = payload['receiver_city']
             
         except (Exception) as e:
             return "Missing information in event."
-        
-        # TODO extract information from the event (= json)
-        
-        package = Package(packageId, senderName)
+                
+        package = Package(packageId, packageSize, packageWeight, senderName, 
+                 senderStreet, senderZip, senderCity, receiverName, 
+                 receiverStreet, receiverZip, receiverCity)
         self.packages.append(package)
         
         print('Added package with id: ' + str(packageId))
@@ -71,7 +82,18 @@ class PackageStore:
         packageDict = dict()
         
         packageDict.update({'id':str(id)})
+        packageDict.update({'size':str(package.packageSize)})
+        packageDict.update({'weight':str(package.packageWeight)})
+                
         packageDict.update({'sender_name':str(package.senderName)})
+        packageDict.update({'sender_street':str(package.senderStreet)})
+        packageDict.update({'sender_zip':str(package.senderZip)})
+        packageDict.update({'sender_city':str(package.senderCity)})
+        
+        packageDict.update({'receiver_name':str(package.receiverName)})
+        packageDict.update({'receiver_street':str(package.receiverStreet)})
+        packageDict.update({'receiver_zip':str(package.receiverZip)})
+        packageDict.update({'receiver_city':str(package.receiverCity)})
 
         return packageDict
         
