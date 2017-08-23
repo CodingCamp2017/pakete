@@ -17,19 +17,18 @@ def createResponse(code, jsonobj):
     response.headers["Access-Control-Allow-Origin"] = "*"
     return response
 
-# TODO remove after testing
 @app.route('/', methods=['GET'])
 def restRoot():    
-    return tracking_service.read_packages()
+    createResponse(404, "No ID specified.")
 
-@app.route('/packageStatus/<id>', methods=['GET'])
+@app.route('/packetStatus/<id>', methods=['GET'])
 def restPackageStatus(id):
     if id is None:
         return "No ID specified."
     
-    res = tracking_service.package_status(id)
+    res = tracking_service.packetStatus(id)
     if res is None:
-        abort(404, "Package not found")
+        createResponse(404, "Package not found")
         return
         
     return createResponse(200, res)

@@ -28,12 +28,7 @@ def sendSync(producer, topic, event_type, version, payload = None):
     meta = send(producer, topic, event_type, version, payload)
     return meta.get(timeout=10)#This raises KafkaError on failure
     
-def read_from_start(consumer, trackingService):
-        
-    #??print('printing messages:')
-        
+def readFromStart(consumer, trackingService):
     for message in consumer:
-        # message is raw byte string -- decode if necessary! # e.g., for unicode: `message.decode('utf-8')` 
-        trackingService.packageStore.addPackage(message.value.decode('utf-8'))
+        trackingService.consumeEvent(message.value.decode('utf-8'))
         
-    print('done')
