@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import json
+import sys
+import getopt
 from flask import Flask, request, abort, jsonify, make_response, Response
 from post_service import PostService
 import mykafka
@@ -56,6 +58,25 @@ def restDelivered():
         abort(400, e)
     except CommandFailedException as e:
         abort(504, e)
+        
+def print_help():
+    print("Options:\n\t-p Port to use")
     
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    port = 0
+    try:
+        options, args = getopt.getopt(sys.argv[1:], "p:")
+    except getopt.GetoptError:
+        print_help()
+        sys.exit(1)
+    for opt, arg in options:
+        if(opt == "-p"):
+            try:
+                port = int(arg)
+            except ValueError:
+                print("Cannot parse port: "+arg)
+                sys.exit(1)
+        else:
+            print("Unknown option "+opt)
+            sys.exit(1)
+    app.run(debug=True, port=port)
