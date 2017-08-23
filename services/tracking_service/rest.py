@@ -12,18 +12,18 @@ tracking_service = TrackingService(mykafka.create_consumer('ec2-35-159-21-220.eu
 
 @app.route('/', methods=['GET'])
 def restRoot():
+    # TODO testing only, remove
     response = tracking_service.read_packages()
     return "Test: " + response
 
-@app.route('/packageStatus', methods=['GET'])
-def restPackageStatus():
-    id = request.args.get('id')
-    
+@app.route('/packageStatus/<id>', methods=['GET'])
+def restPackageStatus(id):
     if id is None:
-        return "ID not specified"
+        return "No ID specified."
     
-    return json.dumps(tracking_service.package_status(id))
+    return tracking_service.package_status(id)
 
 
 if __name__ == '__main__':
-    app.run(debug=True) 
+    #TODO port as parameter
+    app.run(debug=True, host='0.0.0.0', port=2181) 
