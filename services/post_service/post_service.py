@@ -9,17 +9,17 @@ import re
 import json
 import codecs
 from kafka.errors import KafkaError
+import uuid
 
 PACKET_TOPIC = 'packet'
 
 class PostService:
     def __init__(self, producer):
         self.producer = producer
-        self.id_counter = 0
         self.regex_name = '[\w ]+'
-        self.regex_id = '\\d+'
+        self.regex_id = '[\w-]+'
         self.regex_zip = '\\d{5}'
-        self.regex_street = '[\w( \-\.)?]+'#'[\w[ \.-]?]+\d+'
+        self.regex_street = '[\w( \-\.)?]+'
         self.regex_city = '[\w( \-)?]+'
         self.regex_size = '(small|normal|big)'
         self.regex_weight = '[+-]?(\\d*\\.)?\\d+'
@@ -55,9 +55,7 @@ class PostService:
             raise InvalidActionException("Unknown keys in "+json.dumps(dic))
     
     def assign_package_id(self):
-        id = self.id_counter
-        self.id_counter = self.id_counter+1
-        return id
+        return str(uuid.uuid1())
     
     def register_package(self, jobj):
         print("Register Package")
