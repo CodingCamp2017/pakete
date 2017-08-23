@@ -5,11 +5,11 @@ import json
 from kafka import KafkaProducer, KafkaConsumer
 from datetime import datetime
 
-def create_producer(url, port, serializer = lambda m: json.dumps(m).encode('ascii')):
+def create_producer(url, port, serializer = lambda m: json.dumps(m).encode('utf-8')):
     return KafkaProducer(bootstrap_servers=url+":"+str(port),
                          value_serializer=serializer)
     
-def create_consumer(url, port, topic, deserializer = lambda m: json.loads(m.decode('ascii')), from_beginning = True):
+def create_consumer(url, port, topic, deserializer = lambda m: json.loads(m.decode('utf-8')), from_beginning = True):
     return KafkaConsumer(topic,bootstrap_servers=url+":"+str(port),
                          #value_deserializer=deserializer, # crashes if input not in json format
                          auto_offset_reset='earliest' if from_beginning else 'latest')
