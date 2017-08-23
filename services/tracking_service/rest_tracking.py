@@ -20,17 +20,16 @@ tracking_service = TrackingService(mykafka.create_consumer('ec2-35-159-21-220.eu
 
 @app.route('/', methods=['GET'])
 def restRoot():    
-    rest_common.create_error_response(404, "No ID specified.")
+    return rest_common.create_error_response(404, "No ID specified.")
 
-@app.route('/packetStatus/<id>', methods=['GET'])
-def restPackageStatus(id):
-    if id is None:
-        return "No ID specified."
+@app.route('/packetStatus/<packetId>', methods=['GET'])
+def restPackageStatus(packetId):
+    if packetId is None:
+        return rest_common.create_error_response(404, "No ID specified.")
     
-    res = tracking_service.packetStatus(id)
+    res = tracking_service.packetStatus(packetId)
     if res is None:
-        rest_common.create_error_response(404, "Package not found")
-        return
+        return rest_common.create_error_response(404, "Package not found")
         
     return rest_common.create_response(200, res)
 
