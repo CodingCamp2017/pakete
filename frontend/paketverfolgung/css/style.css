@@ -9,7 +9,9 @@ body {
 .checkboxMargin{
 	margin-top: 6px;
 }
-
+.loginMargin{
+	margin-top: 4px;
+}
 .zip_input {
 	width: 4em;
 }
@@ -18,5 +20,8 @@ body {
     body {
         padding-top: 56px;
     }
-	
+	.loginMargin{
+	margin-left: 4px;
+	margin-right: 4px;
+	}
 }

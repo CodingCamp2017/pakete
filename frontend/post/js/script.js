@@ -1,5 +1,5 @@
 $(function() {
-  var server_url = "http://localhost:5000/";
+  var server_url = "http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8000/";
 
   $("#register_link").click(function() {
 	  removeAll();
@@ -31,10 +31,10 @@ $(function() {
   //Send registation
   $("#register_form").submit(function() {
     var data = {"sender_name" :     $("#sender_name").val(),
-				        "sender_street" :   $("#sender_street").val(),
+				"sender_street" :   $("#sender_street").val(),
                 "sender_zip" :      $("#sender_zip").val(),
                 "sender_city" :     $("#sender_city").val(),
-				        "receiver_name" :   $("#receiver_name").val(),
+				"receiver_name" :   $("#receiver_name").val(),
                 "receiver_street" : $("#receiver_street").val(),
                 "receiver_zip" :    $("#receiver_zip").val(),
                 "receiver_city" :   $("#receiver_city").val(),
@@ -44,14 +44,24 @@ $(function() {
 
       var set = "#register_form fieldset";
       var butt = "#register_packet_button";
-      var jqxhr = $.post(server_url + "register", data, function(result) {
-        serverReturnd("Ihr Paket wurde registrieren. Es hat die ID #######",set,butt);		
+      var jqxhr = $.post(server_url + "register", data, function(obj) {
+		  console.log(obj);
+		serverReturned("Ihr Paket wurde registrieren. Es hat die ID " + obj.id,set,butt);
+
       })
       .done(function() {
         console.log( "second success" );
       })
-      .fail(function() {
-        failReturnd(set,butt);
+      .fail(function(xhr, status, error) {
+		  console.log(xhr.status);
+		  if(xhr.status == 400){
+			failReturned(xhr.responseText,set,butt);
+		  }else if(xhr.status == 404){
+			failReturned("Server ist nicht erreichbar. Überprüfen Sie ihr Internetverbindung und versuchen Sie es später nochmal.",set,butt);
+		  }
+		  else if(xhr.status == 504){
+			failReturned("Der Server meldet einen Fehler. Versuchen Sie es später nochmal.",set,butt);
+		  }
 	    })
       .always(cleanUp);
 	  
@@ -74,14 +84,15 @@ console.log( data);
 	var set = "#update_form fieldset";
 	var butt = "#update_packet_button";
     var jqxhr = $.post( adresse, data, function() {
-      serverReturnd("Verbleib des Pakets wurde aktualisiert.",set,butt);
+      serverReturned("Verbleib des Pakets wurde aktualisiert.",set,butt);
       })
       .done(function() {
         console.log( "second success" );
       })
-      .fail(function() {
-		failReturnd(set,butt);
-	  })
+      .fail(function(xhr, status, error) {
+		  console.log(status);
+        failReturned(xhr.responseText,set,butt);
+	    })
       .always(cleanUp);
 	waitOnServer(set,butt);
     return false;
@@ -96,18 +107,28 @@ function waitOnServer(fset,pbutton){
 	$("#spinner").prop("hidden",false);
 	$("#server_answer").prop("hidden",true);
 }
-function serverReturnd(info,fset,pbutton){
+function serverReturned(info,fset,pbutton){
 	console.log("Request successful");
 	$(fset).prop("disabled", false);
 	$(pbutton).prop("hidden",false);
 	$("#server_answer").text(info);		
 }
 
-function failReturnd(fset,pbutton){
+function failReturned(error,fset,pbutton){
 	console.log( "error" );
 	$(fset).prop("disabled", false);
 	$(pbutton).prop("hidden",false);
-	$("#server_answer").text("Ups. Etwas ist schief gegangen. Überprüfen sie ihre Internetverbindung und versuchens sie es nochmal.");	
+	var errortext = "Ups. Etwas ist schief gegangen. ";
+	
+	if(error.includes("Invalid value")){
+		error = error +"";
+		var index = error.lastIndexOf("key ")+4;
+		
+		errortext += "Der Input von \"" + error.substring(index,error.length-2) +"\" ist nicht richtig."
+	}else{
+		errortext += error
+	}	
+	$("#server_answer").text(errortext);
 }
 function cleanUp() {
 	$("#server_answer").prop("hidden",false);

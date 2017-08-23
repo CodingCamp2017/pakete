@@ -1,43 +1,73 @@
 $(function() {
-  var server_url = "http://localhost:5000/";
+  var server_url = "http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com/";
 
  //Send Location update
   $("#update_form").submit(function() {
-    var data = {"packet_id" : $("#packet_id").val() } 
-	console.log( data);
-	var set = "#update_form fieldset";
+	  
+   // var data = {"id" : $("#packet_id").val() } 
+	var set = "#packet_id";
 	var butt = "#update_packet_button";
-    var jqxhr = $.post( server_url, data, function(value) {
-      serverReturnd(value,set,butt);
+	waitOnServer(set,butt);
+	var jqxhr = $.get( server_url + "packageStatus/"+$("#packet_id").val(), function(responseText) {
+		if(responseText == "\"Package not found.\""){
+			failReturned(set,butt);
+		}else{
+			var obj = JSON.parse(responseText);
+			//sender Adresse
+			$("#sender_name").val(obj.sender_name);
+			$("#sender_street").val(obj.sender_street);
+			$("#sender_city").val(obj.sender_city);
+			$("#sender_zip").val(obj.sender_zip);
+			//reciver Adresse
+			$("#receiver_name").val(obj.receiver_name);
+			$("#receiver_street").val(obj.receiver_street);
+			$("#receiver_city").val(obj.receiver_city);
+			$("#receiver_zip").val(obj.receiver_zip);
+			
+			$("#size").val(obj.size);
+			$("#weight").val(obj.weight);
+			serverReturned(responseText,set,butt);
+		}
+		
       })
       .done(function() {
         console.log( "second success" );
       })
       .fail(function() {
-		 failReturnd(set,butt);
-	  })
+		 failReturned(set,butt);
+	 })
       .always(cleanUp);
-	waitOnServer(set,butt);
-    return false;
+	
+	removeRows();
+	addRow(1,"fa fa-bicycle","BKA","30.Febuar");
+	return false;
   });
   
 });
-
+//int/String/String/String
+function addRow(index,symbol,loca,date){
+	$('#Nachverfolgung > tbody:last-child').append('<tr name="addedRow"><th scope="row">'+index+'</th><td><i class="'+symbol+'"></i></td><td>'+loca+'</td><td>'+date+'</td></tr>');
+}
+function removeRows(){
+	$("[name='addedRow']").remove();
+}
 //Sichtbarkeit ändern
 function waitOnServer(fset,pbutton){
 	$(fset).prop("disabled", true);
 	$(pbutton).prop("hidden",true);
 	$("#spinner").prop("hidden",false);
 	$("#server_answer").prop("hidden",true);
+	$("#meta_form").prop("hidden",true);
 }
-function serverReturnd(info,fset,pbutton){
+function serverReturned(info,fset,pbutton){
 	console.log("Request successful");
 	$(fset).prop("disabled", false);
 	$(pbutton).prop("hidden",false);
-	$("#server_answer").text(info);	
+	$("#server_answer").text(info);
+	$("#meta_form").prop("hidden",false);
 }
 
-function failReturnd(fset,pbutton){
+function failReturned(fset,pbutton){
 	console.log( "error" );
 	$(fset).prop("disabled", false);
 	$(pbutton).prop("hidden",false);
