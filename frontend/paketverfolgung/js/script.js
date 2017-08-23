@@ -10,34 +10,44 @@ $(function() {
 	waitOnServer(set,butt);
 	var jqxhr = $.get( server_url + "packetStatus/"+$("#packet_id").val(), function(responseText) {
 		
-			var obj = JSON.parse(responseText);
-			//sender Adresse
-			$("#sender_name").val(obj.sender_name);
-			$("#sender_street").val(obj.sender_street);
-			$("#sender_city").val(obj.sender_city);
-			$("#sender_zip").val(obj.sender_zip);
-			//reciver Adresse
-			$("#receiver_name").val(obj.receiver_name);
-			$("#receiver_street").val(obj.receiver_street);
-			$("#receiver_city").val(obj.receiver_city);
-			$("#receiver_zip").val(obj.receiver_zip);
-			
-			$("#size").val(obj.size);
-			$("#weight").val(obj.weight);
-			serverReturned(responseText,set,butt);
-	
+		var obj = JSON.parse(responseText);
+		//sender Adresse
+		$("#sender_name").val(obj.sender_name);
+		$("#sender_street").val(obj.sender_street);
+		$("#sender_city").val(obj.sender_city);
+		$("#sender_zip").val(obj.sender_zip);
+		//reciver Adresse
+		$("#receiver_name").val(obj.receiver_name);
+		$("#receiver_street").val(obj.receiver_street);
+		$("#receiver_city").val(obj.receiver_city);
+		$("#receiver_zip").val(obj.receiver_zip);
+		
+		$("#size").val(obj.size);
+		$("#weight").val(obj.weight);
+		//Liste
+		//Erste Spalte
+		$("#regloc").text(obj.sender_city);
+		$("#regdate").text(obj.packetRegistrationTime);
+		//Restliche Spalten
+		removeRows();
+		
+		var arrayLength = obj.stations.length;
+		for (var i = 0; i < arrayLength; i++) {
+			var row = obj.stations[i];
+			addRow(i+2,iconMap(row.vehicle),row.location,row.time);
+		}
+		serverReturned(responseText,set,butt);
 		
       })
       .done(function() {
-        console.log( "second success" );
       })
       .fail(function() {
 		 failReturned(set,butt);
 	 })
       .always(cleanUp);
 	
-	removeRows();
-	addRow(1,"fa fa-bicycle","BKA","30.Febuar");
+	
+	
 	return false;
   });
   
@@ -75,4 +85,10 @@ function cleanUp() {
 	$("#server_answer").prop("hidden",false);
 	$("#spinner").prop("hidden",true);
 	console.log( "finished" );
+}
+function iconMap(hash){
+		if(hash == "car")return "fa fa-car";
+		if(hash == "foot")return "fa fa-bicycle";
+		if(hash == "plane")return "fa fa-plane";
+		if(hash == "rocket")return "fa fa-rocket";
 }
