@@ -4,7 +4,7 @@
 import json
 import sys
 import getopt
-from flask import Flask, request, abort, jsonify, make_response, Response
+from flask import Flask, request, abort, Response
 from post_service import PostService
 import mykafka
 from Exceptions import InvalidActionException, CommandFailedException
@@ -23,7 +23,6 @@ def createResponse(code, jsonobj):
     string = json.dumps(jsonobj)
     response = Response(response=string, status=code, mimetype="application/json")
     response.headers["Access-Control-Allow-Origin"] = "*"
-    #response.headers["Content-Type"] = "
     return response
 
 @app.route('/register', methods=['POST'])
@@ -33,9 +32,9 @@ def restRegister():
         packet_id = post_service.register_package(data)
         return createResponse(200, {"id":str(packet_id)})
     except InvalidActionException as e:
-        abort(400, e)
+        return createResponse(400, {"error":str(e)})
     except CommandFailedException as e:
-        abort(504, e)
+        return createResponse(504, {"error":str(e)})
 
 @app.route('/updateLocation', methods=['POST'])
 def restUpdateLocation():
@@ -44,9 +43,9 @@ def restUpdateLocation():
         post_service.update_package_location(data)
         return createResponse(200, {})
     except InvalidActionException as e:
-        abort(400, e)
+        return createResponse(400, {"error":str(e)})
     except CommandFailedException as e:
-        abort(504, e)
+        return createResponse(504, {"error":str(e)})
     
 @app.route('/delivered', methods=['POST'])
 def restDelivered():
@@ -55,9 +54,9 @@ def restDelivered():
         post_service.mark_delivered(data)
         return createResponse(200, {})
     except InvalidActionException as e:
-        abort(400, e)
+        return createResponse(400, {"error":str(e)})
     except CommandFailedException as e:
-        abort(504, e)
+        return createResponse(504, {"error":str(e)})
         
 def print_help():
     print("Options:\n\t-p Port to use")
