@@ -1,62 +1,54 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import json
 import sys
+import os
 import getopt
-from flask import Flask, request, abort, Response
+from flask import Flask, request
 from post_service import PostService
 import mykafka
 from Exceptions import InvalidActionException, CommandFailedException
 
+sys.path.append(os.path.relpath('../rest_common'))
+import rest_common
+
 app = Flask(__name__)
 post_service = PostService(mykafka.create_producer('ec2-35-159-21-220.eu-central-1.compute.amazonaws.com', 9092))
-
-def getData(response):
-    if response.json != None:
-        return response.json
-    elif response.form != None:
-        return response.form
-    raise InvalidActionException("Didn't find parameter data, required either json or form data")
     
-def createResponse(code, jsonobj):
-    string = json.dumps(jsonobj)
-    response = Response(response=string, status=code, mimetype="application/json")
-    response.headers["Access-Control-Allow-Origin"] = "*"
-    return response
+    
 
 @app.route('/register', methods=['POST'])
 def restRegister():
     try:
-        data = getData(request)
+        data = rest_common.get_rest_data(request)
         packet_id = post_service.register_package(data)
-        return createResponse(200, {"id":str(packet_id)})
+        return rest_common.create_response(200, {"id":str(packet_id)})
     except InvalidActionException as e:
-        return createResponse(400, {"error":str(e)})
+        return rest_common.create_error_response(400, e)
     except CommandFailedException as e:
-        return createResponse(504, {"error":str(e)})
+        return rest_common.create_error_response(504, e)
 
 @app.route('/updateLocation', methods=['POST'])
 def restUpdateLocation():
     try:
-        data = getData(request)
+        data = rest_common.get_rest_data(request)
         post_service.update_package_location(data)
-        return createResponse(200, {})
+        return rest_common.create_response(200)
     except InvalidActionException as e:
-        return createResponse(400, {"error":str(e)})
+        return rest_common.create_error_response(400, e)
     except CommandFailedException as e:
-        return createResponse(504, {"error":str(e)})
+        return rest_common.create_error_response(504, e)
     
 @app.route('/delivered', methods=['POST'])
 def restDelivered():
     try:
-        data = getData(request)
+        data = rest_common.get_rest_data(request)
         post_service.mark_delivered(data)
-        return createResponse(200, {})
+        return rest_common.create_response(200)
     except InvalidActionException as e:
-        return createResponse(400, {"error":str(e)})
+        return rest_common.create_error_response(400, e)
     except CommandFailedException as e:
-        return createResponse(504, {"error":str(e)})
+        return rest_common.create_error_response(504, e)
         
 def print_help():
     print("Options:\n\t-p Port to use")
