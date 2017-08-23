@@ -1,23 +1,26 @@
 package com.itestra.codingcamp.androidpost.activity;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
-import com.itestra.codingcamp.androidpost.*;
+import com.itestra.codingcamp.androidpost.R;
 
 public abstract class BaseActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
 
+    private static int PERMISSION_REQUEST_CODE = 1;
     protected BottomNavigationView navigationView;
 
     @Override
@@ -28,13 +31,31 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
         navigationView = (BottomNavigationView) findViewById(R.id.navigation);
         navigationView.setOnNavigationItemSelectedListener(this);
 
-        FloatingActionButton floatingActionButton = (FloatingActionButton) findViewById(R.id.fab);
-        floatingActionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        FloatingActionButton floatingActionButton = (FloatingActionButton) findViewById(R.id.floating_action_button);
+        floatingActionButton.setOnClickListener(v -> {
+            if (ActivityCompat.checkSelfPermission(BaseActivity.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
                 startScan();
+            } else {
+                String permission = Manifest.permission.CAMERA;
+                if (ContextCompat.checkSelfPermission(BaseActivity.this, permission) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(BaseActivity.this, new String[]{permission}, PERMISSION_REQUEST_CODE);
+                }
             }
         });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        switch (requestCode) {
+            case 1:
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    startScan();
+                }
+                break;
+        }
     }
 
     private void startScan() {
@@ -47,6 +68,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
         IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
         if (scanResult != null) {
             Toast.makeText(this, scanResult.getContents(), Toast.LENGTH_LONG).show();
+            handleScanResult(scanResult);
         }
     }
 
@@ -75,11 +97,11 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
                 startActivity(new Intent(this, DeliverActivity.class));
             }
             finish();
-        }, 300);
+        }, 100);
         return true;
     }
 
-    private void updateNavigationBarState(){
+    private void updateNavigationBarState() {
         int actionId = getNavigationMenuItemId();
         selectBottomNavigationBarItem(actionId);
     }
@@ -99,5 +121,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
     abstract int getContentViewId();
 
     abstract int getNavigationMenuItemId();
+
+    abstract void handleScanResult(IntentResult scanResult);
 
 }

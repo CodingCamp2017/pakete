@@ -1,5 +1,6 @@
 package com.itestra.codingcamp.androidpost.activity;
 
+import com.google.zxing.integration.android.IntentResult;
 import com.itestra.codingcamp.androidpost.R;
 
 /**
@@ -9,11 +10,16 @@ import com.itestra.codingcamp.androidpost.R;
 public class AddActivity extends BaseActivity {
     @Override
     int getContentViewId() {
-        return R.layout.activity_start;
+        return R.layout.activity_add;
     }
 
     @Override
     int getNavigationMenuItemId() {
         return R.id.navigation_add;
+    }
+
+    @Override
+    void handleScanResult(IntentResult scanResult) {
+
     }
 }
