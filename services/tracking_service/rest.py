@@ -11,22 +11,24 @@ import sys
 app = Flask(__name__)
 tracking_service = TrackingService(mykafka.create_consumer('ec2-35-159-21-220.eu-central-1.compute.amazonaws.com', 9092, 'package'))
 
-@app.route('/', methods=['GET'])
-def restRoot():
-    # TODO testing only, remove
-    responsestr = tracking_service.read_packages()
-    code = 200
-    response = Response(response=responsestr, status=code, mimetype="text/plain")
+def createResponse(code, jsonobj):
+    string = json.dumps(jsonobj)
+    response = Response(response=string, status=code, mimetype="application/json")
     response.headers["Access-Control-Allow-Origin"] = "*"
     return response
+
+# TODO remove after testing
+@app.route('/', methods=['GET'])
+def restRoot():    
+    return tracking_service.read_packages()
 
 @app.route('/packageStatus/<id>', methods=['GET'])
 def restPackageStatus(id):
     if id is None:
         return "No ID specified."
     
-    return tracking_service.package_status(id)
-
+    res = tracking_service.package_status(id)
+    return createResponse(200, res)
 
 if __name__ == '__main__':
     port = int(sys.argv[1])
