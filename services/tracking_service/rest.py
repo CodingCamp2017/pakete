@@ -28,6 +28,10 @@ def restPackageStatus(id):
         return "No ID specified."
     
     res = tracking_service.package_status(id)
+    if res is None:
+        abort(404, "Package not found")
+        return
+        
     return createResponse(200, res)
 
 if __name__ == '__main__':
