@@ -46,7 +46,7 @@ class PostService:
         print("Mark delivered", flush=True)
         packet_regex.check_json_regex(jobj, packet_regex.syntax_delivered)
         try:
-            mykafka.sendSync(self.producer, PACKET_TOPIC, 1, jobj)
+            mykafka.sendSync(self.producer, PACKET_TOPIC, 'delivered', 1, jobj)
         except KafkaError as e:
             raise CommandFailedException("Kafka Error: "+str(e))
         
