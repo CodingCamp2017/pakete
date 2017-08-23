@@ -44,6 +44,9 @@ class TrackingService:
             
             if eventType == 'updated_location':
                 self.packetStore.updatePacket(eventTime, eventPayload)
+                
+            if eventType == 'delivered':
+                self.packetStore.packetDelivered(eventTime, eventPayload)
             
         # start consuming the whole kafka log to create packet model
         def readPackets(self):

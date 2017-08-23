@@ -19,8 +19,6 @@ class PacketStation:
         return info
 
 class Packet:
-    stations = list()
-    deliveryTime = None
     
     def __init__(self, packetId, packetRegistrationTime, packetSize, packetWeight, senderName, 
                  senderStreet, senderZip, senderCity, receiverName, 
@@ -40,10 +38,13 @@ class Packet:
         self.receiverZip = receiverZip
         self.receiverCity = receiverCity
         
+        self.stations = list()
+        self.deliveryTime = None
+        
     def updateLocation(self, time, location, vehicle):
         station = PacketStation(time, location, vehicle)
         self.stations.append(station)
-        
+                
     def setDelivered(self, time):
         self.deliveryTime = time    
     
@@ -129,7 +130,13 @@ class PacketStore:
         packet.updateLocation(eventTime, stationLocation, stationVehicle)
         print("Updated packet (id=" + packet_id + ") location to " + stationLocation + ".")
 
-    def packetDelivered(self, eventTime, packetId):
+    def packetDelivered(self, eventTime, eventPayload):
+        try:
+            packetId = eventPayload['packet_id']
+        except(Exception) as e:
+            print("Missing packet id in update event.")
+            return
+        
         packet = self.findPacket(packetId)
         
         if(packet is None):
@@ -137,15 +144,15 @@ class PacketStore:
             return
             
         packet.setDelivered(eventTime)
-        print("Packet delivered")
+        print("Packet (id: " + packetId + ") delivered, time " + str(eventTime))
             
     def findPacket(self, packetId):
         for p in self.packets:
             if(str(p.packetId) == str(packetId)):
                 return p
         
-    def packetStatus(self, id):
-        packet = self.findPacket(id)
+    def packetStatus(self, packetId):
+        packet = self.findPacket(packetId)
 
         if packet is None:
             print("Packet not found.")
