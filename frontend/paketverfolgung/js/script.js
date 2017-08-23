@@ -1,5 +1,5 @@
 $(function() {
-  var server_url = "http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com/";
+  var server_url = "http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8001/";
 
  //Send Location update
   $("#update_form").submit(function() {
@@ -8,10 +8,8 @@ $(function() {
 	var set = "#packet_id";
 	var butt = "#update_packet_button";
 	waitOnServer(set,butt);
-	var jqxhr = $.get( server_url + "packageStatus/"+$("#packet_id").val(), function(responseText) {
-		if(responseText == "\"Package not found.\""){
-			failReturned(set,butt);
-		}else{
+	var jqxhr = $.get( server_url + "packetStatus/"+$("#packet_id").val(), function(responseText) {
+		
 			var obj = JSON.parse(responseText);
 			//sender Adresse
 			$("#sender_name").val(obj.sender_name);
@@ -27,7 +25,7 @@ $(function() {
 			$("#size").val(obj.size);
 			$("#weight").val(obj.weight);
 			serverReturned(responseText,set,butt);
-		}
+	
 		
       })
       .done(function() {

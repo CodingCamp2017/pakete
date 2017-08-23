@@ -54,14 +54,9 @@ $(function() {
       })
       .fail(function(xhr, status, error) {
 		  console.log(xhr.status);
-		  if(xhr.status == 400){
-			failReturned(xhr.responseText,set,butt);
-		  }else if(xhr.status == 404){
-			failReturned("Server ist nicht erreichbar. Überprüfen Sie ihr Internetverbindung und versuchen Sie es später nochmal.",set,butt);
-		  }
-		  else if(xhr.status == 504){
-			failReturned("Der Server meldet einen Fehler. Versuchen Sie es später nochmal.",set,butt);
-		  }
+		  
+			failReturned(xhr.responseText,xhr.status,set,butt);
+		
 	    })
       .always(cleanUp);
 	  
@@ -72,15 +67,16 @@ $(function() {
  //Send Location update
   $("#update_form").submit(function() {
     var data = {"packet_id" : $("#packet_id").val() } 
-
+	adresse = server_url+'packet/'+$("#packet_id").val();
 	if(!$("#is_delivered").prop("checked")){
 		data.station = $("#station").val();
 		data.vehicle = $('input[name=vehicle]:checked').val();
-		adresse = server_url + "updateLocation";
+		adresse += "/update";
 	} else {
-    adresse = server_url + "delivered";    
+    adresse += "/delivered";    
   }
-console.log( data);
+	console.log( data);
+	console.log(adresse)
 	var set = "#update_form fieldset";
 	var butt = "#update_packet_button";
     var jqxhr = $.post( adresse, data, function() {
@@ -91,7 +87,7 @@ console.log( data);
       })
       .fail(function(xhr, status, error) {
 		  console.log(status);
-        failReturned(xhr.responseText,set,butt);
+        failReturned(xhr.responseText,xhr.status,set,butt);
 	    })
       .always(cleanUp);
 	waitOnServer(set,butt);
@@ -114,22 +110,29 @@ function serverReturned(info,fset,pbutton){
 	$("#server_answer").text(info);		
 }
 
-function failReturned(error,fset,pbutton){
+function failReturned(error,statu,fset,pbutton){
 	console.log( "error" );
 	$(fset).prop("disabled", false);
 	$(pbutton).prop("hidden",false);
 	var errortext = "Ups. Etwas ist schief gegangen. ";
-	
-	if(error.includes("Invalid value")){
-		error = error +"";
-		var index = error.lastIndexOf("key ")+4;
-		
-		errortext += "Der Input von \"" + error.substring(index,error.length-2) +"\" ist nicht richtig."
-	}else{
-		errortext += error
-	}	
+		if(error === undefined){
+			errortext +="Server ist nicht erreichbar. Überprüfen Sie ihr Internetverbindung und versuchen Sie es später nochmal.";
+		}else if(statu == 400){
+			error = error +"";
+			if(error.includes("Invalid value")){
+			
+			var index = error.lastIndexOf("key ")+4;
+			errortext += "Der Input von \"" + error.substring(index,error.length-2) +"\" ist nicht richtig."
+			}else{
+			errortext += error+"bababab"
+			}	
+		}else if(statu == 504){
+			errortext +="Der Server meldet einen Fehler. Versuchen Sie es später nochmal.";
+		}else{
+			errortext += error+"!!!!"
+		}
 	$("#server_answer").text(errortext);
-}
+	}
 function cleanUp() {
 	$("#server_answer").prop("hidden",false);
 	$("#spinner").prop("hidden",true);
