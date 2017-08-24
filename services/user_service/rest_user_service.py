@@ -3,6 +3,8 @@
 
 import sys
 import os
+
+sys.path.append(os.path.relpath('../mykafka'))
 import mykafka
 import getopt
 from Exceptions import InvalidActionException, UserExistsException, UserUnknownException, SessionElapsedException, InvalidPasswortException

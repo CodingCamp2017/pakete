@@ -17,7 +17,7 @@ class UserService:
     
     def __init__(self,producer):
         os.system('sqlite3 user_database.db < user_database_schema.sql')
-        os.system('cd ')
+        os.system('sqlite3 followed_packets_database.db < followed_packets_database_schema.sql')
         self.u_con = sql.connect("user_database.db")
         self.u_cur = self.u_con.cursor()
         self.p_con = sql.connect("followed_packets_database.db")
@@ -39,6 +39,12 @@ class UserService:
     def _update_session_id_timestamp(self, email, session_id):
         self.u_cur.execute('UPDATE users SET session_id_timestamp = ? WHERE email = ?',
                            (str(datetime.now()), email))
+        
+    def _check_user_valid_session_active(self, email, session_id):
+        if not self._user_exists(email):
+            raise UserUnknownException
+        if not self._session_active(email, session_id):
+            raise SessionElapsedException
         
     def add_user(self, json_data):
         data = json.loads(json_data)
@@ -67,14 +73,11 @@ class UserService:
         self.u_cur.execute('UPDATE users SET (session_id, session_id_timestamp) = (?,?) WHERE email = ?',
                            (session_id, str(datetime.now()), data['email']))
         return session_id
-            
+
     def update_user_adress(self, json_data):
         data = json.loads(json_data)
         packet_regex.check_json_regex(data, packet_regex.syntax_update_user_adress)
-        if not self._user_exists(data['email']):
-            raise UserUnknownException
-        if not self._session_active(data['email'], data['session_id']):
-            raise SessionElapsedException
+        self._check_user_valid_session_active(data['email'], data['session_id'])
         self.u_cur.execute('UPDATE users SET (street, zip, city) = (?,?,?) WHERE email = ?',
                            (data['street'], data['zip'], data['city'], data['email']))
         self._update_session_id_timestamp(data['email'], data['session_id'])
@@ -83,10 +86,7 @@ class UserService:
         
         data = json.loads(json_data)
         packet_regex.check_json_regex(data, packet_regex.syntax_add_packet_to_user)
-        if not self._user_exists(data['email']):
-            raise UserUnknownException
-        if not self._session_active(data['email'], data['session_id']):
-            raise SessionElapsedException
+        self._check_user_valid_session_active(data['email'], data['session_id'])
             
         self.p_cur.execute('INSERT INTO followed_packets (email, packet) VALUES (?,?)',
                            (data['email'], data['packet']))
@@ -96,27 +96,33 @@ class UserService:
         
         data = json.loads(json_data)
         packet_regex.check_json_regex(data, packet_regex.syntax_get_packets_from_user)
-        if not self._user_exists(data['email']):
-            raise UserUnknownException
-        if not self._session_active(data['email'], data['session_id']):
-            raise SessionElapsedException
+        self._check_user_valid_session_active(data['email'], data['session_id'])
             
         self.p_cur.execute('SELECT (packet) FROM followed_packets WHERE email=?',
                          (data['email'],))
         self.p_cur.fetchall()
         self._update_session_id_timestamp(data['email'], data['session_id'])
         
+    def logout_user(self, json_data):
+        
+        data = json.loads(json_data)
+        packet_regex.check_json_regex(data, packet_regex.syntax_get_packets_from_user)
+        self._check_user_valid_session_active(data['email'], data['session_id'])
+        self.u_cur.execute('UPDATE users SET (session_id, session_id_timestamp) = (?,?) WHERE email = ?',
+                           ('', '', data['email']))
+        
     def delete_user(self, json_data):
         data = json.loads(json_data)
         packet_regex.check_json_regex(data, packet_regex.syntax_delete_user)
-        if not self._user_exists(data['email']):
-            raise UserUnknownException
-        if not self._session_active(data['email'], data['session_id']):
-            raise SessionElapsedException
+        self._check_user_valid_session_active(data['email'], data['session_id'])
         self.u_cur.execute('DELETE FROM users WHERE email = ?',
                          (data['email'],))
         self.p_cur.execute('DELETE FROM followed_packets WHERE email = ?',
                          (data['email'],))
+        
+    def __deinit__(self):
+        self.u_con.close()
+        self.p_con.close()
         
 
 def create_test_add_user_json():
