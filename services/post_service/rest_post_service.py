@@ -25,7 +25,7 @@ def restRegister():
         packet_id = post_service.register_package(data)
         return rest_common.create_response(200, {"id":str(packet_id)})
     except InvalidActionException as e:
-        return rest_common.create_error_response(400, e)
+        return rest_common.create_response(400, e.toDict())
     except CommandFailedException as e:
         return rest_common.create_error_response(504, e)
 
@@ -41,7 +41,7 @@ def restUpdateLocation(id):
         return rest_common.create_response(200)
     except InvalidActionException as e:
         print("InvalidAction: update for id '"+id+"' failed: "+str(e))
-        return rest_common.create_error_response(400, e)
+        return rest_common.create_response(400, e.toDict())
     except CommandFailedException as e:
         print("CommandFailed: update for id '"+id+"' failed: "+str(e))
         return rest_common.create_error_response(504, e)
@@ -56,7 +56,7 @@ def restDelivered(id):
         return rest_common.create_response(200)
     except InvalidActionException as e:
         print("InvalidAction: register for id '"+id+"' failed: "+str(e))
-        return rest_common.create_error_response(400, e)
+        return rest_common.create_response(400, e.toDict())
     except CommandFailedException as e:
         print("CommandFailed: register for id '"+id+"' failed: "+str(e))
         return rest_common.create_error_response(504, e)
