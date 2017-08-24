@@ -45,10 +45,10 @@ class PostService:
     
     def update_package_location(self, jobj):
         print("Update Package Location: "+str(jobj))
-        packet_regex.check_json_regex(jobj, packet_regex.syntax_update)
         packet_id = jobj["packet_id"]
         if not self.idstore.check_package_state(packet_id, STATE_UPDATE_LOCATION):
             raise InvalidActionException(Exceptions.TYPE_INVALID_KEY, "packet_id", "Packet with id '"+packet_id+"' has not yet been registered or has been delivered")
+        packet_regex.check_json_regex(jobj, packet_regex.syntax_update)
         try:
             mykafka.sendSync(self.producer, PACKET_TOPIC, STATE_UPDATE_LOCATION, 2, jobj)
         except KafkaError as e:
