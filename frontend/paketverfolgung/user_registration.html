@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="de">
+
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Coding-Camp 2017">
+
+    <title>Benutzer registrieren - Post Kundenservice</title>
+    <!-- Bootstrap core CSS -->
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">    
+    <link href="css/style.css" rel="stylesheet">
+
+    <!-- rotating Waits CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+</head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+      <div class="container">
+        <a class="navbar-brand" href="#">
+          <b>Itestra Coding-Camp Post Kundenservice</b>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+		 
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+              <input type="text loginMargin" class="form-control loginMargin" placeholder="E-Mail" id="email" />
+            </li>
+            <li class="nav-item loginMargin">
+              <input type="password" class=" form-control " placeholder="Passwort" id="password" />
+            </li>
+			<li class="nav-item">
+              <input type="submit"  value="Login" id="login" class="btn btn-primary loginMargin" />
+            </li>
+			<li class="nav-item">
+              <input type="submit" value="Registreiren" id="register" class="btn btn-primary loginMargin" />
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+<div class="row justify-content-center">
+    <div class="col-8">
+      <!-- Page Content -->
+      <h1>Neuen Benutzer registrieren</h1>
+      
+        <form id="register_form">
+            <input type="text" class="form-control" placeholder="Email" id="register_email" /><br>
+            <input type="password" class="form-control" placeholder="Choose a password" id="register_password" /><br>
+            <input type="button" value="Registrieren" id="register_button" class="btn btn-primary" />
+        </form>
+      
+        <!--bestätigung ID-->
+        <div class="mx-auto pageContent" >
+        <i hidden class="fa fa-spinner fa-spin" style="font-size:50px" id="spinner"></i><br/>
+            <div hidden id="server_answer"></div>
+        </div>
+        <!-- /.container -->
+        </div>
+  </div>    
+
+    <!-- Bootstrap core JavaScript -->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/popper/popper.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+    <script src="js/script.js"></script>
+    <script src="js/user_management.js"></script>
+
+  </body>
+
+</html>
