@@ -63,9 +63,6 @@ function loginUser(email, password, successCallback, failureCallback) {
     
     $.post(query, data, function(responseText) {
         console.log("query: response");
-        
-        var obj = JSON.parse(responseText);
-        console.log("response: " + obj);
         successCallback();
 		
       })
@@ -85,9 +82,6 @@ function deleteUser(successCallback, failureCallback)
     
     $.post(query, function(responseText) {
         console.log("query: response");
-        
-        var obj = JSON.parse(responseText);
-        console.log("response: " + obj);
         successCallback();
 		
       })
@@ -108,8 +102,8 @@ function getUserPackets(successCallback, failureCallback)
     $.post(query, function(responseText) {
         console.log("query: response");
         
-        var obj = JSON.parse(responseText);
-        console.log("response: " + obj);
+        //var obj = JSON.parse(responseText);
+        console.log("response: " + responseText);
         
         // dummy answer
         var packets = ["packet1", "packet2"];
