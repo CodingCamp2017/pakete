@@ -4,15 +4,13 @@
 import sys
 import os
 
-from flask import Flask, request, abort, Response
+from flask import Flask
 from tracking_service import TrackingService
 
 sys.path.append(os.path.relpath('../rest_common'))
+sys.path.append(os.path.relpath('../mykafka'))
 import rest_common
-
 import mykafka
-
-from Exceptions import InvalidActionException, CommandFailedException
 
 
 app = Flask(__name__)
