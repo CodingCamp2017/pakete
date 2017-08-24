@@ -9,9 +9,6 @@ import sys
 import os
 sys.path.append(os.path.relpath('../mykafka'))
 import mykafka
-import signal
-import threading
-import time
 import uuid
 
 from Exceptions import UserExistsException, UserUnknownException, InvalidSessionIdException, SessionElapsedException, InvalidPasswortException
@@ -20,7 +17,6 @@ from Exceptions import UserExistsException, UserUnknownException, InvalidSession
 char_set = string.ascii_uppercase + string.ascii_lowercase + string.digits
 sizes = ['small','normal','big']
 fakedata = json.load(codecs.open('fakedata.json', 'r', 'utf-8-sig'))['data']
-user_service = UserService(mykafka.create_producer('ec2-35-159-21-220.eu-central-1.compute.amazonaws.com', 9092))
 
 
 def create_test_add_user_json():
@@ -35,7 +31,7 @@ def create_test_add_user_json():
     return json.dumps(data)
 
 def create_simple_test_user():
-    return {'email' : 'bal@as.de', 'password' : 'shdjfhfh'}
+    return {'email' : 'oliver3@brehm.de', 'password' : '12345678'}
 
 
 def create_add_packet_data(email, session_id):
@@ -49,7 +45,8 @@ def create_session_data(email, session_id):
 
 
 def simulate_user_behaviour():
-    for i in range(3):
+    user_service = UserService(mykafka.create_producer('ec2-35-159-21-220.eu-central-1.compute.amazonaws.com', 9092))
+    for i in range(1):
         user_data = create_simple_test_user()
         email = user_data['email']
         user_service.add_user(user_data)
@@ -63,11 +60,11 @@ def simulate_user_behaviour():
             #time.sleep(randint(1,2))
             for j in range(randint(0,10)):
                 if randint(0,1):
-                    user_service.add_packet(create_add_packet_data(email, session_id))
+                    user_service.add_packet_to_user(create_add_packet_data(email, session_id))
                     print('User {} added packet'.format(user_data['email']))
                 else:
                     packets = user_service.get_packets_from_user(create_session_data(email, session_id))
-                    print('User {} has packets {}'.format(user_data['email']), packets)
+                    print('User {} has packets'.format(user_data['email'], packets))
                 #time.sleep(randint(1,2))
             user_service.logout_user(create_session_data(user_data['email'], session_id))
             print('User {} logged out'.format(user_data['email']))

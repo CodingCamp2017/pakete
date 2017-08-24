@@ -19,3 +19,8 @@ def create_response(code, data = {}):
 
 def create_error_response(errcode, message):
     return create_response(errcode, {"error":str(message)})
+
+def create_cookie_response(session_id, email):
+    response = Response()
+    response.set_cookie(session_id, email)
+    return response

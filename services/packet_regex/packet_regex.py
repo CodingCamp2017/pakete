@@ -29,10 +29,10 @@ syntax_update = [('packet_id', regex_id),
                  ('vehicle', regex_vehicle)]
 syntax_delivered = [('packet_id', regex_id)]
 syntax_add_user = [('email', regex_email),
-                   ('name',regex_name),
-                   ('street', regex_street),
-                   ('zip', regex_zip), 
-                   ('city', regex_city),
+                   #('name',regex_name),
+                   #('street', regex_street),
+                   #('zip', regex_zip), 
+                   #('city', regex_city),
                    ('password', regex_password)]
 syntax_authenticate_user = [('email', regex_email),
                             ('password', regex_password)]
