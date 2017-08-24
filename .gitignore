@@ -97,3 +97,7 @@ ENV/
 
 # mypy
 .mypy_cache/
+frontend/nbproject/project.properties
+frontend/nbproject/project.xml
+frontend/nbproject/private/private.properties
+frontend/nbproject/private/private.xml

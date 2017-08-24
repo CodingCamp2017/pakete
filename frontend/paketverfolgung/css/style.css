@@ -9,12 +9,8 @@ body {
 .checkboxMargin{
 	margin-top: 6px;
 }
-
-#update_container {
-	display: none;
-}
-#tracking_container {
-	display: none;
+.loginMargin{
+	margin-top: 4px;
 }
 .zip_input {
 	width: 4em;
@@ -24,9 +20,17 @@ body {
 	border:#FF0000 1px solid;
 }
 
+#map {
+	width:100%;
+	height:400px;
+}
+
 @media (min-width: 992px) {
     body {
         padding-top: 56px;
     }
-	
+	.loginMargin{
+	margin-left: 4px;
+	margin-right: 4px;
+	}
 }

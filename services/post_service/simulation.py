@@ -1,6 +1,6 @@
 
 from post_service import PostService
-from random import sample, random, randint
+from random import randint
 
 import codecs
 import json
@@ -10,7 +10,6 @@ sys.path.append(os.path.relpath('../mykafka'))
 import mykafka
 import signal
 import threading
-import time
 import time
 
 sizes = ['small','normal','big']
@@ -49,7 +48,7 @@ def simulate_register():
         package = create_random_package()
         with lock:
             id = post_service.register_package(package)
-            packageList.append(str(id))
+            packageList.append(id)
         time.sleep(randint(100,2000)/1000.0)
 
 def simulate_update():
