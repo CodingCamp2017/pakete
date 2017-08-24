@@ -63,6 +63,9 @@ $(function() {
 
  //Send Location update
   $("#update_form").submit(function() {
+	if($("#packet_id").val().length ===0){
+		return false;
+	}
     var data = {"packet_id" : $("#packet_id").val() } 
 	adresse = server_url+'packet/'+$("#packet_id").val();
 	if(!$("#is_delivered").prop("checked")){
@@ -82,7 +85,7 @@ $(function() {
       //.done(function() {
       //})
       .fail(function(xhr, status, error) {
-		  console.log(status);
+		  
         failReturned(xhr.responseText,xhr.status,set,butt);
 	    })
       .always(cleanUp);
@@ -106,24 +109,24 @@ function serverReturned(info,fset,pbutton){
 	$("#server_answer").text(info);		
 }
 
-function failReturned(error,statu,fset,pbutton){
-	console.log( "error" );
+function failReturned(responseText,statu,fset,pbutton){
+	console.log( "error " + statu);
+	
 	$(fset).prop("disabled", false);
 	$(pbutton).prop("hidden",false);
 	var errortext = "Ups. Etwas ist schief gegangen. ";
-		if(error === undefined){
+		if(responseText === undefined){
+			//0 no conection
 			errortext +="Der Server reagiert nicht. Überprüfen Sie ihr Internetverbindung und versuchen Sie es später nochmal.";
-		}else if(statu == 400){
-			error = error +"";
-			if(error.includes("Invalid value")){
-			
-			var index = error.lastIndexOf("key ")+4;
-			showError(error.substring(index,error.length-2));
-			
-			errortext = "Ein Input ist nicht richtig."
-			}else{
-			errortext += error
-			}	
+		}else if(statu == 400 || statu == 404){
+			var obj = JSON.parse(responseText);
+			if(obj.type == "invalid key"){
+				showError(obj.key);
+				errortext = "Ein Input ist nicht richtig.";
+			}else {
+				errortext += "Server meldet: " + data.message;
+			}
+			console.log(obj.message);
 		}else if(statu == 504){
 			errortext +="Der Server meldet einen Fehler 504. Versuchen Sie es später nochmal.";
 		}else{
@@ -134,7 +137,7 @@ function failReturned(error,statu,fset,pbutton){
 function cleanUp() {
 	$("#server_answer").prop("hidden",false);
 	$("#spinner").prop("hidden",true);
-	console.log( "finished" );
+	//console.log( "finished" );
 }
 function showError(string){
 	string = "#"+string;

@@ -60,7 +60,7 @@ $(function() {
   //Login
   $("#login").click(function(){
 	  //try to login
-	  $.post( adresse, data, function(responseText) {
+	 /** $.post( adresse, data, function(responseText) {
       
       })
       .done(function() {
@@ -69,7 +69,7 @@ $(function() {
 		  
 	    })
       .always(function() {
-      });
+      });/**/
 	
 	  //login succsess
 	  $("#login_bar").prop("hidden",true);
@@ -238,6 +238,8 @@ function address2coords(address) {
       }
 
       function initMap() {
+		 
       	console.log("init map")
-        map = new google.maps.Map(document.getElementById('map'));        
+        map = new google.maps.Map(document.getElementById('map'));  
+			
       }
