@@ -1,4 +1,5 @@
 from Exceptions import InvalidActionException
+import Exceptions
 import re
 import json
 
@@ -53,14 +54,20 @@ def regex_matches_exactly(regex, string):
         match = compRegex.match(string)
         return match != None and match.end() == len(string)
     
+def get_first_not_contained(dic, req_list):
+    for (key, value) in dic:
+        if(not key in req_list):
+            return key
+    return None
+    
 def check_json_regex(dic, req_list):
     for (key, regex) in req_list:
         if(not key in dic):
-            raise InvalidActionException("Required key: "+key)
+            raise InvalidActionException(Exceptions.TYPE_KEY_NOT_FOUND, key, "Required key: "+key)
         elif(not regex_matches_exactly(regex, dic[key])):
-            raise InvalidActionException("Invalid value: "+dic[key]+" for key "+key)
+            raise InvalidActionException(Exceptions.TYPE_INVALID_KEY, key, "Invalid value: "+dic[key]+" for key "+key)
     if(len(dic) != len(req_list)):
-        raise InvalidActionException("Unknown keys in "+json.dumps(dic))
+        raise InvalidActionException(Exceptions.TYPE_INVALID_KEY, str(get_first_not_contained(dic, req_list)), "Unknown keys in "+json.dumps(dic))
         
         
 def test_check_json_regex():
