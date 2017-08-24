@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.itestra.codingcamp.androidpost.activity.AddActivity">
+    tools:context="com.itestra.codingcamp.androidpost.activitys.AddActivity">
 
     <FrameLayout
         android:id="@+id/content"

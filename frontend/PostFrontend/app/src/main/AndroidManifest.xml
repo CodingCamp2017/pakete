@@ -15,7 +15,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".activity.AddActivity"
+            android:name=".activitys.AddActivity"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,9 +24,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.RelocateActivity" />
+        <activity android:name=".activitys.RelocateActivity" />
 
-        <activity android:name=".activity.DeliverActivity" />
+        <activity android:name=".activitys.DeliverActivity" />
     </application>
 
 </manifest>
