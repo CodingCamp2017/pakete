@@ -65,13 +65,11 @@ public class RestInterface {
     private JSONObject processResponse(HttpURLConnection connection) throws JSONException, IOException, RestException {
         int statusCode = connection.getResponseCode();
 
-        System.out.println("Status: " + statusCode);
-
         if (statusCode == 200) {
             BufferedInputStream inputStream = new BufferedInputStream(connection.getInputStream());
             String response = convertStreamToString(inputStream);
             System.out.println("Response: " + response);
-            System.out.println("resp msg" + connection.getResponseMessage());
+            System.out.println("resp msg: " + connection.getResponseMessage());
             return new JSONObject(response);
         } else {
             String errormsg = convertStreamToString(connection.getErrorStream());
@@ -91,7 +89,7 @@ public class RestInterface {
                         throw new RestException("unknown error type " + jsonerror.getString("type"));
                 }
             } else if (statusCode == 404) {
-                throw new ResourceNotFoundException("TODO", "not found");
+                throw new ResourceNotFoundException();
             } else if (statusCode == 504) {
                 throw new ServerException((new JSONObject(errormsg)).getString("error"));
             } else {
@@ -100,46 +98,51 @@ public class RestInterface {
         }
     }
 
-    public JSONObject sendRequest(String url, HashMap<String, String> data) throws ExecutionException, InterruptedException, RestException {
-        AsyncTaskResult<JSONObject> result = (new AsyncTask<Object, Void, AsyncTaskResult<JSONObject>>() {
-            @Override
-            protected AsyncTaskResult<JSONObject> doInBackground(Object... params) {
-                HashMap<String, String> data = (HashMap<String, String>)params[0];
-                HttpURLConnection connection = null;
+    public JSONObject sendRequest(String url, HashMap<String, String> data) throws RestException {
+        AsyncTaskResult<JSONObject> result = null;
+        try {
+            result = (new AsyncTask<Object, Void, AsyncTaskResult<JSONObject>>() {
+                @Override
+                protected AsyncTaskResult<JSONObject> doInBackground(Object... params) {
+                    HashMap<String, String> data = (HashMap<String, String>)params[0];
+                    HttpURLConnection connection = null;
 
-                try {
-                    connection = getPostConnection(url);
-
-                    JSONObject json = new JSONObject();
                     try {
-                        for (String key : data.keySet()) {
-                            json.put(key, data.get(key));
+                        connection = getPostConnection(url);
+
+                        JSONObject json = new JSONObject();
+                        try {
+                            for (String key : data.keySet()) {
+                                json.put(key, data.get(key));
+                            }
+                        } catch (JSONException e) {
+                            return new AsyncTaskResult<>(new RestException("Error processing json: " + e.getMessage()));
                         }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
 
-                    BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream()));
-                    bufferedWriter.write(json.toString());
-                    bufferedWriter.flush();
+                        BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream()));
+                        bufferedWriter.write(json.toString());
+                        bufferedWriter.flush();
 
-                    try {
-                        return new AsyncTaskResult<JSONObject>(processResponse(connection));
-                    } catch (RestException e) {
-                        return new AsyncTaskResult<JSONObject>(e);
-                    }
-                } catch (IOException|JSONException e ) {
-                    e.printStackTrace();
-                } finally {
-                    try {
-                        if (connection != null) connection.disconnect();
-                    } catch (Exception e) {
+                        try {
+                            return new AsyncTaskResult<>(processResponse(connection));
+                        } catch (RestException e) {
+                            return new AsyncTaskResult<>(e);
+                        }
+                    } catch (IOException |JSONException e ) {
                         e.printStackTrace();
+                    } finally {
+                        try {
+                            if (connection != null) connection.disconnect();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
+                    return new AsyncTaskResult<>(new RestException("No result was received"));
                 }
-                return new AsyncTaskResult<JSONObject>(new RestException("No result was received"));
-            }
-        }).execute(data).get();
+            }).execute(data).get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RestException("InterruptedException | ExecutionException catched: " + e.getMessage());
+        }
 
         if (result.hasError()) {
             throw result.getError();
@@ -148,7 +151,7 @@ public class RestInterface {
         }
     }
 
-    public String newPackage(HashMap<String, String> data) throws ExecutionException, InterruptedException, RestException {
+    public String newPackage(HashMap<String, String> data) throws RestException {
         JSONObject response = sendRequest(RestInterface.this.url + "register", data);
         try {
             return response.getString("id");
@@ -158,7 +161,7 @@ public class RestInterface {
         }
     }
 
-    public void updatePackage(String id, String station, String vehicle) throws ExecutionException, InterruptedException, RestException {
+    public void updatePackage(String id, String station, String vehicle) throws RestException {
         HashMap<String, String> data = new HashMap<>();
         data.put("station", station);
         data.put("vehicle", vehicle);
@@ -166,7 +169,7 @@ public class RestInterface {
         sendRequest(RestInterface.this.url + "packet/" + id +"/update", data);
     }
 
-    public void deliverPacket(String id) throws ExecutionException, InterruptedException, RestException {
+    public void deliverPacket(String id) throws RestException {
         sendRequest(RestInterface.this.url + "packet/" + id +"/delivered", new HashMap<>());
     }
 }

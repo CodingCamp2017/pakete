@@ -5,14 +5,8 @@ package com.itestra.codingcamp.androidpost.exceptions;
  */
 
 public class ResourceNotFoundException extends RestException{
-    String id = null;
 
-    public ResourceNotFoundException(String id, String message) {
-        super(message);
-        this.id = id;
-    }
-
-    public String getId() {
-        return this.id;
+    public ResourceNotFoundException() {
+        super("Resource not found");
     }
 }
