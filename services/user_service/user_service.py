@@ -68,8 +68,10 @@ class UserService:
         if not pbkdf2_sha256.verify(data['password'], password_hash):
             raise InvalidPasswortException
         session_id = str(uuid.uuid1())
-        self.u_cur.execute('UPDATE users SET (session_id, session_id_timestamp) = (?,?) WHERE email = ?',
-                           (session_id, str(datetime.now()), data['email']))
+        self.u_cur.execute('UPDATE users SET session_id = ? WHERE email = ?',
+                           (session_id, data['email']))
+        self.u_cur.execute('UPDATE users SET session_id_timestamp = ? WHERE email = ?',
+                           (str(datetime.now()), data['email']))
         self.u_con.commit()
         return session_id
 
@@ -102,8 +104,10 @@ class UserService:
     def logout_user(self, data):
         packet_regex.check_json_regex(data, packet_regex.syntax_get_packets_from_user)
         self._check_user_valid_session_active(data['email'], data['session_id'])
-        self.u_cur.execute('UPDATE users SET (session_id, session_id_timestamp) = (?,?) WHERE email = ?',
-                           ('', '', data['email']))
+        self.u_cur.execute('UPDATE users SET session_id = ? WHERE email = ?',
+                           ('', data['email']))
+        self.u_cur.execute('UPDATE users SET session_id_timestamp = ? WHERE email = ?',
+                           ('', data['email']))
         self.u_con.commit()
         
     def delete_user(self, data):
