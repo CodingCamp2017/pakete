@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">Android Post Frontend</string>
-    <string name="title_add">Add Package</string>
-    <string name="title_relocate">Relocate Package</string>
-    <string name="title_deliver">Deliver Package</string>
+    <string name="title_add">Add Packet</string>
+    <string name="title_relocate">Relocate Packet</string>
+    <string name="title_deliver">Deliver Packet</string>
 
     <string name="headline_title_sender">Sender</string>
     <string name="headline_title_receiver">Receiver</string>
