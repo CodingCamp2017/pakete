@@ -9,6 +9,7 @@ import android.widget.ToggleButton;
 import com.itestra.codingcamp.androidpost.R;
 import com.itestra.codingcamp.androidpost.exceptions.InvalidValueException;
 import com.itestra.codingcamp.androidpost.exceptions.NoScanButtonException;
+import com.itestra.codingcamp.androidpost.exceptions.ResourceNotFoundException;
 import com.itestra.codingcamp.androidpost.exceptions.RestException;
 import com.itestra.codingcamp.androidpost.exceptions.ServerException;
 
@@ -51,13 +52,13 @@ public class RelocateActivity extends BaseActivity{
             Toast.makeText(this, "Packet relocated!", Toast.LENGTH_SHORT).show();
         }
         catch (InvalidValueException e) {
-            if(e.getKey().equals(getResources().getString(R.string.data_packet_id))){
-                editTextPacketId.setError(getResources().getString(R.string.invalid_value));
-            }
-            else if(e.getKey().equals(getResources().getString(R.string.data_station))){
+            if (e.getKey().equals(getResources().getString(R.string.data_station))) {
                 editTextStation.setError(getResources().getString(R.string.invalid_value));
             }
             System.err.println(e.getKey() + " has error " + e.getMessage());
+        } catch (ResourceNotFoundException e)
+        {
+            editTextPacketId.setError(getResources().getString(R.string.invalid_value));
         } catch (ServerException e) {
             System.err.println("ServerException: " + e.getMessage());
         } catch (RestException e) {
