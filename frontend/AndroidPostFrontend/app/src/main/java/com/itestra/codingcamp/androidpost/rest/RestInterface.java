@@ -22,11 +22,14 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 /**
  * Created by simon on 23.08.17.
  */
+
+// TODO do not block GUI!
 
 public class RestInterface {
     private final String url = "http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8000/";
@@ -98,26 +101,18 @@ public class RestInterface {
         }
     }
 
-    public JSONObject sendRequest(String url, HashMap<String, String> data) throws RestException {
-        AsyncTaskResult<JSONObject> result = null;
+    public JSONObject sendRequest(String url, Map<String, String> data) throws RestException {
         try {
-            result = (new AsyncTask<Object, Void, AsyncTaskResult<JSONObject>>() {
+            AsyncTaskResult<JSONObject> result = (new AsyncTask<Object, Void, AsyncTaskResult<JSONObject>>() {
                 @Override
                 protected AsyncTaskResult<JSONObject> doInBackground(Object... params) {
-                    HashMap<String, String> data = (HashMap<String, String>)params[0];
+                    Map<String, String> data = (Map<String, String>)params[0];
                     HttpURLConnection connection = null;
 
                     try {
                         connection = getPostConnection(url);
 
-                        JSONObject json = new JSONObject();
-                        try {
-                            for (String key : data.keySet()) {
-                                json.put(key, data.get(key));
-                            }
-                        } catch (JSONException e) {
-                            return new AsyncTaskResult<>(new RestException("Error processing json: " + e.getMessage()));
-                        }
+                        JSONObject json = new JSONObject(data);
 
                         BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream()));
                         bufferedWriter.write(json.toString());
@@ -140,18 +135,18 @@ public class RestInterface {
                     return new AsyncTaskResult<>(new RestException("No result was received"));
                 }
             }).execute(data).get();
+
+            if (result.hasError()) {
+                throw result.getError();
+            } else {
+                return result.getResult();
+            }
         } catch (InterruptedException | ExecutionException e) {
             throw new RestException("InterruptedException | ExecutionException catched: " + e.getMessage());
         }
-
-        if (result.hasError()) {
-            throw result.getError();
-        } else {
-            return result.getResult();
-        }
     }
 
-    public String newPackage(HashMap<String, String> data) throws RestException {
+    public String newPacket(Map<String, String> data) throws RestException {
         JSONObject response = sendRequest(RestInterface.this.url + "register", data);
         try {
             return response.getString("id");
@@ -161,8 +156,8 @@ public class RestInterface {
         }
     }
 
-    public void updatePackage(String id, String station, String vehicle) throws RestException {
-        HashMap<String, String> data = new HashMap<>();
+    public void updatePacket(String id, String station, String vehicle) throws RestException {
+        Map<String, String> data = new HashMap<>();
         data.put("station", station);
         data.put("vehicle", vehicle);
 

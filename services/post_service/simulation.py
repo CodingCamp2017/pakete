@@ -1,5 +1,6 @@
 
 from post_service import PostService
+
 from random import randint
 
 import codecs
@@ -7,12 +8,15 @@ import json
 import sys
 import os
 sys.path.append(os.path.relpath('../mykafka'))
+sys.path.append(os.path.relpath('../common'))
 import mykafka
 import signal
 import threading
 import time
+from Exceptions import InvalidActionException
 
 sizes = ['small','normal','big']
+vehicles = ['car', 'foot', 'plane', 'rocket', 'ship', 'train', 'truck', 'center', 'failed']
 fakedata = json.load(codecs.open('fakedata.json', 'r', 'utf-8-sig'))['data']
 
 post_service = PostService(mykafka.create_producer('ec2-35-159-21-220.eu-central-1.compute.amazonaws.com', 9092))
@@ -56,12 +60,16 @@ def simulate_update():
         if not fakedata:
             continue
         fakecity = fakedata[randint(0, len(fakedata)-1)]['city']
+        vehicle = vehicles[randint(0,len(vehicles)-1)]
         with lock:
             if not packageList:
                 continue
             id = packageList[randint(0, len(packageList)-1)]
-            post_service.update_package_location({'packet_id':id,'station':fakecity})
-        time.sleep(randint(200,2000)/1000.0)
+            try:
+                post_service.update_package_location({'packet_id':id,'station':fakecity, 'vehicle':vehicle})
+            except InvalidActionException as e:
+                pass
+        time.sleep(randint(500,2000)/1000.0)
 
 def simulate_deliver():
     while not threadStop.is_set():
@@ -69,7 +77,10 @@ def simulate_deliver():
             if not packageList:
                 continue
             id = packageList[randint(0, len(packageList)-1)]
-            post_service.mark_delivered({'packet_id':id})
+            try:
+                post_service.mark_delivered({'packet_id':id})
+            except InvalidActionException as e:
+                pass
             packageList.remove(id) 
         time.sleep(randint(1000,4000)/1000.0)
 
