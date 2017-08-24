@@ -96,8 +96,8 @@ class UserService:
             
         self.p_cur.execute('SELECT (packet) FROM followed_packets WHERE email=?',
                          (data['email'],))
-        self.p_cur.fetchall()
         self._update_session_id_timestamp(data['email'], data['session_id'])
+        return self.p_cur.fetchall()
         
     def logout_user(self, data):
         packet_regex.check_json_regex(data, packet_regex.syntax_get_packets_from_user)
@@ -114,6 +114,12 @@ class UserService:
         self.p_cur.execute('DELETE FROM followed_packets WHERE email = ?',
                          (data['email'],))
         self.u_con.commit()
+        
+    def print_databases(self):
+        self.u_cur.execute('SELECT * FROM users')
+        print(self.u_cur.fetchall())
+        self.p_cur.execute('SELECT * FROM followed_packets')
+        print(self.p_cur.fetchall())
         
     def __deinit__(self):
         self.u_con.close()
