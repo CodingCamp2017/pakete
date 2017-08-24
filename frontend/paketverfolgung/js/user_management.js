@@ -7,11 +7,20 @@ var query_add_packet_to_user = "add_packet_to_user";
 var query_get_user_packets = "get_packets_from_user";
 
 $("#register_button").click(function() {
-    
     register_email = $("#register_email").val();
     register_password = $("#register_password").val();
-        
-    if(!register_email || !register_password) {
+    
+    registerUser(register_email, register_password, function() {
+        //success
+        console.log("Registering user successfully.");
+    }, function() {
+        //failure
+        console.log("Error registering user");
+    });
+});
+
+function registerUser(email, password, successCallback, failureCallback) {  
+    if(!email || !password) {
         console.log("Email or password not provided.");
         return;
     }
@@ -19,8 +28,8 @@ $("#register_button").click(function() {
     var query = server_url + query_register_user;
     console.log("query: " + query);
     
-    var data = {"email" : register_email,
-		"password" : register_password};
+    var data = {"email" : email,
+		"password" : password};
     
     $.post(query, data, function(responseText) {
         console.log("query: response");
@@ -28,33 +37,35 @@ $("#register_button").click(function() {
         var obj = JSON.parse(responseText);
         console.log("response: " + obj);
 		
+        successCallback();
       })
       .done(function() {
         console.log("query: done");
       })
       .fail(function(xhr, status, error) {
         console.log("query: fail");
+        failureCallback();
 	 });
-});
+}
 
-$("#login_button").click(function() {
-    
-    login_email = $("#register_email").val();
-    login_password = $("#register_password").val();
-        
-    if(!login_email || !login_password) {
+function loginUser(email, password, successCallback, failureCallback) {
+    if(!email || !password) {
         console.log("Email or password not provided.");
         return;
     }
     
     var query = server_url + query_login_user;
     console.log("query: " + query);
+       
+    var data = {"email" : email,
+		"password" : password};
     
-    $.post(query, {email : register_email, password : register_password }, function(responseText) {
+    $.post(query, data, function(responseText) {
         console.log("query: response");
         
         var obj = JSON.parse(responseText);
         console.log("response: " + obj);
+        successCallback();
 		
       })
       .done(function() {
@@ -62,5 +73,6 @@ $("#login_button").click(function() {
       })
       .fail(function(xhr, status, error) {
         console.log("query: fail");
+        failureCallback();
 	 });
-});
+}

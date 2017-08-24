@@ -59,23 +59,19 @@ $(function() {
   });
   //Login
   $("#login").click(function(){
-	  //try to login
-	 /** $.post( adresse, data, function(responseText) {
-      
-      })
-      .done(function() {
-      })
-      .fail(function(xhr, status, error) {
-		  
-	    })
-      .always(function() {
-      });/**/
-	
-	  //login succsess
-	  $("#login_bar").prop("hidden",true);
-	  $("#eingeloggt_bar").prop("hidden",false);
-	    
-	  return false;
+    login_email = $("#email").val();
+    login_password = $("#password").val();
+        
+    loginUser(login_email, login_password, function() {
+        //login succsess       
+        console.log("Logging in user successfully.");
+	$("#login_bar").prop("hidden",true);
+	$("#eingeloggt_bar").prop("hidden",false);
+    }, function() {
+        //failure
+        console.log("Error authenticating user");
+    });
+    return false;
   });
   //Login
   $("#logout").click(function(){
