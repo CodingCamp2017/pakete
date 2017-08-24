@@ -19,6 +19,11 @@ body {
 .zip_input {
 	width: 4em;
 }
+.error{
+	border-radius: 5px; 
+	border:#FF0000 1px solid;
+}
+
 
 @media (min-width: 992px) {
     body {
