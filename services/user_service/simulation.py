@@ -8,6 +8,7 @@ import json
 import sys
 import os
 sys.path.append(os.path.relpath('../mykafka'))
+sys.path.append(os.path.relpath('../common'))
 import mykafka
 import signal
 import threading
