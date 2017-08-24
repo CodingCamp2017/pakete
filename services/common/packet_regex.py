@@ -43,10 +43,10 @@ syntax_delivered = [('packet_id', regex_id)]
 This lists the required keys and a regex for the value of the addUser command
 '''
 syntax_add_user = [('email', regex_email),
-                   ('name',regex_name),
-                   ('street', regex_street),
-                   ('zip', regex_zip), 
-                   ('city', regex_city),
+                   #('name',regex_name),
+                   #('street', regex_street),
+                   #('zip', regex_zip), 
+                   #('city', regex_city),
                    ('password', regex_password)]
 '''
 This lists the required keys and a regex for the value of the authenticateUser
