@@ -26,7 +26,7 @@ $(function() {
 		//Liste
 		//Erste Spalte
 		$("#regloc").text(obj.sender_city);
-		$("#regdate").text(obj.packetRegistrationTime);
+		$("#regdate").text(getDate(obj.packetRegistrationTime));
 		//Restliche Spalten
 		removeRows();
 		
@@ -55,9 +55,23 @@ $(function() {
   });
   
 });
+function getDate(date){
+	if(date.toString().includes("/")){
+		//console.log("Altes Fromat");
+		return date;
+	}else{
+		console.log("Neuses Fromat");
+		return new Date(date);
+	}
+	return false;
+}
+
 //int/String/String/String
 function addRow(index,symbol,loca,date){
-	$('#Nachverfolgung > tbody:last-child').append('<tr name="addedRow"><th scope="row">'+index+'</th><td><i class="'+symbol+'"></i></td><td>'+loca+'</td><td>'+date+'</td></tr>');
+	
+	
+	
+	$('#Nachverfolgung > tbody:last-child').append('<tr name="addedRow"><th scope="row">'+index+'</th><td><i class="'+symbol+'"></i></td><td>'+loca+'</td><td>'+getDate(date)+'</td></tr>');
 }
 function removeRows(){
 	$("[name='addedRow']").remove();
