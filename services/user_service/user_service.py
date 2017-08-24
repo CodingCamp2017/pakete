@@ -99,7 +99,8 @@ class UserService:
         self.p_cur.execute('SELECT (packet) FROM followed_packets WHERE email=?',
                          (data['email'],))
         self._update_session_id_timestamp(data['email'], data['session_id'])
-        return self.p_cur.fetchall()
+        packets = [p[0] for p in self.p_cur.fetchall()]
+        return packets
         
     def logout_user(self, data):
         packet_regex.check_json_regex(data, packet_regex.syntax_get_packets_from_user)

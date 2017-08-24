@@ -31,7 +31,7 @@ def create_test_add_user_json():
     return json.dumps(data)
 
 def create_simple_test_user():
-    return {'email' : 'oliver@brehm.de', 'password' : '12345678'}
+    return {'email' : 'oliver3@brehm.de', 'password' : '12345678'}
 
 
 def create_add_packet_data(email, session_id):
@@ -63,9 +63,8 @@ def simulate_user_behaviour():
                     user_service.add_packet_to_user(create_add_packet_data(email, session_id))
                     print('User {} added packet'.format(user_data['email']))
                 else:
-                    print('hi')
-                    #packets = user_service.get_packets_from_user(create_session_data(email, session_id))
-                    #print('User {} has packets {}'.format(user_data['email']), packets)
+                    packets = user_service.get_packets_from_user(create_session_data(email, session_id))
+                    print('User {} has packets'.format(user_data['email'], packets))
                 #time.sleep(randint(1,2))
             user_service.logout_user(create_session_data(user_data['email'], session_id))
             print('User {} logged out'.format(user_data['email']))
