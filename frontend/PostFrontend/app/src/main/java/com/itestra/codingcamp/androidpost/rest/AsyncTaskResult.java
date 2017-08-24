@@ -2,6 +2,11 @@ package com.itestra.codingcamp.androidpost.rest;
 
 import com.itestra.codingcamp.androidpost.exceptions.RestException;
 
+/**
+ * This is a helper class that allows "throwing" Exceptions in AsyncTask that is received by a different Thread via getError()
+ *
+ */
+
 public class AsyncTaskResult<T> {
     private T result;
     private RestException error;

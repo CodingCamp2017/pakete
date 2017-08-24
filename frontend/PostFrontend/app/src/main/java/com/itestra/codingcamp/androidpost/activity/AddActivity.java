@@ -11,6 +11,9 @@ import android.widget.ToggleButton;
 
 import com.google.zxing.integration.android.IntentResult;
 import com.itestra.codingcamp.androidpost.R;
+import com.itestra.codingcamp.androidpost.exceptions.InvalidValueException;
+import com.itestra.codingcamp.androidpost.exceptions.RestException;
+import com.itestra.codingcamp.androidpost.exceptions.ServerException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,7 +47,15 @@ public class AddActivity extends BaseActivity {
             try {
                 String id = restInterface.newPackage(data);
                 Toast.makeText(this, "Registered package: "+id, Toast.LENGTH_LONG).show();
-            } catch (Exception e) {
+            } catch (InvalidValueException e) {
+                // TODO show in GUI
+                System.err.println(e.getKey() + " has error " + e.getMessage());
+            } catch (ServerException e) {
+                System.err.println("ServerException: " + e.getMessage());
+            } catch (RestException e) {
+                System.err.println("RestException: " + e.getMessage());
+            }
+            catch (Exception e) {
                 e.printStackTrace();
             }
         });
