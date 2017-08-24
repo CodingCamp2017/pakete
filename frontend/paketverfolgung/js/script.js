@@ -9,7 +9,7 @@ $(function() {
 	var set = "#packet_id";
 	var butt = "#update_packet_button";
 	waitOnServer(set,butt);
-	var jqxhr = $.get( server_url + "packetStatus/"+$("#packet_id").val(), function(responseText) {
+	$.get( server_url + "packetStatus/"+$("#packet_id").val(), function(responseText) {
 		var obj = JSON.parse(responseText);
 		//sender Adresse
 		$("#sender_name").val(obj.sender_name);
@@ -57,24 +57,49 @@ $(function() {
 	
 	return false;
   });
-  
+  //Login
+  $("#login").click(function(){
+	  //try to login
+	  $.post( adresse, data, function(responseText) {
+      
+      })
+      .done(function() {
+      })
+      .fail(function(xhr, status, error) {
+		  
+	    })
+      .always(function() {
+      });
+	
+	  //login succsess
+	  $("#login_bar").prop("hidden",true);
+	  $("#eingeloggt_bar").prop("hidden",false);
+	    
+	  return false;
+  });
+  //Login
+  $("#logout").click(function(){
+	  //try to logout
+	  
+	  //logout succsess
+	  $("#login_bar").prop("hidden",false);
+	  $("#eingeloggt_bar").prop("hidden",true);
+	  return false;
+  });
 });
 function getDate(date){
 	if(date.toString().includes("/")){
 		//console.log("Altes Fromat");
 		return date;
 	}else{
-		console.log("Neuses Fromat");
-		return new Date(date);
+		console.log(date);
+		return new Date(parseInt(date)*1000);
 	}
 	return false;
 }
 
 //int/String/String/String
 function addRow(index,symbol,loca,date){
-	
-	
-	
 	$('#Nachverfolgung > tbody:last-child').append('<tr name="addedRow"><th scope="row">'+index+'</th><td><i class="'+symbol+'"></i></td><td>'+loca+'</td><td>'+getDate(date)+'</td></tr>');
 }
 function removeRows(){
