@@ -18,22 +18,22 @@ class UserService:
     def __init__(self,producer):
         os.system('sqlite3 user_database.db < user_database_schema.sql')
         os.system('sqlite3 followed_packets_database.db < followed_packets_database_schema.sql')
-        self.u_con = sql.connect("user_database.db")
+        self.u_con = sql.connect('user_database.db', check_same_thread=False)
         self.u_cur = self.u_con.cursor()
-        self.p_con = sql.connect("followed_packets_database.db")
+        self.p_con = sql.connect('followed_packets_database.db', check_same_thread=False)
         self.p_cur = self.p_con.cursor()
         self.producer = producer
                 
     def _user_exists(self, email):
-        self.u_cur.execute("SELECT EXISTS(SELECT 1 FROM users WHERE email=?)", (email,))
+        self.u_cur.execute('SELECT EXISTS(SELECT 1 FROM users WHERE email=?)', (email,))
         return self.u_cur.fetchone()[0]
             
     def _session_active(self, email, session_id):
-        self.u_cur.execute("SELECT session_id, session_id_timestamp FROM users WHERE email=?", (email,))
+        self.u_cur.execute('SELECT session_id, session_id_timestamp FROM users WHERE email=?', (email,))
         [user_session_id, session_id_timestamp] = self.u_cur.fetchone()
         if user_session_id != session_id :
             raise InvalidSessionIdException
-        elapsed_time = datetime.now() - datetime.strptime(session_id_timestamp, "%Y-%m-%d %H:%M:%S.%f")
+        elapsed_time = datetime.now() - datetime.strptime(session_id_timestamp, '%Y-%m-%d %H:%M:%S.%f')
         return elapsed_time.total_seconds() < 600
     
     def _update_session_id_timestamp(self, email, session_id):
@@ -46,21 +46,19 @@ class UserService:
         if not self._session_active(email, session_id):
             raise SessionElapsedException
         
-    def add_user(self, json_data):
-        data = json.loads(json_data)
+    def add_user(self, data):
         packet_regex.check_json_regex(data, packet_regex.syntax_add_user)
         if self._user_exists(data['email']):
             raise UserExistsException
         
         password_hash = pbkdf2_sha256.hash(data['password'])
-        self.u_cur.execute("INSERT INTO users (email, password, name, street, zip, city, session_id, session_id_timestamp) VALUES (?,?,?,?,?,?,?,?)",
-                           (data['email'], password_hash, data['name'], data['street'], data['zip'], data['city'], '', ''))
+        self.u_cur.execute('INSERT INTO users (email, password, name, street, zip, city, session_id, session_id_timestamp) VALUES (?,?,?,?,?,?,?,?)',
+                           (data['email'], password_hash, '', '', '', '', '', ''))
         self.u_con.commit()
 
         mykafka.sendSync(self.producer, 'user', 'user_added', 1, data)
     
-    def authenticate_user(self, json_data):
-        data = json.loads(json_data)
+    def authenticate_user(self, data):
         packet_regex.check_json_regex(data, packet_regex.syntax_authenticate_user)
         if not self._user_exists(data['email']):
             raise UserUnknownException
@@ -72,29 +70,27 @@ class UserService:
         session_id = str(uuid.uuid1())
         self.u_cur.execute('UPDATE users SET (session_id, session_id_timestamp) = (?,?) WHERE email = ?',
                            (session_id, str(datetime.now()), data['email']))
+        self.u_con.commit()
         return session_id
 
-    def update_user_adress(self, json_data):
-        data = json.loads(json_data)
+    def update_user_adress(self, data):
         packet_regex.check_json_regex(data, packet_regex.syntax_update_user_adress)
         self._check_user_valid_session_active(data['email'], data['session_id'])
         self.u_cur.execute('UPDATE users SET (street, zip, city) = (?,?,?) WHERE email = ?',
                            (data['street'], data['zip'], data['city'], data['email']))
+        self.u_con.commit()
         self._update_session_id_timestamp(data['email'], data['session_id'])
     
-    def add_packet_to_user(self, json_data):
-        
-        data = json.loads(json_data)
+    def add_packet_to_user(self, data):
         packet_regex.check_json_regex(data, packet_regex.syntax_add_packet_to_user)
         self._check_user_valid_session_active(data['email'], data['session_id'])
             
         self.p_cur.execute('INSERT INTO followed_packets (email, packet) VALUES (?,?)',
                            (data['email'], data['packet']))
+        self.u_con.commit()
         self._update_session_id_timestamp(data['email'], data['session_id'])
         
-    def get_packets_from_user(self, json_data):
-        
-        data = json.loads(json_data)
+    def get_packets_from_user(self, data):
         packet_regex.check_json_regex(data, packet_regex.syntax_get_packets_from_user)
         self._check_user_valid_session_active(data['email'], data['session_id'])
             
@@ -103,22 +99,21 @@ class UserService:
         self.p_cur.fetchall()
         self._update_session_id_timestamp(data['email'], data['session_id'])
         
-    def logout_user(self, json_data):
-        
-        data = json.loads(json_data)
+    def logout_user(self, data):
         packet_regex.check_json_regex(data, packet_regex.syntax_get_packets_from_user)
         self._check_user_valid_session_active(data['email'], data['session_id'])
         self.u_cur.execute('UPDATE users SET (session_id, session_id_timestamp) = (?,?) WHERE email = ?',
                            ('', '', data['email']))
+        self.u_con.commit()
         
-    def delete_user(self, json_data):
-        data = json.loads(json_data)
+    def delete_user(self, data):
         packet_regex.check_json_regex(data, packet_regex.syntax_delete_user)
         self._check_user_valid_session_active(data['email'], data['session_id'])
         self.u_cur.execute('DELETE FROM users WHERE email = ?',
                          (data['email'],))
         self.p_cur.execute('DELETE FROM followed_packets WHERE email = ?',
                          (data['email'],))
+        self.u_con.commit()
         
     def __deinit__(self):
         self.u_con.close()

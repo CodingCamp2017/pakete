@@ -16,14 +16,6 @@ import uuid
 
 from Exceptions import UserExistsException, UserUnknownException, InvalidSessionIdException, SessionElapsedException, InvalidPasswortException
 
-def sigint_handler(signum, frame):
-    print("Interrupted")
-    threadStop.set()
-
-lock = threading.Lock()
-threadStop = threading.Event()
-signal.signal(signal.SIGINT, sigint_handler)
-
 
 char_set = string.ascii_uppercase + string.ascii_lowercase + string.digits
 sizes = ['small','normal','big']
@@ -42,66 +34,52 @@ def create_test_add_user_json():
             'password' : ''.join(sample(char_set*8, 8))}
     return json.dumps(data)
 
-def create_authentification_data(user_data):
-    user = json.loads(user_data)
-    return json.dumps({'email' : user['email'], 'password' : user['password']})
+def create_simple_test_user():
+    return {'email' : 'bal@as.de', 'password' : 'shdjfhfh'}
+
 
 def create_add_packet_data(email, session_id):
-    user = json.loads(user_data)
-    return json.dumps({'email' : user['email'],
-                       'packet' : str(uuid.uuid1()),
-                       'password' : user['password']})
+    return {'email' : email,
+            'packet' : str(uuid.uuid1()),
+            'session_id' : session_id}
         
 def create_session_data(email, session_id):
-    user = json.loads(user_data)
-    return json.dumps({'email' : user['email'],
-                       'password' : user['password']})
+    return {'email' : email,
+            'session_id' : session_id}
 
-user_options = {0 : user_service.add_packet_to_user,
-                1 : user_service.get_packets_from_user}
-
-user_data = {0 : create_add_packet_data,
-             1 : create_session_data}
 
 def simulate_user_behaviour():
-    while True:#not threadStop.is_set():
-        user_json = create_test_add_user_json()
-        user_data = json.loads(user_json)
-        user_service.add_user(user_json)
+    for i in range(3):
+        user_data = create_simple_test_user()
+        email = user_data['email']
+        user_service.add_user(user_data)
         print('User {} added'.format(user_data['email']))
-        time.sleep(randint(1,2))
+        #time.sleep(randint(1,2))
         
         for i in range(randint(0,10)):
             
-            session_id = user_service.authenticate_user(create_authentification_data(user_json))
-            print('User {} authenticated with session id {}'.format(user_data['email'], session_id))
-            time.sleep(randint(1,2))
+            session_id = user_service.authenticate_user(user_data)
+            print('User {} authenticated '.format(user_data['email']))
+            #time.sleep(randint(1,2))
             for j in range(randint(0,10)):
-                user_options[j % 2](user_data[j % 2](user_data['email'], session_id))
-                print('User {} option {}'.format(user_data['email']), j % 2)
-                time.sleep(randint(1,2))
+                if randint(0,1):
+                    user_service.add_packet(create_add_packet_data(email, session_id))
+                    print('User {} added packet'.format(user_data['email']))
+                else:
+                    packets = user_service.get_packets_from_user(create_session_data(email, session_id))
+                    print('User {} has packets {}'.format(user_data['email']), packets)
+                #time.sleep(randint(1,2))
             user_service.logout_user(create_session_data(user_data['email'], session_id))
-            print('User {} logged out'.format(user_data['email']), session_id)
-            time.sleep(randint(1,2))
+            print('User {} logged out'.format(user_data['email']))
+            #time.sleep(randint(1,2))
     
-        session_id = user_service.authenticate_user(create_authentification_data(user_json))
-        print('User {} authenticated with session id {}'.format(user_data['email']), session_id)
-        time.sleep(randint(1,2))
-        user_service.delete(create_session_data(user_data['email'], session_id))
-        print('User {} deleted'.format(user_data['email']), session_id)
-        time.sleep(randint(1,2))
+        #session_id = user_service.authenticate_user(user_data)
+        #print('User {} authenticated with session id {}'.format(user_data['email']), session_id)
+        #time.sleep(randint(1,2))
+        #user_service.delete(create_session_data(user_data['email'], session_id))
+        #print('User {} deleted'.format(user_data['email']), session_id)
+        #time.sleep(randint(1,2))
 
 
 if __name__ == '__main__':
     simulate_user_behaviour()
-#    threadStop.clear()
-#    threads = list()
-#    threads.append(threading.Thread(target=simulate_user_behaviour))
-#    threads.append(threading.Thread(target=simulate_user_behaviour))
-#    threads.append(threading.Thread(target=simulate_user_behaviour))
-    
-#    for t in threads:
- #       t.start()
-
-  #  for t in threads:
-   #     t.join(timeout=10)

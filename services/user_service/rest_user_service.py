@@ -5,14 +5,15 @@ import sys
 import os
 
 sys.path.append(os.path.relpath('../mykafka'))
+sys.path.append(os.path.relpath('../rest_common'))
 import mykafka
+import rest_common
+
 import getopt
 from Exceptions import InvalidActionException, UserExistsException, UserUnknownException, SessionElapsedException, InvalidPasswortException
 from flask import Flask, request
 from user_service import UserService
 
-sys.path.append(os.path.relpath('../rest_common'))
-import rest_common
 
 app = Flask(__name__)
 user_service = UserService(mykafka.create_producer('ec2-35-159-21-220.eu-central-1.compute.amazonaws.com', 9092))
@@ -20,7 +21,7 @@ user_service = UserService(mykafka.create_producer('ec2-35-159-21-220.eu-central
 @app.route('/add_user', methods=['POST'])
 def restAddUser():
     try:
-        data = rest_common.getData(request)
+        data = rest_common.get_rest_data(request)
         user_service.add_user(data)
         return rest_common.create_response(200)
     except InvalidActionException as e:
@@ -31,7 +32,7 @@ def restAddUser():
 @app.route('/authenticate_user', methods=['POST'])
 def restAuthenticateUser():
     try:
-        data = rest_common.getData(request)
+        data = rest_common.get_rest_data(request)
         user_service.authenticate_user(data)
         return rest_common.create_response(200)
     except InvalidActionException as e:
@@ -44,7 +45,7 @@ def restAuthenticateUser():
 @app.route('/update_user_adress', methods=['POST'])
 def restUpdateAdress():
     try:
-        data = rest_common.getData(request)
+        data = rest_common.get_rest_data(request)
         user_service.update_user_adress(data)
         return rest_common.create_response(200)
     except InvalidActionException as e:
@@ -57,7 +58,7 @@ def restUpdateAdress():
 @app.route('/add_packet_to_user', methods=['POST'])
 def restAddPacket():
     try:
-        data = rest_common.getData(request)
+        data = rest_common.get_rest_data(request)
         user_service.add_packet_to_user(data)
         return rest_common.create_response(200)
     except InvalidActionException as e:
@@ -70,7 +71,7 @@ def restAddPacket():
 @app.route('/get_packets_from_user', methods=['POST'])
 def restGetPacket():
     try:
-        data = rest_common.getData(request)
+        data = rest_common.get_rest_data(request)
         user_service.add_packet_to_user(data)
         return rest_common.create_response(200)
     except InvalidActionException as e:
@@ -83,7 +84,7 @@ def restGetPacket():
 @app.route('/delete_user', methods=['POST'])
 def restDeleteUser():
     try:
-        data = rest_common.getData(request)
+        data = rest_common.get_rest_data(request)
         user_service.delete_user(data)
         return rest_common.create_response(200)
     except InvalidActionException as e:
