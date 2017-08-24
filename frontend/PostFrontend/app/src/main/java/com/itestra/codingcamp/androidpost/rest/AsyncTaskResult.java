@@ -23,6 +23,10 @@ public class AsyncTaskResult<T> {
         return getError() != null;
     }
 
+    public AsyncTaskResult() { //empty result but no error
+        super();
+    }
+
     public AsyncTaskResult(T result) {
         super();
         this.result = result;

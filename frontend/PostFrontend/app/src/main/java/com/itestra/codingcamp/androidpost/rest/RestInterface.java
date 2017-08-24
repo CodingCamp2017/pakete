@@ -62,7 +62,7 @@ public class RestInterface {
         return httpURLConnection;
     }
 
-    private JSONObject handleResponse(HttpURLConnection connection) throws JSONException, IOException, RestException {
+    private JSONObject processResponse(HttpURLConnection connection) throws JSONException, IOException, RestException {
         int statusCode = connection.getResponseCode();
 
         System.out.println("Status: " + statusCode);
@@ -119,14 +119,12 @@ public class RestInterface {
 
                     System.out.println(json.toString());
                     try {
-                        JSONObject response = handleResponse(connection);
+                        JSONObject response = processResponse(connection);
                         return new AsyncTaskResult<String>(response.getString("id"));
                     } catch (RestException e) {
                         return new AsyncTaskResult<String>(e);
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (JSONException e) {
+                } catch (IOException|JSONException e ) {
                     e.printStackTrace();
                 } finally {
                     try {
@@ -135,7 +133,7 @@ public class RestInterface {
                         e.printStackTrace();
                     }
                 }
-                return null;
+                return new AsyncTaskResult<String>(new RestException("No result was received"));
             }
         }).execute(data).get();
 
@@ -146,10 +144,10 @@ public class RestInterface {
         }
     }
 
-    public void updatePackage(String id, String station, String vehicle) {
-        (new AsyncTask<String, Void, Void>() {
+    public void updatePackage(String id, String station, String vehicle) throws ExecutionException, InterruptedException, RestException {
+        AsyncTaskResult<Void> result = (new AsyncTask<String, Void, AsyncTaskResult<Void>>() {
             @Override
-            protected Void doInBackground(String... params) {
+            protected AsyncTaskResult<Void> doInBackground(String... params) {
                 String id = params[0];
                 String station = params[1];
                 String vehicle = params[2];
@@ -157,10 +155,10 @@ public class RestInterface {
                 System.out.println("update package with ID: " + id + "(" + station + ", " + vehicle + ")");
 
                 OutputStream outputStream = null;
-                BufferedInputStream inputStream = null;
+                HttpURLConnection connection = null;
 
                 try {
-                    HttpURLConnection connection = getPostConnection(RestInterface.this.url + "packet/" + id +"/update");
+                    connection = getPostConnection(RestInterface.this.url + "packet/" + id +"/update");
 
                     outputStream = connection.getOutputStream();
 
@@ -178,48 +176,43 @@ public class RestInterface {
 
                     System.out.println(json.toString());
 
-                    int statusCode = connection.getResponseCode();
-
-                    System.out.println("Status: " + statusCode);
-
-                    if (statusCode == 200) {
-                        inputStream = new BufferedInputStream(connection.getInputStream());
-                        String response = convertStreamToString(inputStream);
-                        System.out.println("Response: " + response);
-                        System.out.println("resp msg" + connection.getResponseMessage());
-                    } else {
-                        System.out.println("error " + statusCode);
-                        System.out.println("err stream" + convertStreamToString(connection.getErrorStream()));
+                    try {
+                        processResponse(connection);
+                        return new AsyncTaskResult<Void>();
+                    } catch (RestException e) {
+                        return new AsyncTaskResult<Void>(e);
                     }
-
-                } catch (Exception e) {
+                } catch (IOException|JSONException e ) {
                     e.printStackTrace();
                 } finally {
                     try {
-                        if (inputStream != null) inputStream.close();
-                        if (outputStream != null) outputStream.close();
+                        if (connection != null) connection.disconnect();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
-                return null;
+                return new AsyncTaskResult<Void>(new RestException("No result was received"));
             }
-        }).execute(id, station, vehicle);
+        }).execute(id, station, vehicle).get();
+
+        if (result.hasError()) {
+            throw result.getError();
+        }
     }
 
-    public void deliverPacket(String id) {
-        (new AsyncTask<String, Void, Void>() {
+    public void deliverPacket(String id) throws ExecutionException, InterruptedException, RestException {
+        AsyncTaskResult<Void> result = (new AsyncTask<String, Void, AsyncTaskResult<Void>>() {
             @Override
-            protected Void doInBackground(String... params) {
+            protected AsyncTaskResult<Void> doInBackground(String... params) {
                 String id = params[0];
 
                 System.out.println("deliver package with ID: " + id);
 
                 OutputStream outputStream = null;
-                BufferedInputStream inputStream = null;
+                HttpURLConnection connection = null;
 
                 try {
-                    HttpURLConnection connection = getPostConnection(RestInterface.this.url + "packet/" + id +"/delivered");
+                    connection = getPostConnection(RestInterface.this.url + "packet/" + id +"/delivered");
 
                     outputStream = connection.getOutputStream();
 
@@ -227,32 +220,27 @@ public class RestInterface {
                     bufferedWriter.write("{}");
                     bufferedWriter.flush();
 
-                    int statusCode = connection.getResponseCode();
-
-                    System.out.println("Status: " + statusCode);
-
-                    if (statusCode == 200) {
-                        inputStream = new BufferedInputStream(connection.getInputStream());
-                        String response = convertStreamToString(inputStream);
-                        System.out.println("Response: " + response);
-                        System.out.println("resp msg" + connection.getResponseMessage());
-                    } else {
-                        System.out.println("error " + statusCode);
-                        System.out.println("err stream" + convertStreamToString(connection.getErrorStream()));
+                    try {
+                        processResponse(connection);
+                        return new AsyncTaskResult<Void>();
+                    } catch (RestException e) {
+                        return new AsyncTaskResult<Void>(e);
                     }
-
-                } catch (Exception e) {
+                } catch (IOException|JSONException e ) {
                     e.printStackTrace();
                 } finally {
                     try {
-                        if (inputStream != null) inputStream.close();
-                        if (outputStream != null) outputStream.close();
+                        if (connection != null) connection.disconnect();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
-                return null;
+                return new AsyncTaskResult<Void>(new RestException("No result was received"));
             }
-        }).execute(id);
+        }).execute(id).get();
+
+        if (result.hasError()) {
+            throw result.getError();
+        }
     }
 }

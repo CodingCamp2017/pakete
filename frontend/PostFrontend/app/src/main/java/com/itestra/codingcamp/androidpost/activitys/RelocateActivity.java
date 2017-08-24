@@ -7,7 +7,10 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.itestra.codingcamp.androidpost.R;
+import com.itestra.codingcamp.androidpost.exceptions.InvalidValueException;
 import com.itestra.codingcamp.androidpost.exceptions.NoScanButtonException;
+import com.itestra.codingcamp.androidpost.exceptions.RestException;
+import com.itestra.codingcamp.androidpost.exceptions.ServerException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,7 +46,21 @@ public class RelocateActivity extends BaseActivity{
             }
         }
 
-        restInterface.updatePackage(id, station, vehicle);
+        try {
+            restInterface.updatePackage(id, station, vehicle);
+            Toast.makeText(this, "Packet relocated!", Toast.LENGTH_SHORT).show();
+        } catch (InvalidValueException e) {
+            // TODO show in GUI
+            System.err.println(e.getKey() + " has error " + e.getMessage());
+        } catch (ServerException e) {
+            System.err.println("ServerException: " + e.getMessage());
+        } catch (RestException e) {
+            System.err.println("RestException: " + e.getMessage());
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override
