@@ -90,8 +90,29 @@ function getDate(date){
 		//console.log("Altes Fromat");
 		return date;
 	}else{
-		console.log(date);
-		return new Date(parseInt(date)*1000);
+		var date = new Date(parseInt(date)*1000);
+		var text = "";
+		var x = date.getDate();
+		if(x < 10){
+			text += "0"
+		}
+		text += x + ".";
+		x = date.getMonth()+1;
+		if(x < 10){
+			text += "0"
+		}
+		text += x + "."+date.getFullYear()  + " ";
+		x = date.getHours();
+		if(x < 10){
+			text += "0"
+		}
+		text += x + ":";
+			x = date.getMinutes();
+		if(x < 10){
+			text += "0"
+		}
+		text += x;
+		return text;
 	}
 	return false;
 }
