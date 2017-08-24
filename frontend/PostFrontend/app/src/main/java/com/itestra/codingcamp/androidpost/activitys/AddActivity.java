@@ -1,7 +1,10 @@
 package com.itestra.codingcamp.androidpost.activitys;
 
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -16,6 +19,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Toni on 23.08.2017.
@@ -23,17 +27,9 @@ import java.util.List;
 
 public class AddActivity extends BaseActivity {
 
-    private EditText editTextSenderName;
+    private Map<String, TextView> inputMap;
 
-    private EditText editTextSenderAddress;
-    private EditText editTextSenderZip;
-    private EditText editTextSenderCity;
-    private EditText editTextReceiverName;
-    private EditText editTextReceiverAddress;
-    private EditText editTextReceiverZip;
-    private EditText editTextReceiverCity;
     List<ToggleButton> sizeToggleButtons;
-    private EditText editTextPackageWeight;
 
     @Override
     int getContentViewId() {
@@ -52,7 +48,7 @@ public class AddActivity extends BaseActivity {
             String id = restInterface.newPackage(data);
             Toast.makeText(this, "Registered package: "+id, Toast.LENGTH_LONG).show();
         } catch (InvalidValueException e) {
-            // TODO show in GUI
+            inputMap.get(e.getKey()).setError(getResources().getString(R.string.invalid_value));
             System.err.println(e.getKey() + " has error " + e.getMessage());
         } catch (ServerException e) {
             System.err.println("ServerException: " + e.getMessage());
@@ -69,15 +65,15 @@ public class AddActivity extends BaseActivity {
         JSONObject jsonReceiver = fakeDataProvider.getRandomFakeData();
 
         try {
-            editTextSenderName.setText(jsonSender.get("name").toString());
-            editTextSenderAddress.setText(jsonSender.get("street").toString());
-            editTextSenderZip.setText(fakeDataProvider.getRandomFakeZip());
-            editTextSenderCity.setText(jsonSender.get("city").toString());
-            editTextReceiverName.setText(jsonReceiver.get("name").toString());
-            editTextReceiverAddress.setText(jsonReceiver.get("street").toString());
-            editTextReceiverZip.setText(fakeDataProvider.getRandomFakeZip());
-            editTextReceiverCity.setText(jsonReceiver.get("city").toString());
-            editTextPackageWeight.setText(jsonReceiver.get("weight").toString());
+            inputMap.get(getResources().getString(R.string.data_sender_name)).setText(jsonSender.get("name").toString());;
+            inputMap.get(getResources().getString(R.string.data_sender_street)).setText(jsonSender.get("street").toString());;
+            inputMap.get(getResources().getString(R.string.data_sender_zip)).setText(fakeDataProvider.getRandomFakeZip());;
+            inputMap.get(getResources().getString(R.string.data_sender_city)).setText(jsonSender.get("city").toString());;
+            inputMap.get(getResources().getString(R.string.data_receiver_name)).setText(jsonReceiver.get("name").toString());;
+            inputMap.get(getResources().getString(R.string.data_receiver_street)).setText(jsonReceiver.get("street").toString());;
+            inputMap.get(getResources().getString(R.string.data_receiver_zip)).setText(fakeDataProvider.getRandomFakeZip());;
+            inputMap.get(getResources().getString(R.string.data_receiver_city)).setText(jsonReceiver.get("city").toString());;
+            inputMap.get(getResources().getString(R.string.data_weight)).setText(jsonReceiver.get("weight").toString());;
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -92,15 +88,16 @@ public class AddActivity extends BaseActivity {
     }
 
     private void initInputs() {
-        editTextSenderName = (EditText) findViewById(R.id.edittext_sender_name);
-        editTextSenderAddress = (EditText) findViewById(R.id.edittext_sender_address);
-        editTextSenderZip = (EditText) findViewById(R.id.edittext_sender_zip);
-        editTextSenderCity = (EditText) findViewById(R.id.edittext_sender_city);
-        editTextReceiverName = (EditText) findViewById(R.id.edittext_receiver_name);
-        editTextReceiverAddress = (EditText) findViewById(R.id.edittext_receiver_address);
-        editTextReceiverZip = (EditText) findViewById(R.id.edittext_receiver_zip);
-        editTextReceiverCity = (EditText) findViewById(R.id.edittext_receiver_city);
-        editTextPackageWeight = (EditText) findViewById(R.id.edittext_packet_weight);
+        inputMap = new HashMap<>();
+        inputMap.put(getResources().getString(R.string.data_sender_name), (EditText) findViewById(R.id.edittext_sender_name));
+        inputMap.put(getResources().getString(R.string.data_sender_street), (EditText) findViewById(R.id.edittext_sender_address));
+        inputMap.put(getResources().getString(R.string.data_sender_zip), (EditText) findViewById(R.id.edittext_sender_zip));
+        inputMap.put(getResources().getString(R.string.data_sender_city), (EditText) findViewById(R.id.edittext_sender_city));
+        inputMap.put(getResources().getString(R.string.data_receiver_name), (EditText) findViewById(R.id.edittext_receiver_name));
+        inputMap.put(getResources().getString(R.string.data_receiver_street), (EditText) findViewById(R.id.edittext_receiver_address));
+        inputMap.put(getResources().getString(R.string.data_receiver_zip), (EditText) findViewById(R.id.edittext_receiver_zip));
+        inputMap.put(getResources().getString(R.string.data_receiver_city), (EditText) findViewById(R.id.edittext_receiver_city));
+        inputMap.put(getResources().getString(R.string.data_weight), (EditText) findViewById(R.id.edittext_packet_weight));
     }
 
     private void initToggleButtons() {
@@ -110,27 +107,24 @@ public class AddActivity extends BaseActivity {
         sizeToggleButtons.add((ToggleButton) findViewById(R.id.toggle_size_big));
 
         for (ToggleButton toggleButton : sizeToggleButtons) {
-            toggleButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            toggleButton.setOnClickListener(v -> {
                 sizeToggleButtons.forEach(t -> {
                     t.setChecked(false);
                 });
-                toggleButton.setChecked(isChecked);
+                toggleButton.setChecked(true);
             });
         }
     }
 
     private HashMap<String, String> getPacketData() {
         HashMap<String, String> data = new HashMap<>();
-        data.put("sender_name", editTextSenderName.getText().toString());
-        data.put("sender_street", editTextSenderAddress.getText().toString());
-        data.put("sender_zip", editTextSenderZip.getText().toString());
-        data.put("sender_city", editTextSenderCity.getText().toString());
-        data.put("receiver_name", editTextReceiverName.getText().toString());
-        data.put("receiver_street", editTextReceiverAddress.getText().toString());
-        data.put("receiver_zip", editTextReceiverZip.getText().toString());
-        data.put("receiver_city", editTextReceiverCity.getText().toString());
+        for (Map.Entry<String, TextView> entry : inputMap.entrySet()) {
+            if(entry.getValue() instanceof EditText)
+            {
+                data.put(entry.getKey(), entry.getValue().getText().toString());
+            }
+        }
         data.put("size", getSelectedSize());
-        data.put("weight", ((EditText) findViewById(R.id.edittext_packet_weight)).getText().toString());
 
         return data;
     }

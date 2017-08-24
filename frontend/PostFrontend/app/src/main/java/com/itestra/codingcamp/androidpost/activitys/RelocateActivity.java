@@ -23,6 +23,9 @@ public class RelocateActivity extends BaseActivity{
 
     Map<String, ToggleButton> toggleButtons;
 
+    EditText editTextPacketId;
+    EditText editTextStation;
+
     @Override
     int getContentViewId() {
         return R.layout.activity_relocate;
@@ -35,9 +38,6 @@ public class RelocateActivity extends BaseActivity{
 
     @Override
     void sendData() {
-        String id = ((EditText)findViewById(R.id.edittext_packet_id)).getText().toString();
-        String station = ((EditText)findViewById(R.id.edittext_packet_station)).getText().toString();
-
         String vehicle = "";
 
         for(Map.Entry<String, ToggleButton> entry : toggleButtons.entrySet()) {
@@ -47,10 +47,16 @@ public class RelocateActivity extends BaseActivity{
         }
 
         try {
-            restInterface.updatePackage(id, station, vehicle);
+            restInterface.updatePackage(editTextPacketId.getText().toString(), editTextStation.getText().toString(), vehicle);
             Toast.makeText(this, "Packet relocated!", Toast.LENGTH_SHORT).show();
-        } catch (InvalidValueException e) {
-            // TODO show in GUI
+        }
+        catch (InvalidValueException e) {
+            if(e.getKey().equals(getResources().getString(R.string.data_packet_id))){
+                editTextPacketId.setError(getResources().getString(R.string.invalid_value));
+            }
+            else if(e.getKey().equals(getResources().getString(R.string.data_station))){
+                editTextStation.setError(getResources().getString(R.string.invalid_value));
+            }
             System.err.println(e.getKey() + " has error " + e.getMessage());
         } catch (ServerException e) {
             System.err.println("ServerException: " + e.getMessage());
@@ -67,14 +73,16 @@ public class RelocateActivity extends BaseActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        initToggleButtons();
         try {
             initScanButton();
         } catch (NoScanButtonException e) {
             Toast.makeText(this, "Scan button could not be found!", Toast.LENGTH_LONG).show();
         }
-        initToggleButtons();
 
-        ((EditText)findViewById(R.id.edittext_packet_id)).setText(packet_id);
+        editTextPacketId = (EditText)findViewById(R.id.edittext_packet_id);
+        editTextPacketId.setText(packet_id);
+        editTextStation = (EditText)findViewById(R.id.edittext_packet_station);
     }
 
     private void initToggleButtons() {
@@ -91,9 +99,9 @@ public class RelocateActivity extends BaseActivity{
 
         for(Map.Entry<String, ToggleButton> entry : toggleButtons.entrySet()){
             entry.getValue().setTypeface(fontawesomeProvider.getFontawesome());
-            entry.getValue().setOnCheckedChangeListener((buttonView, isChecked) -> {
+            entry.getValue().setOnClickListener(v -> {
                 toggleButtons.values().forEach(t -> { t.setChecked(false);});
-                entry.getValue().setChecked(isChecked);
+                entry.getValue().setChecked(true);
             });
         }
     }
