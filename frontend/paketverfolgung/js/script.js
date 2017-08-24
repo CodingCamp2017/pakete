@@ -3,6 +3,7 @@ $(function() {
 
  //Send Location update
   $("#update_form").submit(function() {
+  	initMap()
 	  
    // var data = {"id" : $("#packet_id").val() } 
 	var set = "#packet_id";
@@ -40,6 +41,7 @@ $(function() {
 		//Letzte Spalte
 		if(obj.deliveryTime != undefined){
 			addRow(i+2,"fa fa-envelope-open-o",obj.receiver_city,obj.deliveryTime);
+			addresses[addresses.length] = obj.receiver_city
 		}
 		serverReturned("",set,butt);
 		showPathInMap(map, addresses);
@@ -178,7 +180,7 @@ function iconMap(hash){
 var map = null;
 
 function address2coords(address) {
-        return $.get("https://maps.googleapis.com/maps/api/geocode/json?key=AIzaSyASQQsfeuEWdnMjDjSKS8HhIjl6Gr6Qzfo&address=" + address)
+        return $.get("https://maps.googleapis.com/maps/api/geocode/json?key=AIzaSyASQQsfeuEWdnMjDjSKS8HhIjl6Gr6Qzfo&region=de&address=" + address)
       }
 
       function zoomToObject(map, obj){
@@ -209,6 +211,7 @@ function address2coords(address) {
 
             markers[i] = new google.maps.Marker({
               position: coords[i],
+              label: (i + 1).toString(),
               map: map
             });
 
