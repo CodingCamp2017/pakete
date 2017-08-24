@@ -83,6 +83,7 @@ $(function() {
 	  return false;
   });
 });
+
 function getDate(date){
 	if(date.toString().includes("/")){
 		//console.log("Altes Fromat");
