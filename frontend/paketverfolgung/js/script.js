@@ -22,7 +22,7 @@ $(function() {
 		$("#receiver_zip").val(obj.receiver_zip);
 		
 		$("#size").val(obj.size);
-		$("#weight").val(obj.weight);
+		$("#weight").val((obj.weight+"").replace('.',","));
 		//Liste
 		//Erste Spalte
 		$("#regloc").text(obj.sender_city);
@@ -39,7 +39,7 @@ $(function() {
 		if(obj.deliveryTime != undefined){
 			addRow(i+2,"fa fa-envelope-open-o",obj.receiver_city,obj.deliveryTime);
 		}
-		serverReturned(responseText,set,butt);
+		serverReturned("",set,butt);
 		
       })
       .done(function() {
@@ -79,18 +79,17 @@ function serverReturned(info,fset,pbutton){
 }
 function failReturned(error,statu,fset,pbutton){
 	console.log( "error " + statu );
-	console.log( "error " + statu );
 	$(fset).prop("disabled", false);
 	$(pbutton).prop("hidden",false);
 	var errortext = "Ups. Etwas ist schief gegangen. ";
 		if(error === undefined){
-			errortext +="Server ist nicht erreichbar. Überprüfen Sie ihr Internetverbindung und versuchen Sie es später nochmal.";
+			errortext +="Der Server reagiert nicht. Überprüfen Sie ihr Internetverbindung und versuchen Sie es später nochmal.";
 		}else if(statu == 404){
 			
 			errortext = "Diese ID exitiert nicht."
 			
 		}/**else if(statu == 504){
-			errortext +="Der Server meldet einen Fehler. Versuchen Sie es später nochmal.";
+			errortext +="Der Server meldet einen Fehler 504. Versuchen Sie es später nochmal.";
 		}*/else{
 			errortext += error;
 		}
@@ -99,11 +98,16 @@ function failReturned(error,statu,fset,pbutton){
 function cleanUp() {
 	$("#server_answer").prop("hidden",false);
 	$("#spinner").prop("hidden",true);
-	console.log( "finished" );
 }
 function iconMap(hash){
+		if(hash == "center")return "fa fa-building-o";
 		if(hash == "car")return "fa fa-car";
 		if(hash == "foot")return "fa fa-bicycle";
 		if(hash == "plane")return "fa fa-plane";
 		if(hash == "rocket")return "fa fa-rocket";
+		if(hash == "ship")return "fa fa-ship";
+		if(hash == "train")return "fa fa-subway";
+		if(hash == "truck")return "fa fa-truck";
+		if(hash == "failed")return "fa fa-frown-o";
+		//if(hash == "")return "fa fa-flag-checkered"
 }

@@ -91,7 +91,12 @@
             
 			<p>
 			<div class="btn-group" data-toggle="buttons">
+			</label>
+			<label class="btn btn-primary">
+			<input type="radio" name="vehicle" value="center"  id="size_small" /><i class="fa fa-building-o"></i> Warenhaus<br>
+            </label>
 			 <label class="btn btn-primary active">
+			 
 			 <input checked type="radio" name="vehicle" value="car" id="size_small" /><i class="fa fa-car"></i> Auto<br>
         	</label><label class="btn btn-primary"> 
 			<input type="radio" name="vehicle" value="foot"  id="size_small" /><i class="fa fa-bicycle"></i> Träger<br>
@@ -101,9 +106,23 @@
 			<label class="btn btn-primary">
 			<input type="radio" name="vehicle" value="rocket"  id="size_small" /><i class="fa fa-rocket"></i> Rakete<br>
             </label>
+			<label class="btn btn-primary">
+			<input type="radio" name="vehicle" value="ship"  id="size_small" /><i class="fa fa-ship"></i> Schiff<br>
+            </label>
+			<label class="btn btn-primary">
+			<input type="radio" name="vehicle" value="train"  id="size_small" /><i class="fa fa-subway"></i> Zug<br>
+            </label>
+			<label class="btn btn-primary">
+			<input type="radio" name="vehicle" value="truck"  id="size_small" /><i class="fa fa-truck"></i> LKW<br>
+            </label>
+			<label class="btn btn-primary">
+			<input type="radio" name="vehicle" value="failed"  id="size_small" /><i class="fa fa-frown-o"></i> Lieferversuch<br>
+            </label>
+			
 			</div>
 			</div>
 			</p>
+			
             <input type="submit"  value="Paket updaten" id="update_packet_button" class="btn btn-primary" />
           </fieldset>
 		  </form>
@@ -111,10 +130,12 @@
       </div>
 	  <!--bestätigung ID-->
 	  <div class="mx-auto pageContent" >
+	 
+       
 	  <i hidden class="fa fa-spinner fa-spin" style="font-size:50px" id="spinner"></i><br/>
 		<div hidden id="server_answer"></div>
+		 <img id="qrcode" src=""/>
 		
-       
 	  </div>
       <!-- /.container -->
     </div>

@@ -39,19 +39,18 @@ $(function() {
                 "receiver_zip" :    $("#receiver_zip").val(),
                 "receiver_city" :   $("#receiver_city").val(),
                 "size" :            $('input[name=size]:checked').val(),
-                "weight" :          $("#weight").val()
+                "weight" :          $("#weight").val().replace(',',".")
                 }
 
       var set = "#register_form fieldset";
       var butt = "#register_packet_button";
       var jqxhr = $.post(server_url + "register", data, function(obj) {
 		  console.log(obj);
-		serverReturned("Ihr Paket wurde registrieren. Es hat die ID " + obj.id,set,butt);
-
+		serverReturned("Ihr Paket wurde registriert. Es hat die ID " + obj.id,set,butt);
+		$("#qrcode").prop("src","https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + obj.id);
       })
-      .done(function() {
-        console.log( "second success" );
-      })
+      //.done(function() {
+      //})
       .fail(function(xhr, status, error) {
 		 failReturned(xhr.responseText,xhr.status,set,butt);
 		
@@ -80,9 +79,8 @@ $(function() {
     var jqxhr = $.post( adresse, data, function() {
       serverReturned("Verbleib des Pakets wurde aktualisiert.",set,butt);
       })
-      .done(function() {
-        console.log( "second success" );
-      })
+      //.done(function() {
+      //})
       .fail(function(xhr, status, error) {
 		  console.log(status);
         failReturned(xhr.responseText,xhr.status,set,butt);
@@ -114,7 +112,7 @@ function failReturned(error,statu,fset,pbutton){
 	$(pbutton).prop("hidden",false);
 	var errortext = "Ups. Etwas ist schief gegangen. ";
 		if(error === undefined){
-			errortext +="Server ist nicht erreichbar. Überprüfen Sie ihr Internetverbindung und versuchen Sie es später nochmal.";
+			errortext +="Der Server reagiert nicht. Überprüfen Sie ihr Internetverbindung und versuchen Sie es später nochmal.";
 		}else if(statu == 400){
 			error = error +"";
 			if(error.includes("Invalid value")){
@@ -127,7 +125,7 @@ function failReturned(error,statu,fset,pbutton){
 			errortext += error
 			}	
 		}else if(statu == 504){
-			errortext +="Der Server meldet einen Fehler. Versuchen Sie es später nochmal.";
+			errortext +="Der Server meldet einen Fehler 504. Versuchen Sie es später nochmal.";
 		}else{
 			errortext += error;
 		}
