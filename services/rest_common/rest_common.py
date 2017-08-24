@@ -1,4 +1,6 @@
-from Exceptions import InvalidActionException
+import os
+import sys
+sys.path.append(os.path.relpath('../common'))
 import Exceptions
 import json
 from flask import Response
@@ -9,7 +11,7 @@ def get_rest_data(response):
         return response.json
     elif response.form != None:
         return response.form
-    raise InvalidActionException(Exceptions.TYPE_NO_DATA_FOUND, None, "Didn't find parameter data, required either json or form data")
+    raise Exceptions.InvalidActionException(Exceptions.TYPE_NO_DATA_FOUND, None, "Didn't find parameter data, required either json or form data")
     
 def create_response(code, data = {}):
     string = json.dumps(data)

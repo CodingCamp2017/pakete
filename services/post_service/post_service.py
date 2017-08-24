@@ -1,10 +1,10 @@
-from Exceptions import CommandFailedException, InvalidActionException
-import Exceptions
-
 import sys
 import os
 sys.path.append(os.path.relpath('../mykafka'))
 sys.path.append(os.path.relpath('../packet_regex'))
+sys.path.append(os.path.relpath('../common'))
+
+import Exceptions
 
 import mykafka
 import packet_regex
@@ -40,7 +40,7 @@ class PostService:
         try:
             mykafka.sendSync(self.producer, PACKET_TOPIC, STATE_REGISTERED, 2, newjobj)
         except KafkaError as e:
-            raise CommandFailedException("Kafka Error: "+str(e))
+            raise Exceptions.CommandFailedException("Kafka Error: "+str(e))
         return package_id
     
     def update_package_location(self, jobj):
@@ -48,22 +48,22 @@ class PostService:
         packet_regex.check_json_regex(jobj, packet_regex.syntax_update)
         packet_id = jobj["packet_id"]
         if not self.idstore.check_package_state(packet_id, STATE_UPDATE_LOCATION):
-            raise InvalidActionException(Exceptions.TYPE_INVALID_KEY, "packet_id", "Packet with id '"+packet_id+"' has not yet been registered or has been delivered")
+            raise Exceptions.InvalidActionException(Exceptions.TYPE_INVALID_KEY, "packet_id", "Packet with id '"+packet_id+"' has not yet been registered or has been delivered")
         try:
             mykafka.sendSync(self.producer, PACKET_TOPIC, STATE_UPDATE_LOCATION, 2, jobj)
         except KafkaError as e:
-            raise CommandFailedException("Kafka Error: "+str(e))
+            raise Exceptions.CommandFailedException("Kafka Error: "+str(e))
         
     def mark_delivered(self, jobj):
         print("Mark delivered: "+str(jobj))
         packet_regex.check_json_regex(jobj, packet_regex.syntax_delivered)
         packet_id = jobj["packet_id"]
         if not self.idstore.check_package_state(packet_id, STATE_UPDATE_LOCATION):
-            raise InvalidActionException(Exceptions.TYPE_INVALID_KEY, "packet_id", "Packet with id '"+packet_id+"' has not yet been registered or has been delivered")
+            raise Exceptions.InvalidActionException(Exceptions.TYPE_INVALID_KEY, "packet_id", "Packet with id '"+packet_id+"' has not yet been registered or has been delivered")
         try:
             mykafka.sendSync(self.producer, PACKET_TOPIC, STATE_DELIVERED, 2, jobj)
         except KafkaError as e:
-            raise CommandFailedException("Kafka Error: "+str(e))
+            raise Exceptions.CommandFailedException("Kafka Error: "+str(e))
         
         
 def test_regex():

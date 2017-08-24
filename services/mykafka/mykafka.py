@@ -9,9 +9,8 @@ def create_producer(url, port, serializer = lambda m: json.dumps(m).encode('utf-
     return KafkaProducer(bootstrap_servers=url+":"+str(port),
                          value_serializer=serializer)
     
-def create_consumer(url, port, topic, deserializer = lambda m: json.loads(m.decode('utf-8')), from_beginning = True):
+def create_consumer(url, port, topic, from_beginning = True):
     return KafkaConsumer(topic,bootstrap_servers=url+":"+str(port),
-                         #value_deserializer=deserializer, # crashes if input not in json format
                          auto_offset_reset='earliest' if from_beginning else 'latest')
     
     
