@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html style="height: 95%">
+<html style="height: 98%">
   <head>
     <meta charset="utf-8">
     <title>Map-Demo</title>
     <style>
        #map {
-        height: 100%;
-        width: 100%;
+        height: 1024px;
+        width: 768px;
        }
     </style>
   </head>
@@ -14,35 +14,49 @@
     <div id="map"></div>
     <script>
       function address2coords(address) {
-        console.log(address)
         return $.get("https://maps.googleapis.com/maps/api/geocode/json?key=AIzaSyASQQsfeuEWdnMjDjSKS8HhIjl6Gr6Qzfo&address=" + address)
       }
 
-      function initMap() {
+      function zoomToObject(map, obj){
+        var bounds = new google.maps.LatLngBounds();
+        var points = obj.getPath().getArray();
+        for (var n = 0; n < points.length ; n++) {
+          bounds.extend(points[n]);
+        }
+        map.fitBounds(bounds);
+      }
+
+      function showPathInMap(map, addresses) {
         var address = encodeURI($("#addr").val())
         
-        //var requests = [address2coords("Karlsruhe"), address2coords("Stuttgart"), address2coords("Berlin")]
-        var requests = ["Karlsruhe", "Berlin", "Hamburg", "Haslach"].map(function(item) { return address2coords(item)})
-        console.log(requests)
-        $.when.apply($, requests).done(function(){
-            var responses = arguments
-            coords = [];
+        var requests = addresses.map(function(item) { return address2coords(item) })
+        
+        $.when.apply($, requests).done(function() {
+          var responses = arguments
+          var coords = [];
+          var markers = [];
+          var infowindows = [];
 
-            for (var i = 0; i < responses.length; ++i) {
-              coords[i] = responses[i][0].results[0].geometry.location                      
-            }
+          // TODO map this shit
+          for (let i = 0; i < responses.length; ++i) {
+            coords[i] = responses[i][0].results[0].geometry.location                      
 
-            var pos = coords[0]
-            var map = new google.maps.Map(document.getElementById('map'), {
-            zoom: 8,
-            center: pos
-          });
-          var marker = new google.maps.Marker({
-            position: pos,
-            map: map
-          });
+            markers[i] = new google.maps.Marker({
+              position: coords[i],
+              map: map
+            });
 
-          var flightPath = new google.maps.Polyline({
+            infowindows[i] = new google.maps.InfoWindow({              
+              content: "<b>" + addresses[i] + "</b><br />Hier kommen weitere Infos wie Uhrzeit, type"
+            });
+
+            markers[i].addListener('click', function() {             
+              infowindows[i].open(map, markers[i]);
+            });
+
+          }          
+
+          var path = new google.maps.Polyline({
             path: coords,
             geodesic: true,
             strokeColor: '#FF0000',
@@ -50,8 +64,14 @@
             strokeWeight: 2
           });
 
-          flightPath.setMap(map);
+          path.setMap(map);
+          zoomToObject(map, path)
         });
+      }
+
+      function initMap() {        
+        var map = new google.maps.Map(document.getElementById('map'));
+        showPathInMap(map, ["Karlsruhe", "Berlin", "Hamburg", "Haslach"])
       }
     </script>
     <script src="jquery.min.js"></script>
