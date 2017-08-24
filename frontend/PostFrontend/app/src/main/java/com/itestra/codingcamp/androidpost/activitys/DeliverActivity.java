@@ -36,7 +36,9 @@ public class DeliverActivity extends BaseActivity {
             packet_id = "";
             Toast.makeText(this, "Packet delivered!", Toast.LENGTH_SHORT).show();
         } catch (InvalidValueException e) {
-            // TODO show in GUI
+            if(e.getKey().equals(getResources().getString(R.string.data_packet_id))){
+                editTextPacketId.setError(getResources().getString(R.string.invalid_value));
+            }
             System.err.println(e.getKey() + " has error " + e.getMessage());
         } catch (ServerException e) {
             System.err.println("ServerException: " + e.getMessage());
@@ -59,7 +61,6 @@ public class DeliverActivity extends BaseActivity {
         }
 
         editTextPacketId = ((EditText) findViewById(R.id.edittext_packet_id));
-
         editTextPacketId.setText(packet_id);
     }
 

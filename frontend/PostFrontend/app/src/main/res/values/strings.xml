@@ -42,4 +42,20 @@
     <string name="train">train</string>
     <string name="failed">failed</string>
 
+    <!-- Data fields -->
+    <string name="data_sender_name">sender_name</string>
+    <string name="data_sender_street">sender_street</string>
+    <string name="data_sender_zip">sender_zip</string>
+    <string name="data_sender_city">sender_city</string>
+    <string name="data_receiver_name">receiver_name</string>
+    <string name="data_receiver_street">receiver_street</string>
+    <string name="data_receiver_zip">receiver_zip</string>
+    <string name="data_receiver_city">receiver_city</string>
+    <string name="data_size">size</string>
+    <string name="data_weight">weight</string>
+    <string name="data_packet_id">packet_id</string>
+    <string name="data_station">station</string>
+
+    <string name="invalid_value">Invalid value!</string>
+
 </resources>
