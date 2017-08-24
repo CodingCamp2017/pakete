@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import com.itestra.codingcamp.androidpost.exceptions.InvalidRequestException;
 import com.itestra.codingcamp.androidpost.exceptions.InvalidValueException;
 import com.itestra.codingcamp.androidpost.exceptions.KeyNotFoundException;
+import com.itestra.codingcamp.androidpost.exceptions.ResourceNotFoundException;
 import com.itestra.codingcamp.androidpost.exceptions.RestException;
 import com.itestra.codingcamp.androidpost.exceptions.ServerException;
 
@@ -17,7 +18,6 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -81,16 +81,70 @@ public class RestInterface {
             if (statusCode == 400) {
                 JSONObject jsonerror = new JSONObject(errormsg);
                 switch (jsonerror.getString("type")) {
-                    case "invalid key": throw new InvalidValueException(jsonerror.getString("key"), jsonerror.getString("message"));
-                    case "key not found": throw new KeyNotFoundException(jsonerror.getString("key"), jsonerror.getString("message"));
-                    case "no data found": throw new InvalidRequestException(jsonerror.getString("message"));
-                    default: throw new RestException("unknown error type " + jsonerror.getString("type"));
+                    case "invalid key":
+                        throw new InvalidValueException(jsonerror.getString("key"), jsonerror.getString("message"));
+                    case "key not found":
+                        throw new KeyNotFoundException(jsonerror.getString("key"), jsonerror.getString("message"));
+                    case "no data found":
+                        throw new InvalidRequestException(jsonerror.getString("message"));
+                    default:
+                        throw new RestException("unknown error type " + jsonerror.getString("type"));
                 }
+            } else if (statusCode == 404) {
+                throw new ResourceNotFoundException("TODO", "not found");
             } else if (statusCode == 504) {
                 throw new ServerException((new JSONObject(errormsg)).getString("error"));
             } else {
                 throw new RestException("Unknown error code: " + statusCode);
             }
+        }
+    }
+
+    public JSONObject sendRequest(HashMap<String, String> data) throws ExecutionException, InterruptedException, RestException {
+        AsyncTaskResult<JSONObject> result = (new AsyncTask<Object, Void, AsyncTaskResult<JSONObject>>() {
+            @Override
+            protected AsyncTaskResult<JSONObject> doInBackground(Object... params) {
+                HashMap<String, String> data = (HashMap<String, String>)params[0];
+                HttpURLConnection connection = null;
+
+                try {
+                    connection = getPostConnection(RestInterface.this.url + "register");
+
+                    JSONObject json = new JSONObject();
+                    try {
+                        for (String key : data.keySet()) {
+                            json.put(key, data.get(key));
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream()));
+                    bufferedWriter.write(json.toString());
+                    bufferedWriter.flush();
+
+                    try {
+                        return new AsyncTaskResult<JSONObject>(processResponse(connection));
+                    } catch (RestException e) {
+                        return new AsyncTaskResult<JSONObject>(e);
+                    }
+                } catch (IOException|JSONException e ) {
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        if (connection != null) connection.disconnect();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                return new AsyncTaskResult<JSONObject>(new RestException("No result was received"));
+            }
+        }).execute(data).get();
+
+        if (result.hasError()) {
+            throw result.getError();
+        } else {
+            return result.getResult();
         }
     }
 
@@ -117,7 +171,6 @@ public class RestInterface {
                     bufferedWriter.write(json.toString());
                     bufferedWriter.flush();
 
-                    System.out.println(json.toString());
                     try {
                         JSONObject response = processResponse(connection);
                         return new AsyncTaskResult<String>(response.getString("id"));
@@ -152,15 +205,10 @@ public class RestInterface {
                 String station = params[1];
                 String vehicle = params[2];
 
-                System.out.println("update package with ID: " + id + "(" + station + ", " + vehicle + ")");
-
-                OutputStream outputStream = null;
                 HttpURLConnection connection = null;
 
                 try {
                     connection = getPostConnection(RestInterface.this.url + "packet/" + id +"/update");
-
-                    outputStream = connection.getOutputStream();
 
                     JSONObject json = new JSONObject();
                     try {
@@ -170,11 +218,9 @@ public class RestInterface {
                         e.printStackTrace();
                     }
 
-                    BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream));
+                    BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream()));
                     bufferedWriter.write(json.toString());
                     bufferedWriter.flush();
-
-                    System.out.println(json.toString());
 
                     try {
                         processResponse(connection);
@@ -206,18 +252,13 @@ public class RestInterface {
             protected AsyncTaskResult<Void> doInBackground(String... params) {
                 String id = params[0];
 
-                System.out.println("deliver package with ID: " + id);
-
-                OutputStream outputStream = null;
                 HttpURLConnection connection = null;
 
                 try {
                     connection = getPostConnection(RestInterface.this.url + "packet/" + id +"/delivered");
 
-                    outputStream = connection.getOutputStream();
-
-                    BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream));
-                    bufferedWriter.write("{}");
+                    BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream()));
+                    bufferedWriter.write((new JSONObject()).toString());
                     bufferedWriter.flush();
 
                     try {
