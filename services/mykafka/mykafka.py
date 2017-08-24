@@ -3,7 +3,7 @@
 
 import json
 from kafka import KafkaProducer, KafkaConsumer
-from datetime import datetime
+import time
 
 def create_producer(url, port, serializer = lambda m: json.dumps(m).encode('utf-8')):
     return KafkaProducer(bootstrap_servers=url+":"+str(port),
@@ -19,7 +19,7 @@ def send(producer, topic, event_type, version, payload = None):
     message = {}
     message['version'] = version
     message['type'] = event_type
-    message['time'] = datetime.now().strftime('%Y/%m/%d %H:%M:%S')
+    message['time'] = int(time.time())
     if payload:
         message['payload'] = payload
     return producer.send(topic, message)
