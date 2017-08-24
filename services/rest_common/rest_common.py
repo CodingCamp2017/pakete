@@ -11,6 +11,11 @@ def get_rest_data(response):
         return response.form
     raise InvalidActionException(Exceptions.TYPE_NO_DATA_FOUND, None, "Didn't find parameter data, required either json or form data")
     
+def get_cookie_response(response):
+    cookie = response.get_cookie()
+    # still dummy code
+    return cookie
+    
 def create_response(code, data = {}):
     string = json.dumps(data)
     response = Response(response=string, status=code, mimetype="application/json")
