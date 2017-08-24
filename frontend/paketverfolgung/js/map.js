@@ -27,6 +27,7 @@ function address2coords(address) {
           var infowindows = [];
           
           for (let i = 0; i < responses.length; ++i) {
+            console.log(responses[i])
             coords[i] = responses[i][0].results[0].geometry.location                      
 
             markers[i] = new google.maps.Marker({
@@ -44,16 +45,18 @@ function address2coords(address) {
             });
           }          
 
-          var path = new google.maps.Polyline({
+          if (coords.length > 1) { // TODO            
+            var path = new google.maps.Polyline({
             path: coords,
             geodesic: true,
             strokeColor: '#FF0000',
             strokeOpacity: 1.0,
             strokeWeight: 2
-          });
+            });
 
-          path.setMap(map);
-          zoomToObject(map, path)
+            path.setMap(map);  
+            zoomToObject(map, path)
+          }
         });
       }
 

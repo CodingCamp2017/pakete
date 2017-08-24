@@ -4,9 +4,8 @@ $(function() {
 
  //Send Location update
   $("#update_form").submit(function() {
-  	initMap()
-	  
-   // var data = {"id" : $("#packet_id").val() } 
+    initMap()
+    // var data = {"id" : $("#packet_id").val() } 
 	var set = "#packet_id";
 	var butt = "#update_packet_button";
 	waitOnServer(set,butt);
@@ -31,7 +30,7 @@ $(function() {
 		$("#regdate").text(getDate(obj.packetRegistrationTime));
 		//Restliche Spalten
 		removeRows();
-		
+
 		// TODO whole address, not only city
 		stations = [{"vehicle" : "center", "address" : obj.sender_city, "time" : getDate(obj.packetRegistrationTime) }]
 
