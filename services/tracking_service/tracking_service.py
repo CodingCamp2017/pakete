@@ -35,7 +35,7 @@ class TrackingService:
                 print('Event information missing.')
                 return
                 
-            if eventVersion != 1:
+            if eventVersion != 2:
                 print('Unexpected event version (expected: 1, found: ' + str(eventVersion) + ')')
                 return
                 
