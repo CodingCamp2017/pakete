@@ -1,8 +1,6 @@
 package com.itestra.codingcamp.androidpost.activitys;
 
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,7 +43,7 @@ public class AddActivity extends BaseActivity {
     void sendData() {
         HashMap<String, String> data = getPacketData();
         try {
-            packet_id = restInterface.newPackage(data);
+            packet_id = restInterface.newPacket(data);
             Toast.makeText(this, "Registered package: "+packet_id, Toast.LENGTH_LONG).show();
         } catch (InvalidValueException e) {
             inputMap.get(e.getKey()).setError(e.getMessage());

@@ -29,6 +29,8 @@ import java.util.concurrent.ExecutionException;
  * Created by simon on 23.08.17.
  */
 
+// TODO do not block GUI!
+
 public class RestInterface {
     private final String url = "http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8000/";
 
@@ -144,7 +146,7 @@ public class RestInterface {
         }
     }
 
-    public String newPackage(Map<String, String> data) throws RestException {
+    public String newPacket(Map<String, String> data) throws RestException {
         JSONObject response = sendRequest(RestInterface.this.url + "register", data);
         try {
             return response.getString("id");
@@ -154,7 +156,7 @@ public class RestInterface {
         }
     }
 
-    public void updatePackage(String id, String station, String vehicle) throws RestException {
+    public void updatePacket(String id, String station, String vehicle) throws RestException {
         Map<String, String> data = new HashMap<>();
         data.put("station", station);
         data.put("vehicle", vehicle);

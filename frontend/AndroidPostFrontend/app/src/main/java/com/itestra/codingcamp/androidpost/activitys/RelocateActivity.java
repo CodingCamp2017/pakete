@@ -1,6 +1,5 @@
 package com.itestra.codingcamp.androidpost.activitys;
 
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -48,7 +47,7 @@ public class RelocateActivity extends BaseActivity{
         }
 
         try {
-            restInterface.updatePackage(editTextPacketId.getText().toString(), editTextStation.getText().toString(), vehicle);
+            restInterface.updatePacket(editTextPacketId.getText().toString(), editTextStation.getText().toString(), vehicle);
             Toast.makeText(this, "Packet relocated!", Toast.LENGTH_SHORT).show();
         }
         catch (InvalidValueException e) {
