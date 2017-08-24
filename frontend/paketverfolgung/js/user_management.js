@@ -3,6 +3,7 @@ var server_url = "http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:80
 
 var query_register_user = "add_user";
 var query_login_user = "authenticate_user";
+var query_delete_user = "delete_user";
 var query_add_packet_to_user = "add_packet_to_user";
 var query_get_user_packets = "get_packets_from_user";
 
@@ -66,6 +67,53 @@ function loginUser(email, password, successCallback, failureCallback) {
         var obj = JSON.parse(responseText);
         console.log("response: " + obj);
         successCallback();
+		
+      })
+      .done(function() {
+        console.log("query: done");
+      })
+      .fail(function(xhr, status, error) {
+        console.log("query: fail");
+        failureCallback();
+	 });
+}
+
+function deleteUser(successCallback, failureCallback)
+{
+    var query = server_url + query_delete_user;
+    console.log("query: " + query);
+    
+    $.post(query, function(responseText) {
+        console.log("query: response");
+        
+        var obj = JSON.parse(responseText);
+        console.log("response: " + obj);
+        successCallback();
+		
+      })
+      .done(function() {
+        console.log("query: done");
+      })
+      .fail(function(xhr, status, error) {
+        console.log("query: fail");
+        failureCallback();
+	 });
+}
+
+function getUserPackets(successCallback, failureCallback) 
+{
+    var query = server_url + query_get_user_packets;
+    console.log("query: " + query);
+    
+    $.post(query, function(responseText) {
+        console.log("query: response");
+        
+        var obj = JSON.parse(responseText);
+        console.log("response: " + obj);
+        
+        // dummy answer
+        var packets = ["packet1", "packet2"];
+        successCallback(packets);
 		
       })
       .done(function() {
