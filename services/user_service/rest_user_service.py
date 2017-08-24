@@ -6,6 +6,7 @@ import os
 
 sys.path.append(os.path.relpath('../mykafka'))
 sys.path.append(os.path.relpath('../rest_common'))
+sys.path.append(os.path.relpath('../common'))
 import mykafka
 import rest_common
 

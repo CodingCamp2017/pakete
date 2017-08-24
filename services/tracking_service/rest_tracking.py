@@ -4,24 +4,31 @@
 import sys
 import os
 
-from flask import Flask, request, abort, Response
+from flask import Flask
 from tracking_service import TrackingService
 
 sys.path.append(os.path.relpath('../rest_common'))
+sys.path.append(os.path.relpath('../mykafka'))
 import rest_common
-
 import mykafka
 
-from Exceptions import InvalidActionException, CommandFailedException
 
-
-app = Flask(__name__)
+app = Flask(__name__)#Initialize flask
+# Create the TrackingService
 tracking_service = TrackingService(mykafka.create_consumer('ec2-35-159-21-220.eu-central-1.compute.amazonaws.com', 9092, 'packet'))
 
+'''
+This function is called whenever a client visits the root "page" on
+this server.
+'''
 @app.route('/', methods=['GET'])
 def restRoot():    
     return rest_common.create_error_response(404, "No ID specified.")
 
+'''
+This function is called whenever a client visits the '/packetStatus' "page" on
+this server.
+'''
 @app.route('/packetStatus/<packetId>', methods=['GET'])
 def restPackageStatus(packetId):
     if packetId is None:

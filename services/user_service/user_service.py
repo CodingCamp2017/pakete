@@ -2,7 +2,7 @@
 import sys
 import os
 sys.path.append(os.path.relpath('../mykafka'))
-sys.path.append(os.path.relpath('../packet_regex'))
+sys.path.append(os.path.relpath('../common'))
 import mykafka
 import packet_regex
 
