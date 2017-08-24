@@ -10,18 +10,27 @@ import threading
 
 from packet_model import PacketStore
 
+'''
+This consumer listens to the topic packet and builds the internal packet history
+model.
+'''
 class TrackingService:
-        packetStore = PacketStore()
-    
+        
+        '''
+        consumer: A consumer listening to the topic packet
+        '''
         def __init__(self, consumer):
             self.consumer = consumer
             self.consumerThread = 0
-            
+            self.packetStore = PacketStore()
             self.readPackets()
              
         def startConsuming(self):
             mykafka.readFromStart(self.consumer, self)
-            
+        
+        '''
+        Implemented for mykafka.readFromStart
+        '''
         def consumeEvent(self, event):
             eventJson = json.loads(event)  
             
@@ -47,7 +56,9 @@ class TrackingService:
             if eventType == 'delivered':
                 self.packetStore.packetDelivered(eventTime, eventPayload)
             
-        # start consuming the whole kafka log to create packet model
+        '''
+        start consuming the whole kafka log to create packet model
+        '''
         def readPackets(self):
             print('Starting packet reading...')
             
@@ -58,7 +69,9 @@ class TrackingService:
             else:
                 return "Consumer already running."
             
-
+        '''
+        Returns the packet status of the given id or None no packet was found
+        '''
         def packetStatus(self, packet_id):
             dictPacketStatus = self.packetStore.packetStatus(packet_id)
             if dictPacketStatus is None:
