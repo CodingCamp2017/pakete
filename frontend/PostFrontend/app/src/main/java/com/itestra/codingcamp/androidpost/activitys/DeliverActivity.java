@@ -7,6 +7,7 @@ import android.widget.Toast;
 import com.itestra.codingcamp.androidpost.R;
 import com.itestra.codingcamp.androidpost.exceptions.InvalidValueException;
 import com.itestra.codingcamp.androidpost.exceptions.NoScanButtonException;
+import com.itestra.codingcamp.androidpost.exceptions.ResourceNotFoundException;
 import com.itestra.codingcamp.androidpost.exceptions.RestException;
 import com.itestra.codingcamp.androidpost.exceptions.ServerException;
 
@@ -35,10 +36,10 @@ public class DeliverActivity extends BaseActivity {
             editTextPacketId.setText("");
             packet_id = "";
             Toast.makeText(this, "Packet delivered!", Toast.LENGTH_SHORT).show();
+        } catch (ResourceNotFoundException e)
+        {
+            editTextPacketId.setError(getResources().getString(R.string.invalid_value));
         } catch (InvalidValueException e) {
-            if(e.getKey().equals(getResources().getString(R.string.data_packet_id))){
-                editTextPacketId.setError(getResources().getString(R.string.invalid_value));
-            }
             System.err.println(e.getKey() + " has error " + e.getMessage());
         } catch (ServerException e) {
             System.err.println("ServerException: " + e.getMessage());
