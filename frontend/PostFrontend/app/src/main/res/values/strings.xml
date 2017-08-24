@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">AndroidPost</string>
+    <string name="app_name">Android Post Frontend</string>
     <string name="title_add">Add Package</string>
     <string name="title_relocate">Relocate Package</string>
     <string name="title_deliver">Deliver Package</string>
@@ -21,14 +21,25 @@
     <string name="edit_text_packet_station">Packet Station</string>
 
     <!-- fontawesome icons -->
-    <string name="icon_car">&#xf1b9;</string>
-    <string name="icon_plane">&#xf072;</string>
-    <string name="icon_house">&#xf015;</string>
-    <string name="icon_rocket">&#xf135;</string>
-    <string name="icon_foot">&#xf183;</string>
-    <string name="icon_ship">&#xf21a;</string>
-    <string name="icon_truck">&#xf0d1;</string>
-    <string name="icon_train">&#xf238;</string>
-    <string name="icon_failed">&#xf071;</string>
+    <string name="toggle_car">&#xf1b9;\nCar</string>
+    <string name="toggle_plane">&#xf072;\nPlane</string>
+    <string name="toggle_center">&#xf015;\nCenter</string>
+    <string name="toggle_rocket">&#xf135;\nRocket</string>
+    <string name="toggle_foot">&#xf183;\nFoot</string>
+    <string name="toggle_ship">&#xf21a;\nShip</string>
+    <string name="toggle_truck">&#xf0d1;\nTruck</string>
+    <string name="toggle_train">&#xf238;\nTrain</string>
+    <string name="toggle_failed">&#xf071;\nFailed</string>
+    <string name="icon_barcode">&#xf02a;</string>
+
+    <string name="car">car</string>
+    <string name="plane">plane</string>
+    <string name="center">center</string>
+    <string name="rocket">rocket</string>
+    <string name="foot">foot</string>
+    <string name="ship">ship</string>
+    <string name="truck">truck</string>
+    <string name="train">train</string>
+    <string name="failed">failed</string>
 
 </resources>
