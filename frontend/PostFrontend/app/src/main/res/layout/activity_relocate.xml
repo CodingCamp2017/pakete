@@ -121,7 +121,8 @@
                     android:layout_row="1"
                     android:layout_rowWeight="1"
                     android:textOff="@string/toggle_foot"
-                    android:textOn="@string/toggle_foot" />
+                    android:textOn="@string/toggle_foot"
+                    android:checked="true"/>
 
                 <ToggleButton
                     android:id="@+id/toggleButton_ship"

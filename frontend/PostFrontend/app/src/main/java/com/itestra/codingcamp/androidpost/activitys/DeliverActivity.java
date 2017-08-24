@@ -38,8 +38,11 @@ public class DeliverActivity extends BaseActivity {
             Toast.makeText(this, "Packet delivered!", Toast.LENGTH_SHORT).show();
         } catch (ResourceNotFoundException e)
         {
-            editTextPacketId.setError(getResources().getString(R.string.invalid_value));
+            editTextPacketId.setError(e.getMessage());
         } catch (InvalidValueException e) {
+            if (e.getKey().equals(getResources().getString(R.string.data_packet_id))) {
+                editTextPacketId.setError(e.getMessage());
+            }
             System.err.println(e.getKey() + " has error " + e.getMessage());
         } catch (ServerException e) {
             System.err.println("ServerException: " + e.getMessage());

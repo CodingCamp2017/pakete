@@ -45,10 +45,10 @@ public class AddActivity extends BaseActivity {
     void sendData() {
         HashMap<String, String> data = getPacketData();
         try {
-            String id = restInterface.newPackage(data);
-            Toast.makeText(this, "Registered package: "+id, Toast.LENGTH_LONG).show();
+            packet_id = restInterface.newPackage(data);
+            Toast.makeText(this, "Registered package: "+packet_id, Toast.LENGTH_LONG).show();
         } catch (InvalidValueException e) {
-            inputMap.get(e.getKey()).setError(getResources().getString(R.string.invalid_value));
+            inputMap.get(e.getKey()).setError(e.getMessage());
             System.err.println(e.getKey() + " has error " + e.getMessage());
         } catch (ServerException e) {
             System.err.println("ServerException: " + e.getMessage());

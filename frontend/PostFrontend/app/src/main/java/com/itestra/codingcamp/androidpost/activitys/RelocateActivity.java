@@ -52,8 +52,11 @@ public class RelocateActivity extends BaseActivity{
             Toast.makeText(this, "Packet relocated!", Toast.LENGTH_SHORT).show();
         }
         catch (InvalidValueException e) {
-            if (e.getKey().equals(getResources().getString(R.string.data_station))) {
-                editTextStation.setError(getResources().getString(R.string.invalid_value));
+            if (e.getKey().equals(getResources().getString(R.string.data_packet_id))) {
+                editTextPacketId.setError(e.getMessage());
+            }
+            else if (e.getKey().equals(getResources().getString(R.string.data_station))) {
+                editTextStation.setError(e.getMessage());
             }
             System.err.println(e.getKey() + " has error " + e.getMessage());
         } catch (ResourceNotFoundException e)
