@@ -39,7 +39,7 @@ def get_cookie_response(response):
     # still dummy code
     return cookie
 
-def create_cookie_response(session_id, email):
-    response = Response()
-    response.set_cookie(session_id, email)
+def create_cookie_response(code, session_id):
+    response = create_response(code)
+    response.set_cookie('session_id', session_id)
     return response
