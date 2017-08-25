@@ -24,7 +24,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Created by simon on 23.08.17.
@@ -45,6 +44,7 @@ public class RestInterface {
         if (!task.isCancelled()) {
             task.cancel(true);
         }
+        System.out.println("Cancelled request " + id);
     }
 
     private String convertStreamToString(InputStream is) {
@@ -130,12 +130,18 @@ public class RestInterface {
                     bufferedWriter.write(json.toString());
                     bufferedWriter.flush();
 
+                    /*
+                    if(false) {
+                        for (int i = 0; i < 1000000000; i++) {}
+                    }
+                    */
+
                     try {
                         return new AsyncTaskResult(processResponse(connection));
                     } catch (RestException e) {
                         return new AsyncTaskResult(e);
                     }
-                } catch (IOException |JSONException e ) {
+                } catch (IOException | JSONException e ) {
                     return new AsyncTaskResult(new RestException("IO EXCEPTION OR JSON EXCEPTION " + e.getMessage()));
                 } finally {
                     try {
@@ -150,9 +156,25 @@ public class RestInterface {
             protected void onPostExecute(AsyncTaskResult result) {
                 handler.onReady(result);
             }
+
+            @Override
+            protected void onCancelled() {
+                System.out.println("Task cancelled");
+            }
+
+            @Override
+            protected void onCancelled(AsyncTaskResult result) {
+                System.out.println("Task cancelled after result");
+                try {
+                    System.out.println(result.getResult().toString());
+                } catch (RestException e) {
+                    e.printStackTrace();
+                }
+            }
         }).execute(data);
 
         tasks.add(task);
+        System.out.println("Added request " + currentTaskId);
         return currentTaskId++;
     }
 

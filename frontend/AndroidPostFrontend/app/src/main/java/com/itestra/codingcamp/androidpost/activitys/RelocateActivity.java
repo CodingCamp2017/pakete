@@ -1,5 +1,7 @@
 package com.itestra.codingcamp.androidpost.activitys;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -48,6 +50,8 @@ public class RelocateActivity extends BaseActivity{
             }
         }
 
+        AlertDialog dialog = getProcessingDialog();
+
         int requestId = restInterface.updatePacket(editTextPacketId.getText().toString(), editTextStation.getText().toString(), vehicle, new RestInterface.ReadyHandler() {
             @Override
             public void onReady(AsyncTaskResult result) {
@@ -63,21 +67,35 @@ public class RelocateActivity extends BaseActivity{
                         editTextStation.setError(e.getMessage());
                     }
                     System.err.println(e.getKey() + " has error " + e.getMessage());
-                } catch (ResourceNotFoundException e)
+                    Toast.makeText(RelocateActivity.this, e.getKey() + " has error " + e.getMessage() , Toast.LENGTH_LONG).show();
+                }
+                catch (ResourceNotFoundException e)
                 {
                     editTextPacketId.setError(getResources().getString(R.string.invalid_value));
+                    Toast.makeText(RelocateActivity.this, e.getMessage() , Toast.LENGTH_LONG).show();
                 } catch (ServerException e) {
                     System.err.println("ServerException: " + e.getMessage());
+                    Toast.makeText(RelocateActivity.this, "ServerException: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 } catch (RestException e) {
                     System.err.println("RestException: " + e.getMessage());
+                    Toast.makeText(RelocateActivity.this, "RestException: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 }
                 catch (Exception e) {
                     e.printStackTrace();
                 }
+
+                dialog.dismiss();
             }
         });
 
-        //restInterface.cancelTask(requestId);
+        dialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancel",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        restInterface.cancelTask(requestId);
+                        dialog.dismiss();
+                    }
+                });
+        dialog.show();
     }
 
     @Override

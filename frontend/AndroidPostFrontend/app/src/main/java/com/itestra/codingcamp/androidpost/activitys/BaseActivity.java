@@ -1,6 +1,8 @@
 package com.itestra.codingcamp.androidpost.activitys;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -151,6 +153,14 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
                 }
             }
         });
+    }
+
+    protected AlertDialog getProcessingDialog() {
+        AlertDialog dialog = new AlertDialog.Builder(this).create();
+        dialog.setTitle("Request running...");
+        dialog.setMessage("Please wait until your request has finished");
+        dialog.setCancelable(false);
+        return dialog;
     }
 
     abstract int getContentViewId();

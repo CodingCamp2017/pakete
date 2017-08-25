@@ -1,5 +1,7 @@
 package com.itestra.codingcamp.androidpost.activitys;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.EditText;
@@ -45,6 +47,9 @@ public class AddActivity extends BaseActivity {
     @Override
     void sendData() {
         HashMap<String, String> data = getPacketData();
+
+        AlertDialog dialog = getProcessingDialog();
+
         int requestId = restInterface.newPacket(data, new RestInterface.ReadyHandler() {
             @Override
             public void onReady(AsyncTaskResult result) {
@@ -54,18 +59,30 @@ public class AddActivity extends BaseActivity {
                 } catch (InvalidValueException e) {
                     inputMap.get(e.getKey()).setError(e.getMessage());
                     System.err.println(e.getKey() + " has error " + e.getMessage());
+                    Toast.makeText(AddActivity.this, "There was an error in the field " + e.getKey(), Toast.LENGTH_LONG).show();
                 } catch (ServerException e) {
                     System.err.println("ServerException: " + e.getMessage());
+                    Toast.makeText(AddActivity.this, "ServerException: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 } catch (RestException e) {
                     System.err.println("RestException: " + e.getMessage());
+                    Toast.makeText(AddActivity.this, "RestException: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 }
                 catch (Exception e) {
                     e.printStackTrace();
                 }
+
+                dialog.dismiss();
             }
         });
 
-        //restInterface.cancelTask(requestId);
+        dialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancel",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        restInterface.cancelTask(requestId);
+                        dialog.dismiss();
+                    }
+                });
+        dialog.show();
     }
 
     private void fillWithFakeData() {
