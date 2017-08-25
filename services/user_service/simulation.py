@@ -7,40 +7,26 @@ import codecs
 import json
 import sys
 import os
-sys.path.append(os.path.relpath('../mykafka'))
 sys.path.append(os.path.relpath('../common'))
-import mykafka
 import uuid
-
-from Exceptions import UserExistsException, UserUnknownException, InvalidSessionIdException, SessionElapsedException, InvalidPasswortException
-
 
 char_set = string.ascii_uppercase + string.ascii_lowercase + string.digits
 sizes = ['small','normal','big']
 fakedata = json.load(codecs.open('fakedata.json', 'r', 'utf-8-sig'))['data']
 
 
-def create_test_add_user_json():
+def create_test_user():
     user = fakedata[randint(0, len(fakedata)-1)]
-    
     data = {'email' : user['name'].replace(' ','.').replace('-', '_')+'@mail.de',
-            'name' : user['name'],
-            'street' : user['name'],
-            'zip' : str(randint(10000,99999)),
-            'city' : user['name'],
             'password' : ''.join(sample(char_set*8, 8))}
-    return json.dumps(data)
+    return data
 
 def create_simple_test_user():
-    return {'email' : 'oliver3@brehm.de', 'password' : '12345678'}
+    return {'email' : 'karl3@mail.de', 'password' : '12345678'}
 
 
 def create_add_packet_data(session_id):
     return {'packet' : str(uuid.uuid1()),
-            'session_id' : session_id}
-        
-def create_session_data(email, session_id):
-    return {'email' : email,
             'session_id' : session_id}
 
 
@@ -48,7 +34,6 @@ def simulate_user_behaviour():
     user_service = UserService()
     for i in range(1):
         user_data = create_simple_test_user()
-        email = user_data['email']
         user_service.add_user(user_data)
         print('User {} added'.format(user_data['email']))
         #time.sleep(randint(1,2))
@@ -70,12 +55,6 @@ def simulate_user_behaviour():
             print('User {} logged out'.format(user_data['email']))
             #time.sleep(randint(1,2))
     
-        #session_id = user_service.authenticate_user(user_data)
-        #print('User {} authenticated with session id {}'.format(user_data['email']), session_id)
-        #time.sleep(randint(1,2))
-        #user_service.delete(create_session_data(user_data['email'], session_id))
-        #print('User {} deleted'.format(user_data['email']), session_id)
-        #time.sleep(randint(1,2))
 
 
 if __name__ == '__main__':
