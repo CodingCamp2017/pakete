@@ -15,8 +15,9 @@ Stores packet_ids of all packets that are currently in the delivery chain
 (registered but not yet delivered).
 '''
 class IDStore:
-    def __init__(self):
+    def __init__(self, verbose=True):
         self.packet_map = {}
+        self.verbose = verbose
     
     '''
     Implemented to be used with mykafka.readFromStart.
@@ -32,7 +33,8 @@ class IDStore:
                 or event_type == PACKET_STATE_UPDATE_LOCATION
                 or event_type == PACKET_STATE_DELIVERED)):
                     payload = event["payload"]
-                    print("Read: "+string)
+                    if self.verbose:
+                        print("Read: "+string)
                     if(event_type == PACKET_STATE_REGISTERED):
                         self.update(payload["id"], event_type)
                     else:
@@ -51,7 +53,7 @@ class IDStore:
     '''
     Returns true if the packet with the given id is in the delivery chain
     '''
-    def packet_in_store(self, packet_id, state):
+    def packet_in_store(self, packet_id):
         return packet_id in self.packet_map
             
     '''

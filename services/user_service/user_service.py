@@ -21,7 +21,7 @@ class UserService:
         self.u_cur = self.u_con.cursor()
         self.p_con = sql.connect('followed_packets_database.db', check_same_thread=False)
         self.p_cur = self.p_con.cursor()
-        self.idstore = IDStore()
+        self.idstore = IDStore(False)
         self.updater = IDUpdater(self.idstore)
         self.updater.start()
                 
@@ -87,7 +87,7 @@ class UserService:
         packet_regex.check_json_regex(data, packet_regex.syntax_add_packet_to_user)
         self._check_session_active(data['session_id'])
         self._update_session_id_timestamp(data['session_id'])
-        if not self.store.packet_in_store(data['packet']):
+        if not self.idstore.packet_in_store(data['packet']):
             raise PacketNotFoundException
         email = self._get_email_of_user(data['session_id'])
         self.p_cur.execute('INSERT INTO followed_packets (email, packet) VALUES (?,?)',

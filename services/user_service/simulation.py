@@ -32,6 +32,9 @@ def create_add_packet_data(session_id):
 
 def simulate_user_behaviour():
     user_service = UserService()
+    
+    user_service.print_databases()
+    
     for i in range(1):
         user_data = create_simple_test_user()
         user_service.add_user(user_data)
@@ -55,6 +58,7 @@ def simulate_user_behaviour():
             print('User {} logged out'.format(user_data['email']))
             #time.sleep(randint(1,2))
     
+    user_service.print_databases()
 
 
 if __name__ == '__main__':
