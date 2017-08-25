@@ -14,6 +14,22 @@ $(function() {
    });
 });
 
+$("#add_packet_button").click(function() {
+    var packetId = $("#add_packet_id").val();
+    
+    addPacketToUser(packetId, function() {
+        //success
+        packetTable_clear();
+       packetTable_addRow('-', "Packet added");
+        
+    }, function() {
+        // failure
+        packetTable_clear();
+       packetTable_addRow('-', "Error adding packet");
+        
+    });
+});
+
 $("#button_delete_user").click(function() {
     deleteUser(function() {
         //success

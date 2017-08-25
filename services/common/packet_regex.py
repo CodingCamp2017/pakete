@@ -4,7 +4,7 @@ import re
 import json
 
 regex_name = '[\w ]+'#Multiple words separated by spaces
-regex_id = '[\w-]+'#alphanumeric and '-'
+regex_id = '(\d|[a-f]){8}-(\d|[a-f]){4}-(\d|[a-f]){4}-(\d|[a-f]){4}-(\d|[a-f]){12}'#uuid format: 8-4-4-4-12 chars in hex range
 regex_zip = '\d{5}'#zipcode is exaclty 5 digits
 regex_street = '[\w( \-\.)?]+'#multiple word separated either by spaces, '.' or '-'
 regex_city = '[\w( \-)?]+'#multiple word separated either by spaces, '-'

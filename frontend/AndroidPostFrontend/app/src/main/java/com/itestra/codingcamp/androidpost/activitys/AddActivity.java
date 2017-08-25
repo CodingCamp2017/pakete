@@ -1,8 +1,6 @@
 package com.itestra.codingcamp.androidpost.activitys;
 
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,7 +43,7 @@ public class AddActivity extends BaseActivity {
     void sendData() {
         HashMap<String, String> data = getPacketData();
         try {
-            packet_id = restInterface.newPackage(data);
+            packet_id = restInterface.newPacket(data);
             Toast.makeText(this, "Registered package: "+packet_id, Toast.LENGTH_LONG).show();
         } catch (InvalidValueException e) {
             inputMap.get(e.getKey()).setError(e.getMessage());
@@ -65,15 +63,15 @@ public class AddActivity extends BaseActivity {
         JSONObject jsonReceiver = fakeDataProvider.getRandomFakeData();
 
         try {
-            inputMap.get(getResources().getString(R.string.data_sender_name)).setText(jsonSender.get("name").toString());;
-            inputMap.get(getResources().getString(R.string.data_sender_street)).setText(jsonSender.get("street").toString());;
-            inputMap.get(getResources().getString(R.string.data_sender_zip)).setText(fakeDataProvider.getRandomFakeZip());;
-            inputMap.get(getResources().getString(R.string.data_sender_city)).setText(jsonSender.get("city").toString());;
-            inputMap.get(getResources().getString(R.string.data_receiver_name)).setText(jsonReceiver.get("name").toString());;
-            inputMap.get(getResources().getString(R.string.data_receiver_street)).setText(jsonReceiver.get("street").toString());;
-            inputMap.get(getResources().getString(R.string.data_receiver_zip)).setText(fakeDataProvider.getRandomFakeZip());;
-            inputMap.get(getResources().getString(R.string.data_receiver_city)).setText(jsonReceiver.get("city").toString());;
-            inputMap.get(getResources().getString(R.string.data_weight)).setText(jsonReceiver.get("weight").toString());;
+            inputMap.get(getResources().getString(R.string.data_sender_name)).setText(jsonSender.get("name").toString());
+            inputMap.get(getResources().getString(R.string.data_sender_street)).setText(jsonSender.get("street").toString());
+            inputMap.get(getResources().getString(R.string.data_sender_zip)).setText(fakeDataProvider.getRandomFakeZip());
+            inputMap.get(getResources().getString(R.string.data_sender_city)).setText(jsonSender.get("city").toString());
+            inputMap.get(getResources().getString(R.string.data_receiver_name)).setText(jsonReceiver.get("name").toString());
+            inputMap.get(getResources().getString(R.string.data_receiver_street)).setText(jsonReceiver.get("street").toString());
+            inputMap.get(getResources().getString(R.string.data_receiver_zip)).setText(fakeDataProvider.getRandomFakeZip());
+            inputMap.get(getResources().getString(R.string.data_receiver_city)).setText(jsonReceiver.get("city").toString());
+            inputMap.get(getResources().getString(R.string.data_weight)).setText(jsonReceiver.get("weight").toString());
         } catch (JSONException e) {
             e.printStackTrace();
         }
