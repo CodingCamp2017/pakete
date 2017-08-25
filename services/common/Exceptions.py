@@ -69,3 +69,9 @@ class InvalidPasswortException(Exception):
 
 class PacketNotFoundException(Exception):
     pass
+
+class NoSessionIdException(Exception):
+    pass
+
+class NoPacketException(Exception):
+    pass

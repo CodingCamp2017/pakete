@@ -39,7 +39,7 @@ class IDStore:
                         self.update(payload["id"], event_type)
                     else:
                         self.update(payload["packet_id"], event_type)
-            else:
+            elif self.verbose:
                 print("Skipped")
         except json.JSONDecodeError:
             print("Skipped")

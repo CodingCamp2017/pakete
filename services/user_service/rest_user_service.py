@@ -11,13 +11,13 @@ import mykafka
 import rest_common
 
 import getopt
-from Exceptions import InvalidActionException, UserExistsException, UserUnknownException, SessionElapsedException, InvalidPasswortException, PacketNotFoundException
+from Exceptions import InvalidActionException, UserExistsException, UserUnknownException, SessionElapsedException, InvalidPasswortException, PacketNotFoundException, NoPacketException, NoSessionIdException
 from flask import Flask, request
 from user_service import UserService
 
 
 app = Flask(__name__)
-user_service = UserService(mykafka.create_producer('ec2-35-159-21-220.eu-central-1.compute.amazonaws.com', 9092))
+user_service = UserService()
 
 @app.route('/add_user', methods=['POST'])
 def restAddUser():
@@ -59,9 +59,20 @@ def restUpdateAdress():
 @app.route('/add_packet_to_user', methods=['POST'])
 def restAddPacket():
     try:
-        data = rest_common.get_rest_data(request)
+        packet_id = request.json('packet')
+        return rest_common.create_error_response(421, str(packet_id))
+        if not packet_id:
+            raise NoPacketException
+        session_id = request.cookies.get('session_id')
+        if not packet_id:
+            raise NoSessionIdException
+        data = {'packet' : packet_id, 'session_id' : session_id}
         user_service.add_packet_to_user(data)
         return rest_common.create_response(200)
+    except NoPacketException as e:
+        return rest_common.create_error_response(421, e)
+    except NoSessionIdException as e:
+        return rest_common.create_error_response(422, e)
     except InvalidActionException as e:
         return rest_common.create_error_response(400, e)
     except UserUnknownException as e:
@@ -74,8 +85,9 @@ def restAddPacket():
 @app.route('/get_packets_from_user', methods=['POST'])
 def restGetPacket():
     try:
-        data = rest_common.get_rest_data(request)
-        packets = user_service.get_packets_from_user(data)
+        session_id = request.cookies.get('session_id')
+        return rest_common.create_error_response(421, 'blaksbdksabdlasbdlasdb')
+        packets = user_service.get_packets_from_user(session_id)
         return rest_common.create_response(200, packets)
     except InvalidActionException as e:
         return rest_common.create_error_response(400, e)
@@ -87,8 +99,8 @@ def restGetPacket():
 @app.route('/delete_user', methods=['POST'])
 def restDeleteUser():
     try:
-        data = rest_common.get_rest_data(request)
-        user_service.delete_user(data)
+        session_id = request.cookies.get('session_id')
+        user_service.delete_user(session_id)
         return rest_common.create_response(200)
     except InvalidActionException as e:
         return rest_common.create_error_response(400, e)

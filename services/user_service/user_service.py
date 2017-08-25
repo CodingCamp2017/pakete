@@ -1,11 +1,11 @@
-
 import sys
 import os
 sys.path.append(os.path.relpath('../common'))
+
 import packet_regex
 from id_store import IDStore, IDUpdater
-
 from Exceptions import UserExistsException, UserUnknownException, SessionElapsedException, InvalidPasswortException, PacketNotFoundException
+
 import sqlite3 as sql
 from passlib.hash import pbkdf2_sha256
 from datetime import datetime
@@ -98,6 +98,7 @@ class UserService:
     # TODO remove packet from user
         
     def get_packets_from_user(self, session_id):
+        packet_regex.check_json_regex({'session_id' : session_id}, packet_regex.syntax_session_id)
         self._check_session_active(session_id)
         self._update_session_id_timestamp(session_id)
         email = self._get_email_of_user(session_id)
@@ -106,12 +107,14 @@ class UserService:
         return packets
         
     def logout_user(self, session_id):
+        packet_regex.check_json_regex({'session_id' : session_id}, packet_regex.syntax_session_id)
         self._check_session_active(session_id)
         self.u_cur.execute('UPDATE users SET session_id = ? WHERE session_id = ?', ('', session_id))
         self.u_cur.execute('UPDATE users SET session_id_timestamp = ? WHERE session_id = ?', ('', session_id))
         self.u_con.commit()
         
     def delete_user(self, session_id):
+        packet_regex.check_json_regex({'session_id' : session_id}, packet_regex.syntax_session_id)
         self._check_session_active(session_id)
         email = self._get_email_of_user(session_id)
         self.u_cur.execute('DELETE FROM users WHERE session_id = ?', (session_id,))
@@ -131,7 +134,7 @@ class UserService:
         
 
 def create_email_password():
-    return {'email' : 'karl3@mail.de',
+    return {'email' : 'kasrl3@mail.de',
             'password' : 'dadadada'}
 
 def create_email_packet_session(session_id):
@@ -163,7 +166,10 @@ def test_user_service():
     session_id = user_service.authenticate_user(test_user)
     
     # test add packet to user
-    user_service.add_packet_to_user(create_test_add_packet(session_id))
+    try:
+        user_service.add_packet_to_user(create_test_add_packet(session_id))
+    except PacketNotFoundException:
+        print('Packet not found')
     
     # test get packets from user
     user_service.get_packets_from_user(session_id)
