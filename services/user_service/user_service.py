@@ -86,19 +86,20 @@ class UserService:
     def add_packet_to_user(self, data):
         packet_regex.check_json_regex(data, packet_regex.syntax_add_packet_to_user)
         self._check_session_active(data['session_id'])
+        self._update_session_id_timestamp(data['session_id'])
         email = self._get_email_of_user(data['session_id'])
-            
         self.p_cur.execute('INSERT INTO followed_packets (email, packet) VALUES (?,?)',
                            (email, data['packet']))
         self.u_con.commit()
-        self._update_session_id_timestamp(data['session_id'])
+        
+    # TODO remove packet from user
         
     def get_packets_from_user(self, session_id):
         self._check_session_active(session_id)
+        self._update_session_id_timestamp(session_id)
         email = self._get_email_of_user(session_id)
         self.p_cur.execute('SELECT (packet) FROM followed_packets WHERE email=?', (email,))
         packets = [p[0] for p in self.p_cur.fetchall()]
-        self._update_session_id_timestamp(session_id)
         return packets
         
     def logout_user(self, session_id):
