@@ -153,7 +153,6 @@ public class RestInterface {
         }).execute(data);
 
         tasks.add(task);
-
         return currentTaskId++;
     }
 
