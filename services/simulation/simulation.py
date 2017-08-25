@@ -1,5 +1,4 @@
 
-from post_service import PostService
 
 from random import randint
 
@@ -9,10 +8,12 @@ import sys
 import os
 sys.path.append(os.path.relpath('../mykafka'))
 sys.path.append(os.path.relpath('../common'))
+sys.path.append(os.path.relpath('../post_service'))
 import mykafka
 import signal
 import threading
 import time
+from post_service import PostService
 from Exceptions import InvalidActionException
 
 sizes = ['small','normal','big']
@@ -53,7 +54,7 @@ def simulate_register():
         with lock:
             id = post_service.register_package(package)
             packageList.append(id)
-        time.sleep(randint(100,2000)/1000.0)
+        #time.sleep(randint(100,2000)/1000.0)
 
 def simulate_update():
     while not threadStop.is_set():
@@ -69,7 +70,7 @@ def simulate_update():
                 post_service.update_package_location({'packet_id':id,'station':fakecity, 'vehicle':vehicle})
             except InvalidActionException as e:
                 pass
-        time.sleep(randint(500,2000)/1000.0)
+        #time.sleep(randint(500,2000)/1000.0)
 
 def simulate_deliver():
     while not threadStop.is_set():
@@ -82,7 +83,7 @@ def simulate_deliver():
             except InvalidActionException as e:
                 pass
             packageList.remove(id) 
-        time.sleep(randint(1000,4000)/1000.0)
+        #time.sleep(randint(1000,4000)/1000.0)
 
 if __name__ == '__main__':
     threadStop.clear()
@@ -95,4 +96,4 @@ if __name__ == '__main__':
         t.start()
 
     for t in threads:
-        t.join(timeout=10)
+        t.join()
