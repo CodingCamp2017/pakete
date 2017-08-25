@@ -11,7 +11,7 @@ import mykafka
 import rest_common
 
 import getopt
-from Exceptions import InvalidActionException, UserExistsException, UserUnknownException, SessionElapsedException, InvalidPasswortException
+from Exceptions import InvalidActionException, UserExistsException, UserUnknownException, SessionElapsedException, InvalidPasswortException, PacketNotFoundException
 from flask import Flask, request
 from user_service import UserService
 
@@ -68,6 +68,8 @@ def restAddPacket():
         return rest_common.create_error_response(404, e)
     except SessionElapsedException as e:
         return rest_common.create_error_response(401, e)
+    except PacketNotFoundException as e:
+        return rest_common.create_error_response(410, e)
     
 @app.route('/get_packets_from_user', methods=['POST'])
 def restGetPacket():

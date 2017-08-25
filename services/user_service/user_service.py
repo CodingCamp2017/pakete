@@ -3,23 +3,27 @@ import sys
 import os
 sys.path.append(os.path.relpath('../common'))
 import packet_regex
+from id_store import IDStore, IDUpdater
 
-from Exceptions import UserExistsException, UserUnknownException, SessionElapsedException, InvalidPasswortException
+from Exceptions import UserExistsException, UserUnknownException, SessionElapsedException, InvalidPasswortException, PacketNotFoundException
 import sqlite3 as sql
 from passlib.hash import pbkdf2_sha256
 from datetime import datetime
-import json
 import uuid
 
 class UserService:
     
     def __init__(self):
+        # TODO handle database reboot
         os.system('sqlite3 user_database.db < user_database_schema.sql')
         os.system('sqlite3 followed_packets_database.db < followed_packets_database_schema.sql')
         self.u_con = sql.connect('user_database.db', check_same_thread=False)
         self.u_cur = self.u_con.cursor()
         self.p_con = sql.connect('followed_packets_database.db', check_same_thread=False)
         self.p_cur = self.p_con.cursor()
+        self.idstore = IDStore()
+        self.updater = IDUpdater(self.idstore)
+        self.updater.start()
                 
     def _user_exists(self, email):
         self.u_cur.execute('SELECT EXISTS(SELECT 1 FROM users WHERE email=?)', (email,))
@@ -42,12 +46,7 @@ class UserService:
     def _update_session_id_timestamp(self, session_id):
         self.u_cur.execute('UPDATE users SET session_id_timestamp = ? WHERE session_id = ?',
                            (str(datetime.now()), session_id))
-        
-#    def _check_user_valid_session_active(self, email, session_id):
-#        if not self._user_exists(email):
-#            raise UserUnknownException
-#        if not self._session_active(email, session_id):
-#            raise SessionElapsedException
+
         
     def add_user(self, data):
         packet_regex.check_json_regex(data, packet_regex.syntax_add_user)
@@ -88,6 +87,8 @@ class UserService:
         packet_regex.check_json_regex(data, packet_regex.syntax_add_packet_to_user)
         self._check_session_active(data['session_id'])
         self._update_session_id_timestamp(data['session_id'])
+        if not self.store.packet_in_store(data['packet']):
+            raise PacketNotFoundException
         email = self._get_email_of_user(data['session_id'])
         self.p_cur.execute('INSERT INTO followed_packets (email, packet) VALUES (?,?)',
                            (email, data['packet']))
