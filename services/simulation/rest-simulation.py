@@ -17,18 +17,21 @@ class RestSimulation():
         self.lock = threading.Lock()
 
     def registerRandomPackets(self):
+        print("Started registering")
         while not self.threadStop.is_set():
+            #print("register")
             packet = self.fakeDataProvider.getRandomPacket()
             registerRequest = urllib.request.Request(self.baseurl + 'register',
                 data = json.dumps(packet).encode('utf8'),
                 headers = self.headers)
             response = urllib.request.urlopen(registerRequest)
             responseJson = json.loads(response.read().decode('utf8'))
-            with self.lock:
-                 self.packetList.append(responseJson['id'])
+            self.packetList.append(responseJson['id'])
             #time.sleep(randint(100,200)/1000.0)
+        print("register stoped")
 
     def updateRandomPackets(self):
+        print("Started updating")
         while not self.threadStop.is_set():
             if len(self.packetList) < 1:
                 continue
@@ -36,18 +39,22 @@ class RestSimulation():
             data['station'] = self.fakeDataProvider.getRandomCity()
             data['vehicle'] = self.fakeDataProvider.getRandomVehicle()
             with self.lock:
+                #print("update")
                 id = self._getRandomId()
                 updateRequest = urllib.request.Request(self.baseurl + 'packet/' + id +'/update',
                                                        data = json.dumps(data).encode('utf8'),
                                                        headers = self.headers)
                 urllib.request.urlopen(updateRequest)
             #time.sleep(randint(100,200)/1000.0)
+        print("update stoped")
 
     def deliverRandomPackets(self):
+        print("Started delivering")
         while not self.threadStop.is_set():
             if len(self.packetList) < 1:
                 continue
             with self.lock:
+                #print("deliver")
                 id = self._getRandomId()
                 deliverRequest = urllib.request.Request(self.baseurl + 'packet/' + id +'/delivered',
                                                         data=json.dumps({}).encode('utf8'),
@@ -55,6 +62,7 @@ class RestSimulation():
                 urllib.request.urlopen(deliverRequest)
                 self.packetList.remove(id)
             #time.sleep(randint(100,200)/1000.0)
+        print("deliver stoped")
     
     def _getRandomId(self):
         while len(self.packetList) < 1:
@@ -73,7 +81,6 @@ if __name__ == '__main__':
     threads = list()
     for i in range(int(multiprocessing.cpu_count()/2)):
         threads.append(threading.Thread(target=restSimulation.registerRandomPackets))
-    for i in range(int(multiprocessing.cpu_count()/2)):
         threads.append(threading.Thread(target=restSimulation.updateRandomPackets))
     threads.append(threading.Thread(target=restSimulation.deliverRandomPackets))
     
