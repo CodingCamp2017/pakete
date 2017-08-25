@@ -11,6 +11,8 @@ import com.itestra.codingcamp.androidpost.exceptions.NoScanButtonException;
 import com.itestra.codingcamp.androidpost.exceptions.ResourceNotFoundException;
 import com.itestra.codingcamp.androidpost.exceptions.RestException;
 import com.itestra.codingcamp.androidpost.exceptions.ServerException;
+import com.itestra.codingcamp.androidpost.rest.AsyncTaskResult;
+import com.itestra.codingcamp.androidpost.rest.RestInterface;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -46,30 +48,36 @@ public class RelocateActivity extends BaseActivity{
             }
         }
 
-        try {
-            restInterface.updatePacket(editTextPacketId.getText().toString(), editTextStation.getText().toString(), vehicle);
-            Toast.makeText(this, "Packet relocated!", Toast.LENGTH_SHORT).show();
-        }
-        catch (InvalidValueException e) {
-            if (e.getKey().equals(getResources().getString(R.string.data_packet_id))) {
-                editTextPacketId.setError(e.getMessage());
+        int requestId = restInterface.updatePacket(editTextPacketId.getText().toString(), editTextStation.getText().toString(), vehicle, new RestInterface.ReadyHandler() {
+            @Override
+            public void onReady(AsyncTaskResult result) {
+                try {
+                    result.getResult(); // Needed because otherwise no error is thrown
+                    Toast.makeText(RelocateActivity.this, "Packet relocated!", Toast.LENGTH_SHORT).show();
+                }
+                catch (InvalidValueException e) {
+                    if (e.getKey().equals(getResources().getString(R.string.data_packet_id))) {
+                        editTextPacketId.setError(e.getMessage());
+                    }
+                    else if (e.getKey().equals(getResources().getString(R.string.data_station))) {
+                        editTextStation.setError(e.getMessage());
+                    }
+                    System.err.println(e.getKey() + " has error " + e.getMessage());
+                } catch (ResourceNotFoundException e)
+                {
+                    editTextPacketId.setError(getResources().getString(R.string.invalid_value));
+                } catch (ServerException e) {
+                    System.err.println("ServerException: " + e.getMessage());
+                } catch (RestException e) {
+                    System.err.println("RestException: " + e.getMessage());
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
-            else if (e.getKey().equals(getResources().getString(R.string.data_station))) {
-                editTextStation.setError(e.getMessage());
-            }
-            System.err.println(e.getKey() + " has error " + e.getMessage());
-        } catch (ResourceNotFoundException e)
-        {
-            editTextPacketId.setError(getResources().getString(R.string.invalid_value));
-        } catch (ServerException e) {
-            System.err.println("ServerException: " + e.getMessage());
-        } catch (RestException e) {
-            System.err.println("RestException: " + e.getMessage());
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+        });
 
+        //restInterface.cancelTask(requestId);
     }
 
     @Override

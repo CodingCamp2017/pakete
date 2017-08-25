@@ -1,5 +1,6 @@
 package com.itestra.codingcamp.androidpost.activitys;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -10,6 +11,8 @@ import com.itestra.codingcamp.androidpost.R;
 import com.itestra.codingcamp.androidpost.exceptions.InvalidValueException;
 import com.itestra.codingcamp.androidpost.exceptions.RestException;
 import com.itestra.codingcamp.androidpost.exceptions.ServerException;
+import com.itestra.codingcamp.androidpost.rest.AsyncTaskResult;
+import com.itestra.codingcamp.androidpost.rest.RestInterface;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,20 +45,27 @@ public class AddActivity extends BaseActivity {
     @Override
     void sendData() {
         HashMap<String, String> data = getPacketData();
-        try {
-            packet_id = restInterface.newPacket(data);
-            Toast.makeText(this, "Registered package: "+packet_id, Toast.LENGTH_LONG).show();
-        } catch (InvalidValueException e) {
-            inputMap.get(e.getKey()).setError(e.getMessage());
-            System.err.println(e.getKey() + " has error " + e.getMessage());
-        } catch (ServerException e) {
-            System.err.println("ServerException: " + e.getMessage());
-        } catch (RestException e) {
-            System.err.println("RestException: " + e.getMessage());
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+        int requestId = restInterface.newPacket(data, new RestInterface.ReadyHandler() {
+            @Override
+            public void onReady(AsyncTaskResult result) {
+                try {
+                    packet_id = result.getResult().getString("id");
+                    Toast.makeText(AddActivity.this, "Registered package: "+packet_id, Toast.LENGTH_LONG).show();
+                } catch (InvalidValueException e) {
+                    inputMap.get(e.getKey()).setError(e.getMessage());
+                    System.err.println(e.getKey() + " has error " + e.getMessage());
+                } catch (ServerException e) {
+                    System.err.println("ServerException: " + e.getMessage());
+                } catch (RestException e) {
+                    System.err.println("RestException: " + e.getMessage());
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        //restInterface.cancelTask(requestId);
     }
 
     private void fillWithFakeData() {

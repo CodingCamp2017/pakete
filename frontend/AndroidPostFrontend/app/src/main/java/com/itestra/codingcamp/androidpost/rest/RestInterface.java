@@ -21,6 +21,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -29,10 +30,22 @@ import java.util.concurrent.ExecutionException;
  * Created by simon on 23.08.17.
  */
 
-// TODO do not block GUI!
-
 public class RestInterface {
     private final String url = "http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8000/";
+
+    private int currentTaskId = 0;
+    private ArrayList<AsyncTask<Object, Void, AsyncTaskResult>> tasks = new ArrayList<>();
+
+    public interface ReadyHandler {
+        void onReady(AsyncTaskResult result);
+    }
+
+    public void cancelTask(int id) {
+        AsyncTask<Object, Void, AsyncTaskResult> task = tasks.get(id);
+        if (!task.isCancelled()) {
+            task.cancel(true);
+        }
+    }
 
     private String convertStreamToString(InputStream is) {
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
@@ -101,70 +114,62 @@ public class RestInterface {
         }
     }
 
-    public JSONObject sendRequest(String url, Map<String, String> data) throws RestException {
-        try {
-            AsyncTaskResult<JSONObject> result = (new AsyncTask<Object, Void, AsyncTaskResult<JSONObject>>() {
-                @Override
-                protected AsyncTaskResult<JSONObject> doInBackground(Object... params) {
-                    Map<String, String> data = (Map<String, String>)params[0];
-                    HttpURLConnection connection = null;
+    public int sendRequest(String url, Map<String, String> data, ReadyHandler handler) {
+        AsyncTask<Object, Void, AsyncTaskResult> task = (new AsyncTask<Object, Void, AsyncTaskResult>() {
+            @Override
+            protected AsyncTaskResult doInBackground(Object... params) {
+                Map<String, String> data = (Map<String, String>)params[0];
+                HttpURLConnection connection = null;
+
+                try {
+                    connection = getPostConnection(url);
+
+                    JSONObject json = new JSONObject(data);
+
+                    BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream()));
+                    bufferedWriter.write(json.toString());
+                    bufferedWriter.flush();
 
                     try {
-                        connection = getPostConnection(url);
-
-                        JSONObject json = new JSONObject(data);
-
-                        BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream()));
-                        bufferedWriter.write(json.toString());
-                        bufferedWriter.flush();
-
-                        try {
-                            return new AsyncTaskResult<>(processResponse(connection));
-                        } catch (RestException e) {
-                            return new AsyncTaskResult<>(e);
-                        }
-                    } catch (IOException |JSONException e ) {
-                        e.printStackTrace();
-                    } finally {
-                        try {
-                            if (connection != null) connection.disconnect();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                        return new AsyncTaskResult(processResponse(connection));
+                    } catch (RestException e) {
+                        return new AsyncTaskResult(e);
                     }
-                    return new AsyncTaskResult<>(new RestException("No result was received"));
+                } catch (IOException |JSONException e ) {
+                    return new AsyncTaskResult(new RestException("IO EXCEPTION OR JSON EXCEPTION " + e.getMessage()));
+                } finally {
+                    try {
+                        if (connection != null) connection.disconnect();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
-            }).execute(data).get();
-
-            if (result.hasError()) {
-                throw result.getError();
-            } else {
-                return result.getResult();
             }
-        } catch (InterruptedException | ExecutionException e) {
-            throw new RestException("InterruptedException | ExecutionException catched: " + e.getMessage());
-        }
+
+            @Override
+            protected void onPostExecute(AsyncTaskResult result) {
+                handler.onReady(result);
+            }
+        }).execute(data);
+
+        tasks.add(task);
+
+        return currentTaskId++;
     }
 
-    public String newPacket(Map<String, String> data) throws RestException {
-        JSONObject response = sendRequest(RestInterface.this.url + "register", data);
-        try {
-            return response.getString("id");
-        } catch (JSONException e) {
-            e.printStackTrace();
-            throw new RestException(e.getMessage());
-        }
+    public int newPacket(Map<String, String> data, ReadyHandler handler) {
+        return sendRequest(RestInterface.this.url + "register", data, handler);
     }
 
-    public void updatePacket(String id, String station, String vehicle) throws RestException {
+    public int updatePacket(String id, String station, String vehicle, ReadyHandler handler)  {
         Map<String, String> data = new HashMap<>();
         data.put("station", station);
         data.put("vehicle", vehicle);
 
-        sendRequest(RestInterface.this.url + "packet/" + id +"/update", data);
+        return sendRequest(RestInterface.this.url + "packet/" + id +"/update", data, handler);
     }
 
-    public void deliverPacket(String id) throws RestException {
-        sendRequest(RestInterface.this.url + "packet/" + id +"/delivered", new HashMap<>());
+    public int deliverPacket(String id, ReadyHandler handler) {
+        return sendRequest(RestInterface.this.url + "packet/" + id +"/delivered", new HashMap<>(), handler);
     }
 }
