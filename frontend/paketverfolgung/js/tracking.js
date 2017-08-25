@@ -67,6 +67,7 @@ $(function() {
         console.log("Logging in user successfully.");
 	$("#login_bar").prop("hidden",true);
 	$("#eingeloggt_bar").prop("hidden",false);
+        $("#email_label").html(login_email);
     }, function() {
         //failure
         console.log("Error authenticating user");

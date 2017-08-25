@@ -1,16 +1,23 @@
 # -*- coding: utf-8 -*-
-#from Exceptions import InvalidActionException, CommandFailedException
 
+'''
+Represents a delivery center
+'''
 class PacketStation:
-    time = ""
-    location = ""
-    vehicle = ""
     
+    '''
+    time: the timestamp when the packet was delivered to this station
+    location: the location of this station
+    vehicle: the type of transport
+    '''
     def __init__(self, time, location, vehicle):
         self.time = time
         self.location = location
         self.vehicle = vehicle
-        
+    
+    '''
+    Returns a dictionary containing relevant information about this station
+    '''
     def toJson(self):
         info = {}
         info.update({'time':str(self.time)})
@@ -18,8 +25,20 @@ class PacketStation:
         info.update({'vehicle':str(self.vehicle)})
         return info
 
+'''
+Represents a packet that was registered. This packet can be updated and 
+set to be delivered
+'''
 class Packet:
     
+    '''
+    packetId: The id of this packet
+    packetRegistrationTime: timestamp when this packet was registered
+    packetSize: string: size of packet
+    packetWeight: floating number: the weight of the packet
+    senderName, senderStreet, senderCity, receiverName, receiverStreet, receiverCity: string
+    senderZIP, receiverZIP: int
+    '''
     def __init__(self, packetId, packetRegistrationTime, packetSize, packetWeight, senderName, 
                  senderStreet, senderZip, senderCity, receiverName, 
                  receiverStreet, receiverZip, receiverCity):
@@ -40,14 +59,27 @@ class Packet:
         
         self.stations = list()
         self.deliveryTime = None
-        
+    
+    '''
+    Updates the location of this packet.
+    time: timestamp
+    location: string, the new location
+    vehicle: string, the transport type
+    '''
     def updateLocation(self, time, location, vehicle):
         station = PacketStation(time, location, vehicle)
         self.stations.append(station)
-                
+        
+    '''
+    Marks this packet as delivered.
+    time: timestamp
+    '''
     def setDelivered(self, time):
         self.deliveryTime = time    
     
+    '''
+    Returns a dictionary containing relevant data
+    '''
     def toJson(self):
         pDict = dict()
         
@@ -72,16 +104,30 @@ class Packet:
         pDict.update({'stations':self.stationsList()})
 
         return pDict
-        
+    
+    '''
+    Returns a list of dictionaries containing data describing the way this packet
+    took during delivery.
+    The dictionaries are created using PacketStation.toJson()
+    '''
     def stationsList(self):
         l = list()
         for station in self.stations:
             l.append(station.toJson())
         return l
-        
+
+'''
+Stores the history of each packet of the topic
+'''
 class PacketStore:
     packets = list()
     
+    '''
+    Adds a packet.
+    Returns True if this packet was successfully added, otherwise false
+    eventTime: timestamp of the register event
+    eventPayload: the payload data of the register event
+    '''
     def addPacket(self, eventTime, eventPayload):        
         try:            
             packetId = eventPayload['id']
@@ -112,6 +158,12 @@ class PacketStore:
         
         return True
         
+
+    '''
+    Updates a packet.
+    eventTime: timestamp of the updateLocation event
+    eventPayload: the payload data of the updateLocation event
+    '''
     def updatePacket(self, eventTime, eventPayload):        
         try:
             packet_id = eventPayload['packet_id']
@@ -130,6 +182,11 @@ class PacketStore:
         packet.updateLocation(eventTime, stationLocation, stationVehicle)
         print("Updated packet (id=" + packet_id + ") location to " + stationLocation + ".")
 
+    '''
+    Marks a packet as delivered.
+    eventTime: timestamp of the delivered event
+    eventPayload: the payload data of the delivered event
+    '''
     def packetDelivered(self, eventTime, eventPayload):
         try:
             packetId = eventPayload['packet_id']
@@ -145,18 +202,27 @@ class PacketStore:
             
         packet.setDelivered(eventTime)
         print("Packet (id: " + packetId + ") delivered, time " + str(eventTime))
-            
+    
+    '''
+    Returns the Packet with the given packetId, or None if no packet has the given id
+    '''
     def findPacket(self, packetId):
         for p in self.packets:
             if(str(p.packetId) == str(packetId)):
                 return p
+        return None
         
+    '''
+    Returns the a dictionary containing all information about the packet with the
+    given packetId.
+    Returns None if no packet with the given id was found
+    '''
     def packetStatus(self, packetId):
         packet = self.findPacket(packetId)
 
         if packet is None:
             print("Packet not found.")
-            return
+            return None
 
         return packet.toJson()
         

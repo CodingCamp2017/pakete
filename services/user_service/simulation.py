@@ -9,6 +9,7 @@ import sys
 import os
 sys.path.append(os.path.relpath('../mykafka'))
 sys.path.append(os.path.relpath('../common'))
+import mykafka
 import uuid
 
 from Exceptions import UserExistsException, UserUnknownException, InvalidSessionIdException, SessionElapsedException, InvalidPasswortException
@@ -31,7 +32,7 @@ def create_test_add_user_json():
     return json.dumps(data)
 
 def create_simple_test_user():
-    return {'email' : 'olive7r3@brehm.de', 'password' : '12345678'}
+    return {'email' : 'oliver3@brehm.de', 'password' : '12345678'}
 
 
 def create_add_packet_data(session_id):
@@ -47,6 +48,7 @@ def simulate_user_behaviour():
     user_service = UserService()
     for i in range(1):
         user_data = create_simple_test_user()
+        email = user_data['email']
         user_service.add_user(user_data)
         print('User {} added'.format(user_data['email']))
         #time.sleep(randint(1,2))
