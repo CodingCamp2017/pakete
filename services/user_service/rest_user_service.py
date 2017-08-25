@@ -6,6 +6,7 @@ import os
 
 sys.path.append(os.path.relpath('../mykafka'))
 sys.path.append(os.path.relpath('../rest_common'))
+sys.path.append(os.path.relpath('../common'))
 import mykafka
 import rest_common
 
@@ -34,7 +35,7 @@ def restAuthenticateUser():
     try:
         data = rest_common.get_rest_data(request)
         session_id = user_service.authenticate_user(data)
-        return rest_common.create_cookie_response(session_id, data['email'])
+        return rest_common.create_cookie_response('session_id', session_id)
     except InvalidActionException as e:
         return rest_common.create_error_response(400, e)
     except UserUnknownException as e:
