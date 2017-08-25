@@ -4,7 +4,7 @@ import os
 sys.path.append(os.path.relpath('../common'))
 import packet_regex
 
-from Exceptions import UserExistsException, UserUnknownException, InvalidSessionIdException, SessionElapsedException, InvalidPasswortException
+from Exceptions import UserExistsException, UserUnknownException, SessionElapsedException, InvalidPasswortException
 import sqlite3 as sql
 from passlib.hash import pbkdf2_sha256
 from datetime import datetime
@@ -20,7 +20,6 @@ class UserService:
         self.u_cur = self.u_con.cursor()
         self.p_con = sql.connect('followed_packets_database.db', check_same_thread=False)
         self.p_cur = self.p_con.cursor()
-        self.producer = producer
                 
     def _user_exists(self, email):
         self.u_cur.execute('SELECT EXISTS(SELECT 1 FROM users WHERE email=?)', (email,))
@@ -59,8 +58,6 @@ class UserService:
         self.u_cur.execute('INSERT INTO users (email, password, name, street, zip, city, session_id, session_id_timestamp) VALUES (?,?,?,?,?,?,?,?)',
                            (data['email'], password_hash, '', '', '', '', '', ''))
         self.u_con.commit()
-
-        mykafka.sendSync(self.producer, 'user', 'user_added', 1, data)
     
     def authenticate_user(self, data):
         packet_regex.check_json_regex(data, packet_regex.syntax_authenticate_user)
@@ -95,7 +92,7 @@ class UserService:
         self.p_cur.execute('INSERT INTO followed_packets (email, packet) VALUES (?,?)',
                            (email, data['packet']))
         self.u_con.commit()
-        self._update_session_id_timestamp(data['email'], data['session_id'])
+        self._update_session_id_timestamp(data['session_id'])
         
     # TODO remove packet from user
         
@@ -135,28 +132,22 @@ class UserService:
 def create_email_password():
     return {'email' : 'karl3@mail.de',
             'password' : 'dadadada'}
-    return json.dumps(data)
 
 def create_email_packet_session(session_id):
     return {'packet' : str(uuid.uuid1()),
             'session_id' : session_id}
-    return json.dumps(data)
 
 def create_test_delete_user_json(session_id):
-    data = {'email' : 'karl3@mail.de',
+    return {'email' : 'karl3@mail.de',
             'session_id' : session_id}
-    return json.dumps(data)
 
 def create_test_get_packets_from_user_json(session_id):
-    data = {'email' : 'karl3@mail.de',
+    return {'email' : 'karl3@mail.de',
             'session_id' : session_id}
-    return json.dumps(data)
 
-def create_test_add_packet_to_user_json(session_id):
-    data = {'email' : 'karl3@mail.de',
-            'packet' : str(uuid.uuid1()),
+def create_test_add_packet(session_id):
+    return {'packet' : str(uuid.uuid1()),
             'session_id' : session_id}
-    return json.dumps(data)
     
 def test_user_service():
     
@@ -170,13 +161,8 @@ def test_user_service():
     # test authenticate user
     session_id = user_service.authenticate_user(test_user)
     
-    # test update user adress
-    test_update_user_adress_json = create_test_update_user_adress_json(session_id)
-    user_service.update_user_adress(test_update_user_adress_json)
-  
     # test add packet to user
-    test_add_packet_to_user = create_email_packet_session(session_id)
-    user_service.add_packet_to_user(test_add_packet_to_user)
+    user_service.add_packet_to_user(create_test_add_packet(session_id))
     
     # test get packets from user
     user_service.get_packets_from_user(session_id)
