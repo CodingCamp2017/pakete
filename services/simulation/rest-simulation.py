@@ -73,6 +73,7 @@ class RestSimulation():
         self.threadStop.set()
 
 if __name__ == '__main__':
+    SIMULATION_TIME = 120 # Seconds
     fakeDataProvider = FakeDataProvider('fakedata.json')
     restSimulation = RestSimulation('http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8000/',
                                     {"Content-Type":"application/json"},
@@ -85,7 +86,7 @@ if __name__ == '__main__':
     threads.append(threading.Thread(target=restSimulation.deliverRandomPackets))
     
     for t in threads:
+        t.daemon = True
         t.start()
 
-    for t in threads:
-        t.join()
+    time.sleep(SIMULATION_TIME)
