@@ -33,13 +33,13 @@ This function is called whenever a client visits the '/packetStatus' "page" on
 this server.
 '''
 @app.route('/packetStatus/<packetId>', methods=['GET'])
-def restPackageStatus(packetId):
+def restPacketStatus(packetId):
     if not packet_regex.regex_matches_exactly(packet_regex.regex_id, packetId):
         return create_invalid_key_error(packetId)
         
     res = tracking_service.packetStatus(packetId)
     if res is None:
-        return rest_common.create_error_response(404, "Package not found")
+        return rest_common.create_error_response(404, "Packet not found")
     else:
         return rest_common.create_response(200, res)
 
