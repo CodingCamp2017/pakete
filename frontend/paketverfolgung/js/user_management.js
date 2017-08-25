@@ -75,6 +75,27 @@ function loginUser(email, password, successCallback, failureCallback) {
 	 });
 }
 
+function addPacketToUser(packetId, successCallback, failureCallback)
+{
+    var query = server_url + query_add_packet_to_user;
+    console.log("query: " + query);
+    
+    var data = {"packet" : packetId};
+    
+    $.post(query, data, function(responseText) {
+        console.log("query: response");
+        successCallback();
+		
+      })
+      .done(function() {
+        console.log("query: done");
+      })
+      .fail(function(xhr, status, error) {
+        console.log("query: fail");
+        failureCallback();
+	 });
+}
+
 function deleteUser(successCallback, failureCallback)
 {
     var query = server_url + query_delete_user;
