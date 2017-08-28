@@ -1,7 +1,7 @@
 
 $(function() {
   var server_url = "http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8001/";
-
+  var stations;
  //Send Location update
   $("#update_form").submit(function() {
     initMap()
@@ -32,18 +32,16 @@ $(function() {
 		removeRows();
 
 		// TODO whole address, not only city
-		stations = [{"vehicle" : "center", "address" : obj.sender_city, "time" : getDate(obj.packetRegistrationTime) }]
+		stations = [{"vehicle" : "envelope", "address" : obj.sender_city, "time" : getDate(obj.packetRegistrationTime) }]
 
 		var arrayLength = obj.stations.length;
 		for (var i = 0; i < arrayLength; i++) {
-			var row = obj.stations[i];
-			stations.push({"vehicle" : row.vehicle, "address" : row.location, "time" : getDate(row.time) })			
-			addRow(i+2,iconMap(row.vehicle),row.location,row.time);
+			var row = obj.stations[i];			
+			addRow(row.vehicle,row.location,row.time);
 		}
 		//Letzte Spalte
 		if(obj.deliveryTime != undefined){
-			addRow(i+2,"fa fa-envelope-open-o",obj.receiver_city,obj.deliveryTime);
-			stations.push({"vehicle" : row.center, "address" : obj.receiver_city, "time" : getDate(obj.deliveryTime) })			
+			addRow("envelope-o",obj.receiver_city,obj.deliveryTime);	
 		}
 		serverReturned("",set,butt);
 		showPathInMap(map, stations);
@@ -59,6 +57,28 @@ $(function() {
 	
 	return false;
   });
+  //Socket
+  function updateFromSocket(responseText){
+	  var obj = JSON.parse(responseText);
+	  if(obj.location === undefined){
+			addRow(stations.length,"envelope-o",$("#receiver_city").val(),obj.deliveryTime);
+			serverReturned("Ihr Paket ist da, schauen sie in ihren Briefkasten.",set,butt);
+	  }else{
+		   addRow(stations.length,obj.vehicle,obj.location,obj.time);
+			serverReturned("Ihr Paket wurde soeben bei "+obj.location+" gemeldet!",set,butt);
+	  
+	  }
+	  showPathInMap(map, stations);
+  }
+  //int/String/String/String
+	function addRow(symbol,loca,date){
+		var date = getDate(date);
+		stations.push({"vehicle" : symbol, "address" : loca, "time" : date })
+		$('#Nachverfolgung > tbody:last-child').append('<tr name="addedRow"><th scope="row">'+stations.length+'</th><td><i class="'+iconMap(symbol)+'"></i></td><td>'+loca+'</td><td>'+date+'</td></tr>');
+	}
+	function removeRows(){
+		$("[name='addedRow']").remove();
+	}
   //Login
   $("#login").click(function(){
     login_email = $("#email").val();
@@ -76,7 +96,7 @@ $(function() {
     });
     return false;
   });
-  //Login
+  //Logout
   $("#logout").click(function(){
 	  //try to logout
 	  
@@ -119,13 +139,7 @@ function getDate(date){
 	return false;
 }
 
-//int/String/String/String
-function addRow(index,symbol,loca,date){
-	$('#Nachverfolgung > tbody:last-child').append('<tr name="addedRow"><th scope="row">'+index+'</th><td><i class="'+symbol+'"></i></td><td>'+loca+'</td><td>'+getDate(date)+'</td></tr>');
-}
-function removeRows(){
-	$("[name='addedRow']").remove();
-}
+
 //Sichtbarkeit ändern
 function waitOnServer(fset,pbutton){
 	$(fset).prop("disabled", true);
@@ -163,7 +177,9 @@ function cleanUp() {
 	$("#server_answer").prop("hidden",false);
 	$("#spinner").prop("hidden",true);
 }
-function iconMap(hash){		
+function iconMap(hash){
+		if(hash == "envelope")return "fa fa-envelope-o";
+		if(hash == "envelope-o")return "fa fa-envelope-open-o";
 		if(hash == "center")return "fa fa-building-o";
 		if(hash == "car")return "fa fa-car";
 		if(hash == "foot")return "fa fa-bicycle";
@@ -172,6 +188,5 @@ function iconMap(hash){
 		if(hash == "ship")return "fa fa-ship";
 		if(hash == "train")return "fa fa-subway";
 		if(hash == "truck")return "fa fa-truck";
-		if(hash == "failed")return "fa fa-frown-o";
-		//if(hash == "")return "fa fa-flag-checkered"
+		if(hash == "failed")return "fa fa-frown-o";		
 }
