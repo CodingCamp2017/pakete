@@ -70,13 +70,10 @@ class UserService:
         password_hash = self.u_cur.fetchone()[0]
         if not pbkdf2_sha256.verify(data['password'], password_hash):
             raise InvalidPasswortException
-        session_id = str(uuid.uuid1())
-        self.u_cur.execute('UPDATE users SET session_id = ? WHERE email = ?',
-                           (session_id, data['email']))
         self.u_cur.execute('UPDATE users SET session_id_timestamp = ? WHERE email = ?',
                            (str(datetime.now()), data['email']))
         self.u_con.commit()
-        return session_id
+        return True
 
 #    def update_user_adress(self, data):
 #        packet_regex.check_json_regex(data, packet_regex.syntax_update_user_adress)
@@ -100,7 +97,11 @@ class UserService:
         
     # TODO remove packet from user
         
-    def get_packets_from_user(self, session_id):
+    def get_packets_from_user(self, userEmail):
+        print('getting packets')
+        
+        return "packets"
+        
         packet_regex.check_json_regex({'session_id' : session_id}, packet_regex.syntax_session_id)
         self._check_session_active(session_id)
         self._update_session_id_timestamp(session_id)

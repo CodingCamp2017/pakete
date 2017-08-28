@@ -16,12 +16,16 @@ from user_service import UserService
 
 
 app = Flask(__name__)
+app.secret_key = "hallo blub foo bar"
+app.config['SESSION_TYPE'] = 'filesystem'
+
 user_service = UserService()
 
 @app.before_request
 def make_session_permanent():
-    session.permanent = True
-    app.permanent_session_lifetime = timedelta(minutes=5)
+    pass
+    #session.permanent = True
+    #app.permanent_session_lifetime = timedelta(minutes=5)
 
 @app.route('/add_user', methods=['POST'])
 def restAddUser():
@@ -38,10 +42,15 @@ def restAddUser():
 def restAuthenticateUser():
     try:
         data = rest_common.get_rest_data(request)
-        session_id = user_service.authenticate_user(data)
-        print("Session id is " + session_id)
-        session['email'] = data['email']
-        return rest_common.create_cookie_response(200, session_id)
+        userEmail = data['email']
+        if(user_service.authenticate_user(data)) :
+            print("Session with user " + userEmail)
+            session['userEmail'] = userEmail
+            session.modified = True;
+            
+            print('SESSION: ' + str(session))
+
+            return rest_common.create_response(200)
     except InvalidActionException as e:
         return rest_common.create_error_response(400, e)
     except UserUnknownException as e:
@@ -91,14 +100,18 @@ def restAddPacket():
     except PacketNotFoundException as e:
         return rest_common.create_error_response(410, e)
     
-@app.route('/get_packets_from_user', methods=['POST'])
+@app.route('/get_packets_from_user', methods=['GET'])
 def restGetPacket():
+    print('__________SESSION: ' + str(session))
+
     try:
-        session_id = request.cookies.get('session_id')
-        if not session_id:
-            raise NoSessionIdException
-        print("Session id is " + str(session_id))
-        packets = user_service.get_packets_from_user(session_id)
+        if 'userEmail' in session:
+            userEmail = session['userEmail'];
+            print("Logged in as " + str(userEmail))
+            packets = user_service.get_packets_from_user(userEmail)
+        else:
+            print("Not logged in")
+            return rest_common.create_error_response(400, "User not logged in.") # TODO which error code?
         return rest_common.create_response(200, packets)
     except InvalidActionException as e:
         return rest_common.create_error_response(400, e)
@@ -143,4 +156,5 @@ if __name__ == '__main__':
         else:
             print("Unknown option "+opt)
             sys.exit(1)
+
     app.run(debug=True, port=port, host="0.0.0.0")
