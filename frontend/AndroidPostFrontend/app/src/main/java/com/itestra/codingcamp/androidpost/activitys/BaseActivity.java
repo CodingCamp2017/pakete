@@ -155,14 +155,6 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
         });
     }
 
-    protected AlertDialog getProcessingDialog() {
-        AlertDialog dialog = new AlertDialog.Builder(this).create();
-        dialog.setTitle("Request running...");
-        dialog.setMessage("Please wait until your request has finished");
-        dialog.setCancelable(false);
-        return dialog;
-    }
-
     abstract int getContentViewId();
 
     abstract int getNavigationMenuItemId();

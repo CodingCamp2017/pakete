@@ -32,19 +32,8 @@ import java.util.Map;
 public class RestInterface {
     private final String url = "http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8000/";
 
-    private int currentTaskId = 0;
-    private ArrayList<AsyncTask<Object, Void, AsyncTaskResult>> tasks = new ArrayList<>();
-
     public interface ReadyHandler {
         void onReady(AsyncTaskResult result);
-    }
-
-    public void cancelTask(int id) {
-        AsyncTask<Object, Void, AsyncTaskResult> task = tasks.get(id);
-        if (!task.isCancelled()) {
-            task.cancel(true);
-        }
-        System.out.println("Cancelled request " + id);
     }
 
     private String convertStreamToString(InputStream is) {
@@ -114,7 +103,7 @@ public class RestInterface {
         }
     }
 
-    public int sendRequest(String url, Map<String, String> data, ReadyHandler handler) {
+    public void sendRequest(String url, Map<String, String> data, ReadyHandler handler) {
         AsyncTask<Object, Void, AsyncTaskResult> task = (new AsyncTask<Object, Void, AsyncTaskResult>() {
             @Override
             protected AsyncTaskResult doInBackground(Object... params) {
@@ -129,12 +118,6 @@ public class RestInterface {
                     BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream()));
                     bufferedWriter.write(json.toString());
                     bufferedWriter.flush();
-
-                    /*
-                    if(false) {
-                        for (int i = 0; i < 1000000000; i++) {}
-                    }
-                    */
 
                     try {
                         return new AsyncTaskResult(processResponse(connection));
@@ -156,41 +139,22 @@ public class RestInterface {
             protected void onPostExecute(AsyncTaskResult result) {
                 handler.onReady(result);
             }
-
-            @Override
-            protected void onCancelled() {
-                System.out.println("Task cancelled");
-            }
-
-            @Override
-            protected void onCancelled(AsyncTaskResult result) {
-                System.out.println("Task cancelled after result");
-                try {
-                    System.out.println(result.getResult().toString());
-                } catch (RestException e) {
-                    e.printStackTrace();
-                }
-            }
         }).execute(data);
-
-        tasks.add(task);
-        System.out.println("Added request " + currentTaskId);
-        return currentTaskId++;
     }
 
-    public int newPacket(Map<String, String> data, ReadyHandler handler) {
-        return sendRequest(RestInterface.this.url + "register", data, handler);
+    public void newPacket(Map<String, String> data, ReadyHandler handler) {
+        sendRequest(RestInterface.this.url + "register", data, handler);
     }
 
-    public int updatePacket(String id, String station, String vehicle, ReadyHandler handler)  {
+    public void updatePacket(String id, String station, String vehicle, ReadyHandler handler)  {
         Map<String, String> data = new HashMap<>();
         data.put("station", station);
         data.put("vehicle", vehicle);
 
-        return sendRequest(RestInterface.this.url + "packet/" + id +"/update", data, handler);
+        sendRequest(RestInterface.this.url + "packet/" + id +"/update", data, handler);
     }
 
-    public int deliverPacket(String id, ReadyHandler handler) {
-        return sendRequest(RestInterface.this.url + "packet/" + id +"/delivered", new HashMap<>(), handler);
+    public void deliverPacket(String id, ReadyHandler handler) {
+        sendRequest(RestInterface.this.url + "packet/" + id +"/delivered", new HashMap<>(), handler);
     }
 }

@@ -1,6 +1,7 @@
 package com.itestra.codingcamp.androidpost.activitys;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.widget.EditText;
@@ -50,9 +51,10 @@ public class RelocateActivity extends BaseActivity{
             }
         }
 
-        AlertDialog dialog = getProcessingDialog();
+        ProgressDialog dialog = ProgressDialog.show(this, "Anfrage wird verarbeitet", "Paket wird an einen anderen Standort gebracht");
+        dialog.setCancelable(false);
 
-        int requestId = restInterface.updatePacket(editTextPacketId.getText().toString(), editTextStation.getText().toString(), vehicle, new RestInterface.ReadyHandler() {
+        restInterface.updatePacket(editTextPacketId.getText().toString(), editTextStation.getText().toString(), vehicle, new RestInterface.ReadyHandler() {
             @Override
             public void onReady(AsyncTaskResult result) {
                 try {
@@ -82,20 +84,12 @@ public class RelocateActivity extends BaseActivity{
                 }
                 catch (Exception e) {
                     e.printStackTrace();
+                    Toast.makeText(RelocateActivity.this, "Unknown error", Toast.LENGTH_SHORT).show();
                 }
 
                 dialog.dismiss();
             }
         });
-
-        dialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancel",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        restInterface.cancelTask(requestId);
-                        dialog.dismiss();
-                    }
-                });
-        dialog.show();
     }
 
     @Override
