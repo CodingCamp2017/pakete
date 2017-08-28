@@ -1,10 +1,10 @@
 		
 $(function() {
   var server_url = "http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8001/";
-  var stations;
+  var stations = [{"vehicle" : "envelope", "address" : "????", "time" : getDate("0") }];;
   var set = "#packet_id";
   var butt = "#update_packet_button";
-  var socket = io.connect('http://localhost:8001/packetStatus');
+  var socket = io.connect('http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com/packetStatus');//http://localhost:8001/
   var id;
   var ids= new Set();
  //Send Location update
@@ -65,8 +65,10 @@ $(function() {
   //Socket
   
     socket.on('update', function(obj){
-		if(id != undefined && obj.id != undefined && obj.id != id){
-			serverReturned("Das Paket mit der ID " + obj.id + " wurde an einen neuen Standort registriert.",set,butt);
+		console.log(id);
+		console.log(obj)
+		if(id != undefined && obj.packet_id != undefined && obj.packet_id != id){
+			serverReturned("Das Paket mit der ID " + obj.packet_id + " wurde an einen neuen Standort registriert.",set,butt);
 			return;
 		}
 	  if(obj.location === undefined){
