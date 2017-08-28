@@ -13,7 +13,8 @@ function address2coords(address) {
         map.fitBounds(bounds);
       }
 
-      function showPathInMap(map, stations) {
+     function showPathInMap(map, stations) {
+		
       	console.log("show path in map")
       	console.log(stations)        
         var address = encodeURI($("#addr").val())
@@ -42,7 +43,7 @@ function address2coords(address) {
             });
 
             infowindows[i] = new google.maps.InfoWindow({              
-              content: "<b>" + stations[i]["address"] + "</b><br /><b>Fahrzeug:</b> <i class=\"" + iconMap(stations[i]["vehicle"]) + "\"></i><br /><b>Zeit:</b> " + stations[i]["time"]
+              content: "<i class=\"" + iconMap(stations[i]["vehicle"]) + "\"></i> <b>" + stations[i]["address"] + "</b><br /><b>Zeit:</b> " + stations[i]["time"]
             });
 
             markers[i].addListener('click', function() {             

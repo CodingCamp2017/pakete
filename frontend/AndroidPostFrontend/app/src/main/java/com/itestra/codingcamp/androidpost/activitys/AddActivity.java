@@ -65,7 +65,7 @@ public class AddActivity extends BaseActivity {
                     System.err.println(e.getKey() + " has error " + e.getMessage());
                     Toast.makeText(AddActivity.this, "There was an error in the field " + e.getKey(), Toast.LENGTH_LONG).show();
                 } catch (Exception e) {
-                    handleException(AddActivity.this, e);
+                    handleException(e);
                 }
 
                 dialog.dismiss();
