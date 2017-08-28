@@ -87,14 +87,14 @@
                 <!--Neue Suche-->
             </div>	
                 
-            <div id="map"></div>	  
+           
 
             <!--bestätigung ID-->
             <div class="mx-auto pageContent" >
                 <i hidden class="fa fa-spinner fa-spin" style="font-size:50px" id="spinner"></i><br/>
                   <div hidden id="server_answer"></div>
             </div>
-            
+             <div id="map"></div>	  
             <!-- /.container -->
             </div>
         </div>    

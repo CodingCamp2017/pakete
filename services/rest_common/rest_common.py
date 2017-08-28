@@ -33,12 +33,3 @@ message: exception or string will be sent back
 '''
 def create_error_response(errcode, message):
     return create_response(errcode, {"error":str(message)})
-
-def get_cookie_response(response):
-    return response
-
-def create_cookie_response(code, session_id):
-    response = Response(status=code)
-    response.headers["Access-Control-Allow-Origin"] = "*"
-    #response.set_cookie('session_id', session_id)
-    return response
