@@ -4,7 +4,8 @@ $(function() {
   var stations = [{"vehicle" : "envelope", "address" : "????", "time" : getDate("0") }];;
   var set = "#packet_id";
   var butt = "#update_packet_button";
-  var socket = io.connect('http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com/packetStatus');//http://localhost:8001/
+ // var socket = io.connect('http://localhost:8001/packetStatus');//http://localhost:8001/
+  var socket = io.connect('http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8001/packetStatus');//http://localhost:8001/
   var id;
   var ids= new Set();
  //Send Location update
