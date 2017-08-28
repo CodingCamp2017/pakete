@@ -154,8 +154,8 @@ function cleanUp() {
 function showError(string){
 	string = "#"+string;
 	$(string).addClass("error");
-	$(string).keypress(function(){
+	$(string).keydown(function(){
 		$(string).removeClass("error");
-		$(string).off("keypress");
+		$(string).off("keydown");
 	});
 }
