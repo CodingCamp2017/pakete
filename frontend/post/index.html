@@ -29,7 +29,7 @@
         <div class="collapse navbar-collapse" id="navbarResponsive">
           <ul class="navbar-nav ml-auto">
             <li class="nav-item active" id="register_link_container">
-              <a class="nav-link" href="#" id="register_link">Regiestrierung Pakete</a>
+              <a class="nav-link" href="#" id="register_link">Registrierung Pakete</a>
             </li>
             <li class="nav-item" id="update_link_container">
               <a class="nav-link" href="#" id="update_link">Standortupdate Pakete</a>
@@ -43,7 +43,7 @@
     <div class="col-8">
       <!-- Page Content -->
       <div class="mx-auto pageContent" id="register_container">
-        <h1 class="mt-5">Regiestrierung Pakete</h1>
+        <h1 class="mt-5">Registrierung Pakete</h1>
         <p>
           <form id="register_form" >   
 			<fieldset>		  
@@ -68,8 +68,13 @@
 
 
             <p><b>Gewicht (kg)</b><br>
-            <input type="text" class="form-control" name="weight" placeholder="10" id="weight" /> <br>
+            <input type="text" class="form-control" placeholder="10" id="weight" /> <br>
             </p>
+			
+			<p><b>E-Mail (optional)</b><br>
+            <input type="text" class="form-control" placeholder="max.mustermann@internetseite.de" id="email" /> <br>
+            </p>
+			
             <input type="submit" value="Paket registrieren" id="register_packet_button" class="btn btn-primary" />
 			
 		    </fieldset>	
@@ -87,8 +92,7 @@
                 <input type="checkbox" id="is_delivered" /> <label for="is_delivered">Ausgeliefert</label>
             </div>
             <div id="station_container">
-             <input type="text" class="form-control" placeholder="Station"  id="station" />
-            
+             <input type="text" class="form-control" placeholder="Station"  id="station" />            
 			<p>
 			<div class="btn-group" data-toggle="buttons">
 			</label>
