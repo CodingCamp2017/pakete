@@ -1,15 +1,19 @@
-
+		
 $(function() {
   var server_url = "http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8001/";
-  var stations;
+  var stations =[{"vehicle" : "envelope", "address" : "???", "time" : getDate("0") }];
+  var set = "#packet_id";
+  var butt = "#update_packet_button";
+  var socket = io.connect('http://localhost:8001/packetStatus');
+  var id ;
+  var ids= new Set();
  //Send Location update
   $("#update_form").submit(function() {
     initMap()
-    // var data = {"id" : $("#packet_id").val() } 
-	var set = "#packet_id";
-	var butt = "#update_packet_button";
 	waitOnServer(set,butt);
-	$.get( server_url + "packetStatus/"+$("#packet_id").val(), function(responseText) {
+	id = $("#packet_id").val();
+	$.get( server_url + "packetStatus/"+id, function(responseText) {
+		
 		var obj = JSON.parse(responseText);
 		//sender Adresse
 		$("#sender_name").val(obj.sender_name);
@@ -32,7 +36,7 @@ $(function() {
 		removeRows();
 
 		// TODO whole address, not only city
-		stations = [{"vehicle" : "envelope", "address" : obj.sender_city, "time" : getDate(obj.packetRegistrationTime) }]
+		stations = [{"vehicle" : "envelope", "address" : getAbsender(), "time" : getDate(obj.packetRegistrationTime) }];
 
 		var arrayLength = obj.stations.length;
 		for (var i = 0; i < arrayLength; i++) {
@@ -41,10 +45,16 @@ $(function() {
 		}
 		//Letzte Spalte
 		if(obj.deliveryTime != undefined){
-			addRow("envelope-o",obj.receiver_city,obj.deliveryTime);	
+			addRow("envelope-o",obj.receiver_city,obj.deliveryTime,getReciver());	
 		}
 		serverReturned("",set,butt);
 		showPathInMap(map, stations);
+		console.log('hello socket');
+		if(!ids.has(id)){
+			ids.add(id);
+			console.log('emit to socket');
+			socket.emit('subscribe', {packet_id: id});
+		}	
       })
       .done(function() {
       })
@@ -52,28 +62,32 @@ $(function() {
 		 failReturned(xhr.responseText,xhr.status,set,butt);
 	 })
       .always(cleanUp);
-	
-		
-	
 	return false;
   });
   //Socket
-  function updateFromSocket(responseText){
-	  var obj = JSON.parse(responseText);
+  
+    socket.on('update', function(obj){
+		console.log(obj);
+		if(id != undefined && obj.id != undefined && obj.id != id){
+			serverReturned("Das Paket mit der ID " + obj.id + " wurde an einen neuen Standort registriert.",set,butt);
+			return;
+		}
 	  if(obj.location === undefined){
-			addRow(stations.length,"envelope-o",$("#receiver_city").val(),obj.deliveryTime);
+			addRow("envelope-o",$("#receiver_city").val(),obj.deliveryTime,getReciver());
 			serverReturned("Ihr Paket ist da, schauen sie in ihren Briefkasten.",set,butt);
 	  }else{
-		   addRow(stations.length,obj.vehicle,obj.location,obj.time);
+		   addRow(obj.vehicle,obj.location,obj.time);
 			serverReturned("Ihr Paket wurde soeben bei "+obj.location+" gemeldet!",set,butt);
 	  
 	  }
 	  showPathInMap(map, stations);
-  }
+	});
+	  
   //int/String/String/String
-	function addRow(symbol,loca,date){
+	function addRow(symbol,loca,date,address){
 		var date = getDate(date);
-		stations.push({"vehicle" : symbol, "address" : loca, "time" : date })
+		if(address === undefined)address = loca
+		stations.push({"vehicle" : symbol, "address" : address, "time" : date })
 		$('#Nachverfolgung > tbody:last-child').append('<tr name="addedRow"><th scope="row">'+stations.length+'</th><td><i class="'+iconMap(symbol)+'"></i></td><td>'+loca+'</td><td>'+date+'</td></tr>');
 	}
 	function removeRows(){
@@ -189,4 +203,10 @@ function iconMap(hash){
 		if(hash == "train")return "fa fa-subway";
 		if(hash == "truck")return "fa fa-truck";
 		if(hash == "failed")return "fa fa-frown-o";		
+}
+function getAbsender(){
+	return $("#sender_zip").val()+ " " +$("#sender_city").val() + ", " + " "+$("#sender_street").val();
+}
+function getReciver(){
+	return $("#receiver_zip").val()+ " " +$("#receiver_city").val() + ", " + " "+$("#receiver_street").val();
 }
