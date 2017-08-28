@@ -60,7 +60,7 @@ public class DeliverActivity extends BaseActivity {
                     System.err.println(e.getKey() + " has error " + e.getMessage());
                     Toast.makeText(DeliverActivity.this, e.getKey() + " has error " + e.getMessage() , Toast.LENGTH_LONG).show();
                 }  catch (Exception e) {
-                    handleException(DeliverActivity.this, e);
+                    handleException(e);
                 }
 
                 dialog.dismiss();
@@ -78,7 +78,7 @@ public class DeliverActivity extends BaseActivity {
             Toast.makeText(this, "Scan button could not be found!", Toast.LENGTH_LONG).show();
         }
 
-        editTextPacketId = ((EditText) findViewById(R.id.edittext_packet_id));
+        editTextPacketId = (EditText) findViewById(R.id.edittext_packet_id);
         editTextPacketId.setText(packet_id);
     }
 

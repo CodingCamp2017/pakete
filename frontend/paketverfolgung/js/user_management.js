@@ -1,5 +1,5 @@
 var server_url = "http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8002/";
-//var server_url = "http://168.192.168.66:80/";
+//var server_url = "http://bla.bla:8001/";
 
 var query_register_user = "add_user";
 var query_login_user = "authenticate_user";
@@ -61,18 +61,19 @@ function loginUser(email, password, successCallback, failureCallback) {
     var data = {"email" : email,
 		"password" : password};
     
-    $.post(query, data, function(responseText) {
+    
+    $.ajax(query, {
+     method: 'POST',
+     data: data,
+     crossDomain: true,
+     success: function(xhr, status, error) {
         console.log("query: response");
         successCallback();
 		
-      })
-      .done(function() {
-        console.log("query: done");
-      })
-      .fail(function(xhr, status, error) {
+      }, error: function() {
         console.log("query: fail");
         failureCallback();
-	 });
+	 }});
 }
 
 function addPacketToUser(packetId, successCallback, failureCallback)
@@ -120,22 +121,24 @@ function getUserPackets(successCallback, failureCallback)
     var query = server_url + query_get_user_packets;
     console.log("query: " + query);
     
-    $.post(query, function(responseText) {
+    $.ajax(query, {
+     method: 'GET',
+     xhrFields: { withCredentials: true },
+     crossDomain: true,
+     success: function(response) {
         console.log("query: response");
         
         //var obj = JSON.parse(responseText);
-        console.log("response: " + responseText);
+        console.log("response: " + response);
         
         // dummy answer
         var packets = ["packet1", "packet2"];
         successCallback(packets);
 		
-      })
-      .done(function() {
-        console.log("query: done");
-      })
-      .fail(function(xhr, status, error) {
+      },
+     error: function() {
         console.log("query: fail");
         failureCallback();
-	 });
+	 }
+  });
 }

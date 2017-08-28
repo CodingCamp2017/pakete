@@ -74,7 +74,7 @@ public class RelocateActivity extends BaseActivity{
                     editTextPacketId.setError(getResources().getString(R.string.invalid_value));
                     Toast.makeText(RelocateActivity.this, e.getMessage() , Toast.LENGTH_LONG).show();
                 } catch (Exception e) {
-                    handleException(RelocateActivity.this, e);
+                    handleException(e);
                 }
 
                 dialog.dismiss();
