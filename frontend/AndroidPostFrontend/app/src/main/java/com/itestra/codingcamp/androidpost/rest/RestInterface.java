@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import com.itestra.codingcamp.androidpost.exceptions.InvalidRequestException;
 import com.itestra.codingcamp.androidpost.exceptions.InvalidValueException;
 import com.itestra.codingcamp.androidpost.exceptions.KeyNotFoundException;
+import com.itestra.codingcamp.androidpost.exceptions.NetworkException;
 import com.itestra.codingcamp.androidpost.exceptions.ResourceNotFoundException;
 import com.itestra.codingcamp.androidpost.exceptions.RestException;
 import com.itestra.codingcamp.androidpost.exceptions.ServerException;
@@ -123,9 +124,12 @@ public class RestInterface {
                         return new AsyncTaskResult(processResponse(connection));
                     } catch (RestException e) {
                         return new AsyncTaskResult(e);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        return new AsyncTaskResult(new RestException("Error parsing JSON: " + e.getMessage()));
                     }
-                } catch (IOException | JSONException e ) {
-                    return new AsyncTaskResult(new RestException("IO EXCEPTION OR JSON EXCEPTION " + e.getMessage()));
+                } catch (IOException e) {
+                    return new AsyncTaskResult(new NetworkException("IO EXCEPTION " + e.getMessage()));
                 } finally {
                     try {
                         if (connection != null) connection.disconnect();

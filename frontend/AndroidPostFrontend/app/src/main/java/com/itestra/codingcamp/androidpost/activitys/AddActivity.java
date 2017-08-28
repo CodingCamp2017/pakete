@@ -13,6 +13,7 @@ import android.widget.ToggleButton;
 
 import com.itestra.codingcamp.androidpost.R;
 import com.itestra.codingcamp.androidpost.exceptions.InvalidValueException;
+import com.itestra.codingcamp.androidpost.exceptions.NetworkException;
 import com.itestra.codingcamp.androidpost.exceptions.RestException;
 import com.itestra.codingcamp.androidpost.exceptions.ServerException;
 import com.itestra.codingcamp.androidpost.rest.AsyncTaskResult;
@@ -66,6 +67,9 @@ public class AddActivity extends BaseActivity {
                 } catch (ServerException e) {
                     System.err.println("ServerException: " + e.getMessage());
                     Toast.makeText(AddActivity.this, "ServerException: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                } catch (NetworkException e) {
+                    System.err.println("NetworkException: " + e.getMessage());
+                    Toast.makeText(AddActivity.this, "Network failed, please check your connection: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 } catch (RestException e) {
                     System.err.println("RestException: " + e.getMessage());
                     Toast.makeText(AddActivity.this, "RestException: " + e.getMessage(), Toast.LENGTH_LONG).show();

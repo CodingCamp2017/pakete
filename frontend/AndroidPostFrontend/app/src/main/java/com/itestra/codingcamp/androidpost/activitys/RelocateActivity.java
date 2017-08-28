@@ -10,6 +10,7 @@ import android.widget.ToggleButton;
 
 import com.itestra.codingcamp.androidpost.R;
 import com.itestra.codingcamp.androidpost.exceptions.InvalidValueException;
+import com.itestra.codingcamp.androidpost.exceptions.NetworkException;
 import com.itestra.codingcamp.androidpost.exceptions.NoScanButtonException;
 import com.itestra.codingcamp.androidpost.exceptions.ResourceNotFoundException;
 import com.itestra.codingcamp.androidpost.exceptions.RestException;
@@ -78,6 +79,9 @@ public class RelocateActivity extends BaseActivity{
                 } catch (ServerException e) {
                     System.err.println("ServerException: " + e.getMessage());
                     Toast.makeText(RelocateActivity.this, "ServerException: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                } catch (NetworkException e) {
+                    System.err.println("NetworkException: " + e.getMessage());
+                    Toast.makeText(RelocateActivity.this, "Network failed, please check your connection: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 } catch (RestException e) {
                     System.err.println("RestException: " + e.getMessage());
                     Toast.makeText(RelocateActivity.this, "RestException: " + e.getMessage(), Toast.LENGTH_LONG).show();
