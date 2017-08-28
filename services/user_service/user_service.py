@@ -17,13 +17,31 @@ class UserService:
         if not os.path.isfile('user_database.db'):
             os.system('sqlite3 user_database.db < user_database_schema.sql')
             os.system('sqlite3 followed_packets_database.db < followed_packets_database_schema.sql')
+        self.u_con = sql.connect('user_database.db', check_same_thread=False)
+        self.u_cur = self.u_con.cursor()
+        self.p_con = sql.connect('followed_packets_database.db', check_same_thread=False)
+        self.p_cur = self.p_con.cursor()
+        
         try:
+            self.u_cur.execute('INSERT INTO users (email, password, name, street, zip, city, session_id, session_id_timestamp) VALUES (?,?,?,?,?,?,?,?)',
+                               ('dummy_email', '123', '', '', '', '', '', ''))
+        except sql.OperationalError:
+            print('User database is locked')
+            os.system('mv user_database.db temp.db')
+            os.system('cp temp.db user_database.db')
             self.u_con = sql.connect('user_database.db', check_same_thread=False)
             self.u_cur = self.u_con.cursor()
+
+        try:
+            self.p_cur.execute('INSERT INTO followed_packets (email, packet) VALUES (?,?)',
+                               ('dummy_email', '123'))
+        except sql.OperationalError:
+            print('Packets database is locked')
+            os.system('mv followed_packets_database.db temp.db')
+            os.system('cp temp.db followed_packets_database.db')
             self.p_con = sql.connect('followed_packets_database.db', check_same_thread=False)
             self.p_cur = self.p_con.cursor()
-        except sql.OperationalError:
-            print('OperationalError')
+            
         self.idstore = IDStore(False)
         self.updater = IDUpdater(self.idstore)
         self.updater.start()
@@ -131,6 +149,10 @@ class UserService:
         print(self.u_cur.fetchall())
         self.p_cur.execute('SELECT * FROM followed_packets')
         print(self.p_cur.fetchall())
+        
+    def close(self):
+        self.u_con.close()
+        self.p_con.close()
         
     def __del__(self):
         self.u_con.close()
