@@ -18,7 +18,7 @@ sys.path.append(os.path.relpath('../mykafka'))
 import rest_common
 import mykafka
 import packet_regex
-from Exceptions import InvalidActionException, TYPE_INVALID_KEY
+from Exceptions import InvalidActionException, TYPE_INVALID_KEY, TYPE_NO_DATA_FOUND, TYPE_KEY_NOT_FOUND
 
 
 
@@ -89,14 +89,14 @@ def client_disconnected():
 @socketio.on('subscribe', namespace='/packetStatus')
 def client_subscribed(message):
     if not message:
-        #TODO send no data error
+        send_invalid_action_error(request.sid, 'subscribe', '/packetStatus', TYPE_NO_DATA_FOUND, "No json data received")
         return
     if not "packet_id" in message:
-        #TODO send key not found error
+        send_invalid_action_error(request.sid, 'subscribe', '/packetStatus', TYPE_KEY_NOT_FOUND, "Didn't find key packet_id", "packet_id")
         return
     packet_id = message["packet_id"]
     if not packet_regex.regex_matches_exactly(packet_regex.regex_id, packet_id):
-        #TODO send invalid key error
+        send_invalid_key_error(request.sid, 'subscribe', '/packetStatus', "packet_id")
         return
     clients.client_subscribe(request.sid, packet_id)
 
