@@ -1,11 +1,11 @@
+
 $(function() {
   var server_url = "http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8001/";
-
+  var stations;
  //Send Location update
   $("#update_form").submit(function() {
-  	initMap()
-	  
-   // var data = {"id" : $("#packet_id").val() } 
+    initMap()
+    // var data = {"id" : $("#packet_id").val() } 
 	var set = "#packet_id";
 	var butt = "#update_packet_button";
 	waitOnServer(set,butt);
@@ -30,21 +30,21 @@ $(function() {
 		$("#regdate").text(getDate(obj.packetRegistrationTime));
 		//Restliche Spalten
 		removeRows();
-		
-		addresses = [obj.sender_city]
+
+		// TODO whole address, not only city
+		stations = [{"vehicle" : "envelope", "address" : obj.sender_city, "time" : getDate(obj.packetRegistrationTime) }]
+
 		var arrayLength = obj.stations.length;
 		for (var i = 0; i < arrayLength; i++) {
-			var row = obj.stations[i];
-			addresses[i+1] = row.location;
-			addRow(i+2,iconMap(row.vehicle),row.location,row.time);
+			var row = obj.stations[i];			
+			addRow(row.vehicle,row.location,row.time);
 		}
 		//Letzte Spalte
 		if(obj.deliveryTime != undefined){
-			addRow(i+2,"fa fa-envelope-open-o",obj.receiver_city,obj.deliveryTime);
-			addresses[addresses.length] = obj.receiver_city
+			addRow("envelope-o",obj.receiver_city,obj.deliveryTime);	
 		}
 		serverReturned("",set,butt);
-		showPathInMap(map, addresses);
+		showPathInMap(map, stations);
       })
       .done(function() {
       })
@@ -57,6 +57,28 @@ $(function() {
 	
 	return false;
   });
+  //Socket
+  function updateFromSocket(responseText){
+	  var obj = JSON.parse(responseText);
+	  if(obj.location === undefined){
+			addRow(stations.length,"envelope-o",$("#receiver_city").val(),obj.deliveryTime);
+			serverReturned("Ihr Paket ist da, schauen sie in ihren Briefkasten.",set,butt);
+	  }else{
+		   addRow(stations.length,obj.vehicle,obj.location,obj.time);
+			serverReturned("Ihr Paket wurde soeben bei "+obj.location+" gemeldet!",set,butt);
+	  
+	  }
+	  showPathInMap(map, stations);
+  }
+  //int/String/String/String
+	function addRow(symbol,loca,date){
+		var date = getDate(date);
+		stations.push({"vehicle" : symbol, "address" : loca, "time" : date })
+		$('#Nachverfolgung > tbody:last-child').append('<tr name="addedRow"><th scope="row">'+stations.length+'</th><td><i class="'+iconMap(symbol)+'"></i></td><td>'+loca+'</td><td>'+date+'</td></tr>');
+	}
+	function removeRows(){
+		$("[name='addedRow']").remove();
+	}
   //Login
   $("#login").click(function(){
     login_email = $("#email").val();
@@ -74,7 +96,7 @@ $(function() {
     });
     return false;
   });
-  //Login
+  //Logout
   $("#logout").click(function(){
 	  //try to logout
 	  
@@ -117,13 +139,7 @@ function getDate(date){
 	return false;
 }
 
-//int/String/String/String
-function addRow(index,symbol,loca,date){
-	$('#Nachverfolgung > tbody:last-child').append('<tr name="addedRow"><th scope="row">'+index+'</th><td><i class="'+symbol+'"></i></td><td>'+loca+'</td><td>'+getDate(date)+'</td></tr>');
-}
-function removeRows(){
-	$("[name='addedRow']").remove();
-}
+
 //Sichtbarkeit ändern
 function waitOnServer(fset,pbutton){
 	$(fset).prop("disabled", true);
@@ -162,6 +178,8 @@ function cleanUp() {
 	$("#spinner").prop("hidden",true);
 }
 function iconMap(hash){
+		if(hash == "envelope")return "fa fa-envelope-o";
+		if(hash == "envelope-o")return "fa fa-envelope-open-o";
 		if(hash == "center")return "fa fa-building-o";
 		if(hash == "car")return "fa fa-car";
 		if(hash == "foot")return "fa fa-bicycle";
@@ -170,74 +188,5 @@ function iconMap(hash){
 		if(hash == "ship")return "fa fa-ship";
 		if(hash == "train")return "fa fa-subway";
 		if(hash == "truck")return "fa fa-truck";
-		if(hash == "failed")return "fa fa-frown-o";
-		//if(hash == "")return "fa fa-flag-checkered"
+		if(hash == "failed")return "fa fa-frown-o";		
 }
-
-
-var map = null;
-
-function address2coords(address) {
-        return $.get("https://maps.googleapis.com/maps/api/geocode/json?key=AIzaSyASQQsfeuEWdnMjDjSKS8HhIjl6Gr6Qzfo&region=de&address=" + address)
-      }
-
-      function zoomToObject(map, obj){
-        var bounds = new google.maps.LatLngBounds();
-        var points = obj.getPath().getArray();
-        for (var n = 0; n < points.length ; n++) {
-          bounds.extend(points[n]);
-        }
-        map.fitBounds(bounds);
-      }
-
-      function showPathInMap(map, addresses) {
-      	console.log("show path in map")
-      	console.log(addresses)
-        var address = encodeURI($("#addr").val())
-        
-        var requests = addresses.map(function(item) { return address2coords(item) })
-        
-        $.when.apply($, requests).done(function() {
-          var responses = arguments
-          var coords = [];
-          var markers = [];
-          var infowindows = [];
-
-          // TODO map this shit
-          for (let i = 0; i < responses.length; ++i) {
-            coords[i] = responses[i][0].results[0].geometry.location                      
-
-            markers[i] = new google.maps.Marker({
-              position: coords[i],
-              label: (i + 1).toString(),
-              map: map
-            });
-
-            infowindows[i] = new google.maps.InfoWindow({              
-              content: "<b>" + addresses[i] + "</b><br />Hier kommen weitere Infos wie Uhrzeit, type"
-            });
-
-            markers[i].addListener('click', function() {             
-              infowindows[i].open(map, markers[i]);
-            });
-          }          
-
-          var path = new google.maps.Polyline({
-            path: coords,
-            geodesic: true,
-            strokeColor: '#FF0000',
-            strokeOpacity: 1.0,
-            strokeWeight: 2
-          });
-
-          path.setMap(map);
-          zoomToObject(map, path)
-        });
-      }
-
-      function initMap() {
-		 
-      	console.log("init map")
-        map = new google.maps.Map(document.getElementById('map'));  
-			
-      }
