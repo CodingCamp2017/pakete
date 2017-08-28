@@ -14,13 +14,16 @@ import uuid
 class UserService:
     
     def __init__(self):
-        # TODO handle database reboot
-        os.system('sqlite3 user_database.db < user_database_schema.sql')
-        os.system('sqlite3 followed_packets_database.db < followed_packets_database_schema.sql')
-        self.u_con = sql.connect('user_database.db', check_same_thread=False)
-        self.u_cur = self.u_con.cursor()
-        self.p_con = sql.connect('followed_packets_database.db', check_same_thread=False)
-        self.p_cur = self.p_con.cursor()
+        if not os.path.isfile('user_database.db'):
+            os.system('sqlite3 user_database.db < user_database_schema.sql')
+            os.system('sqlite3 followed_packets_database.db < followed_packets_database_schema.sql')
+        try:
+            self.u_con = sql.connect('user_database.db', check_same_thread=False)
+            self.u_cur = self.u_con.cursor()
+            self.p_con = sql.connect('followed_packets_database.db', check_same_thread=False)
+            self.p_cur = self.p_con.cursor()
+        except sql.OperationalError:
+            print('OperationalError')
         self.idstore = IDStore(False)
         self.updater = IDUpdater(self.idstore)
         self.updater.start()
@@ -87,8 +90,8 @@ class UserService:
         packet_regex.check_json_regex(data, packet_regex.syntax_add_packet_to_user)
         self._check_session_active(data['session_id'])
         self._update_session_id_timestamp(data['session_id'])
-        if not self.idstore.packet_in_store(data['packet']):
-            raise PacketNotFoundException
+        #if not self.idstore.packet_in_store(data['packet']):
+         #   raise PacketNotFoundException
         email = self._get_email_of_user(data['session_id'])
         self.p_cur.execute('INSERT INTO followed_packets (email, packet) VALUES (?,?)',
                            (email, data['packet']))
@@ -128,7 +131,7 @@ class UserService:
         self.p_cur.execute('SELECT * FROM followed_packets')
         print(self.p_cur.fetchall())
         
-    def __deinit__(self):
+    def __del__(self):
         self.u_con.close()
         self.p_con.close()
         

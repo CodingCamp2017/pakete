@@ -40,5 +40,5 @@ def get_cookie_response(response):
 def create_cookie_response(code, session_id):
     response = Response(status=code)
     response.headers["Access-Control-Allow-Origin"] = "*"
-    #response.set_cookie('session_id', session_id)
+    response.set_cookie('session_id', bytes(session_id, 'utf-8'))
     return response

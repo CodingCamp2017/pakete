@@ -6,17 +6,22 @@ import os
 
 sys.path.append(os.path.relpath('../mykafka'))
 sys.path.append(os.path.relpath('../rest_common'))
-sys.path.append(os.path.relp
 import rest_common
 
 import getopt
 from Exceptions import InvalidActionException, UserExistsException, UserUnknownException, SessionElapsedException, InvalidPasswortException, PacketNotFoundException, NoPacketException, NoSessionIdException
-from flask import Flask, request
+from flask import Flask, request, session
+from datetime import timedelta
 from user_service import UserService
 
 
 app = Flask(__name__)
 user_service = UserService()
+
+@app.before_request
+def make_session_permanent():
+    session.permanent = True
+    app.permanent_session_lifetime = timedelta(minutes=5)
 
 @app.route('/add_user', methods=['POST'])
 def restAddUser():
@@ -34,15 +39,18 @@ def restAuthenticateUser():
     try:
         data = rest_common.get_rest_data(request)
         session_id = user_service.authenticate_user(data)
-        return rest_common.create_cookie_response('session_id', session_id)
+        print("Session id is " + session_id)
+        session['email'] = data['email']
+        return rest_common.create_cookie_response(200, session_id)
     except InvalidActionException as e:
         return rest_common.create_error_response(400, e)
     except UserUnknownException as e:
         return rest_common.create_error_response(404, e)
     except InvalidPasswortException as e:
         return rest_common.create_error_response(401, e)
-    except Exception as e:
-        print(e)
+    except TypeError as e:
+        print("TypeError in authenticate_user")
+        return "123"
     
 @app.route('/update_user_adress', methods=['POST'])
 def restUpdateAdress():
@@ -61,7 +69,7 @@ def restUpdateAdress():
 def restAddPacket():
     try:
         packet_id = request.json('packet')
-        return rest_common.create_error_response(421, str(packet_id))
+        #return rest_common.create_error_response(421, str(packet_id))
         if not packet_id:
             raise NoPacketException
         session_id = request.cookies.get('session_id')
@@ -87,15 +95,19 @@ def restAddPacket():
 def restGetPacket():
     try:
         session_id = request.cookies.get('session_id')
-        return rest_common.create_error_response(421, 'blaksbdksabdlasbdlasdb')
+        if not session_id:
+            raise NoSessionIdException
+        print("Session id is " + str(session_id))
         packets = user_service.get_packets_from_user(session_id)
         return rest_common.create_response(200, packets)
     except InvalidActionException as e:
         return rest_common.create_error_response(400, e)
-    except UserUnknownException as e:
-        return rest_common.create_error_response(404, e)
     except SessionElapsedException as e:
         return rest_common.create_error_response(401, e)
+    except UserUnknownException as e:
+        return rest_common.create_error_response(404, e)
+    except NoSessionIdException as e:
+        return rest_common.create_error_response(422, e)
     
 @app.route('/delete_user', methods=['POST'])
 def restDeleteUser():

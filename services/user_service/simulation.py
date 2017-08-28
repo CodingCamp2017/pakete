@@ -8,6 +8,7 @@ import sys
 import os
 sys.path.append(os.path.relpath('../common'))
 import uuid
+from Exceptions import UserExistsException
 
 char_set = string.ascii_uppercase + string.ascii_lowercase + string.digits
 sizes = ['small','normal','big']
@@ -35,8 +36,11 @@ def simulate_user_behaviour():
     user_service.print_databases()
     
     for i in range(1):
-        user_data = create_simple_test_user()
-        user_service.add_user(user_data)
+        user_data = create_test_user()
+        try:
+            user_service.add_user(user_data)
+        except UserExistsException:
+            continue
         print('User {} added'.format(user_data['email']))
         #time.sleep(randint(1,2))
         
