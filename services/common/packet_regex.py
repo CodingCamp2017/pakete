@@ -65,19 +65,12 @@ syntax_update_user_adress = [('email', regex_email),
 '''
 This lists the required keys and a regex for the value of the addPacketToUser command
 '''
-syntax_add_packet_to_user = [('email', regex_email),
-                             ('packet', regex_id),
+syntax_add_packet_to_user = [('packet', regex_id),
                              ('session_id', regex_session_id)]
 '''
-This lists the required keys and a regex for the value of the getPacketsFromUser command
+This lists the required keys and a regex for the value of commands that require only a session id
 '''
-syntax_get_packets_from_user = [('email', regex_email),
-                                ('session_id', regex_session_id)]
-'''
-This lists the required keys and a regex for the value of the deleteUser command
-'''
-syntax_delete_user = [('email', regex_email),
-                      ('session_id', regex_session_id)]
+syntax_session_id = [('session_id', regex_session_id)]
 
 '''
 Returns True only if the given string fully matches the given regex.

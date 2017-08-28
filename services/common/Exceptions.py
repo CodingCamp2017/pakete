@@ -66,3 +66,12 @@ class SessionElapsedException(Exception):
 
 class InvalidPasswortException(Exception):
     pass
+
+class PacketNotFoundException(Exception):
+    pass
+
+class NoSessionIdException(Exception):
+    pass
+
+class NoPacketException(Exception):
+    pass
