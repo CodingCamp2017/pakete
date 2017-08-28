@@ -37,7 +37,6 @@ def client_update_location(packet_id, time, location, vehicle):
             
 def client_delivered(packet_id, time):
     sids = clients.get_subscribed_clients_for_id(packet_id)
-    #print("Delivered")
     if sids:
         data = {'packet_id':packet_id, 'deliveryTime':time}
         for sid in sids:
@@ -82,7 +81,6 @@ def invalidPacketId():
 @socketio.on('connect', namespace='/packetStatus')
 def client_connected():
     clients.client_connected(request.sid)
-    socketio.emit('update', {'deliveryTime':'4567890'}, namespace='/packetStatus', room=request.sid)
     
 @socketio.on('disconnect', namespace='/packetStatus')
 def client_disconnected():
@@ -101,12 +99,9 @@ def client_subscribed(message):
         #TODO send invalid key error
         return
     clients.client_subscribe(request.sid, packet_id)
-        
-#    print('received message: ' + str(message))
-#    socketio.emit('update', {'deliveryTime':'4567890'}, namespace='/packetStatus', room=request.sid)
 
         
         
 if __name__ == '__main__':
     port = int(sys.argv[1])
-    socketio.run(app, debug=False, host='0.0.0.0', port=port)
+    socketio.run(app, debug=True, host='0.0.0.0', port=port)
