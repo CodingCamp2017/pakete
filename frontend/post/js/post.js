@@ -27,9 +27,20 @@ $(function() {
       $("#station_container").show()
     }
   });
-
+	
   //Send registation
   $("#register_form").submit(function() {
+	  //Does User exist?
+	  
+	if($("#email").val().length!==0){
+		//TODO
+		showError("email");		
+		$("#server_answer").prop("hidden",false);
+		$("#server_answer").text("Diese Email hat keinen Account. Erstellen sie einen Account auf der Paketverfolgungsseite.");
+		return false;
+	}else{
+		$("#email").removeClass("error");
+	}
     var data = {"sender_name" :     $("#sender_name").val(),
 				"sender_street" :   $("#sender_street").val(),
                 "sender_zip" :      $("#sender_zip").val(),
@@ -48,6 +59,7 @@ $(function() {
 		  console.log(obj);
 		serverReturned("Ihr Paket wurde registriert. Es hat die ID " + obj.id,set,butt);
 		$("#qrcode").prop("src","https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + obj.id);
+		//TODO send id an Nutzerkonto
       })
       //.done(function() {
       //})
@@ -146,5 +158,4 @@ function showError(string){
 		$(string).removeClass("error");
 		$(string).off("keypress");
 	});
-	prev = string;
 }

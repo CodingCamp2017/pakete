@@ -1,11 +1,11 @@
+
 $(function() {
   var server_url = "http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8001/";
 
  //Send Location update
   $("#update_form").submit(function() {
-  	initMap()
-	  
-   // var data = {"id" : $("#packet_id").val() } 
+    initMap()
+    // var data = {"id" : $("#packet_id").val() } 
 	var set = "#packet_id";
 	var butt = "#update_packet_button";
 	waitOnServer(set,butt);
@@ -30,21 +30,23 @@ $(function() {
 		$("#regdate").text(getDate(obj.packetRegistrationTime));
 		//Restliche Spalten
 		removeRows();
-		
-		addresses = [obj.sender_city]
+
+		// TODO whole address, not only city
+		stations = [{"vehicle" : "center", "address" : obj.sender_city, "time" : getDate(obj.packetRegistrationTime) }]
+
 		var arrayLength = obj.stations.length;
 		for (var i = 0; i < arrayLength; i++) {
 			var row = obj.stations[i];
-			addresses[i+1] = row.location;
+			stations.push({"vehicle" : row.vehicle, "address" : row.location, "time" : getDate(row.time) })			
 			addRow(i+2,iconMap(row.vehicle),row.location,row.time);
 		}
 		//Letzte Spalte
 		if(obj.deliveryTime != undefined){
 			addRow(i+2,"fa fa-envelope-open-o",obj.receiver_city,obj.deliveryTime);
-			addresses[addresses.length] = obj.receiver_city
+			stations.push({"vehicle" : row.center, "address" : obj.receiver_city, "time" : getDate(obj.deliveryTime) })			
 		}
 		serverReturned("",set,butt);
-		showPathInMap(map, addresses);
+		showPathInMap(map, stations);
       })
       .done(function() {
       })
@@ -161,7 +163,7 @@ function cleanUp() {
 	$("#server_answer").prop("hidden",false);
 	$("#spinner").prop("hidden",true);
 }
-function iconMap(hash){
+function iconMap(hash){		
 		if(hash == "center")return "fa fa-building-o";
 		if(hash == "car")return "fa fa-car";
 		if(hash == "foot")return "fa fa-bicycle";
