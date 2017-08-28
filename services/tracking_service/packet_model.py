@@ -120,7 +120,10 @@ class Packet:
 Stores the history of each packet of the topic
 '''
 class PacketStore:
-    packets = list()
+    def __init__(self, updateCallback = None, deliverCallback = None):
+        self.packets = list()
+        self.updateCallback = updateCallback
+        self.deliverCallback = deliverCallback
     
     '''
     Adds a packet.
@@ -154,7 +157,7 @@ class PacketStore:
                  receiverStreet, receiverZip, receiverCity)
         self.packets.append(packet)
         
-        print('Added packet with id: ' + str(packetId))
+        #print('Added packet with id: ' + str(packetId))
         
         return True
         
@@ -180,7 +183,9 @@ class PacketStore:
             return
             
         packet.updateLocation(eventTime, stationLocation, stationVehicle)
-        print("Updated packet (id=" + packet_id + ") location to " + stationLocation + ".")
+        if self.updateCallback:
+            self.updateCallback(packet_id, eventTime, stationLocation, stationVehicle)
+        #print("Updated packet (id=" + packet_id + ") location to " + stationLocation + ".")
 
     '''
     Marks a packet as delivered.
@@ -201,7 +206,9 @@ class PacketStore:
             return
             
         packet.setDelivered(eventTime)
-        print("Packet (id: " + packetId + ") delivered, time " + str(eventTime))
+        if self.deliverCallback:
+            self.deliverCallback(packetId, eventTime)
+        #print("Packet (id: " + packetId + ") delivered, time " + str(eventTime))
     
     '''
     Returns the Packet with the given packetId, or None if no packet has the given id
