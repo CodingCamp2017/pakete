@@ -159,19 +159,19 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
         });
     }
 
-    protected void handleException(Context context, Exception e) {
+    protected void handleException(Exception e) {
         if (e instanceof  ServerException) {
             System.err.println("ServerException: " + e.getMessage());
-            Toast.makeText(context, "ServerException: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "ServerException: " + e.getMessage(), Toast.LENGTH_LONG).show();
         } else if (e instanceof  NetworkException) {
             System.err.println("NetworkException: " + e.getMessage());
-            Toast.makeText(context, "Network failed, please check your connection: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Network failed, please check your connection: " + e.getMessage(), Toast.LENGTH_LONG).show();
         } else if (e instanceof RestException) {
             System.err.println("RestException: " + e.getMessage());
-            Toast.makeText(context, "RestException: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "RestException: " + e.getMessage(), Toast.LENGTH_LONG).show();
         } else {
             e.printStackTrace();
-            Toast.makeText(context, "Unknown error", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Unknown error", Toast.LENGTH_SHORT).show();
         }
     }
 
