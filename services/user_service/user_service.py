@@ -1,10 +1,11 @@
-
 import sys
 import os
 sys.path.append(os.path.relpath('../common'))
-import packet_regex
 
-from Exceptions import UserExistsException, UserUnknownException, InvalidSessionIdException, SessionElapsedException, InvalidPasswortException
+import packet_regex
+from id_store import IDStore, IDUpdater
+from Exceptions import UserExistsException, UserUnknownException, SessionElapsedException, InvalidPasswortException, PacketNotFoundException
+
 import sqlite3 as sql
 from passlib.hash import pbkdf2_sha256
 from datetime import datetime
@@ -13,12 +14,16 @@ import uuid
 class UserService:
     
     def __init__(self):
+        # TODO handle database reboot
         os.system('sqlite3 user_database.db < user_database_schema.sql')
         os.system('sqlite3 followed_packets_database.db < followed_packets_database_schema.sql')
         self.u_con = sql.connect('user_database.db', check_same_thread=False)
         self.u_cur = self.u_con.cursor()
         self.p_con = sql.connect('followed_packets_database.db', check_same_thread=False)
         self.p_cur = self.p_con.cursor()
+        self.idstore = IDStore(False)
+        self.updater = IDUpdater(self.idstore)
+        self.updater.start()
                 
     def _user_exists(self, email):
         self.u_cur.execute('SELECT EXISTS(SELECT 1 FROM users WHERE email=?)', (email,))
@@ -41,12 +46,7 @@ class UserService:
     def _update_session_id_timestamp(self, session_id):
         self.u_cur.execute('UPDATE users SET session_id_timestamp = ? WHERE session_id = ?',
                            (str(datetime.now()), session_id))
-        
-#    def _check_user_valid_session_active(self, email, session_id):
-#        if not self._user_exists(email):
-#            raise UserUnknownException
-#        if not self._session_active(email, session_id):
-#            raise SessionElapsedException
+
         
     def add_user(self, data):
         packet_regex.check_json_regex(data, packet_regex.syntax_add_user)
@@ -86,28 +86,35 @@ class UserService:
     def add_packet_to_user(self, data):
         packet_regex.check_json_regex(data, packet_regex.syntax_add_packet_to_user)
         self._check_session_active(data['session_id'])
+        self._update_session_id_timestamp(data['session_id'])
+        if not self.idstore.packet_in_store(data['packet']):
+            raise PacketNotFoundException
         email = self._get_email_of_user(data['session_id'])
-            
         self.p_cur.execute('INSERT INTO followed_packets (email, packet) VALUES (?,?)',
                            (email, data['packet']))
         self.u_con.commit()
         self._update_session_id_timestamp(data['session_id'])
         
+    # TODO remove packet from user
+        
     def get_packets_from_user(self, session_id):
+        packet_regex.check_json_regex({'session_id' : session_id}, packet_regex.syntax_session_id)
         self._check_session_active(session_id)
+        self._update_session_id_timestamp(session_id)
         email = self._get_email_of_user(session_id)
         self.p_cur.execute('SELECT (packet) FROM followed_packets WHERE email=?', (email,))
         packets = [p[0] for p in self.p_cur.fetchall()]
-        self._update_session_id_timestamp(session_id)
         return packets
         
     def logout_user(self, session_id):
+        packet_regex.check_json_regex({'session_id' : session_id}, packet_regex.syntax_session_id)
         self._check_session_active(session_id)
         self.u_cur.execute('UPDATE users SET session_id = ? WHERE session_id = ?', ('', session_id))
         self.u_cur.execute('UPDATE users SET session_id_timestamp = ? WHERE session_id = ?', ('', session_id))
         self.u_con.commit()
         
     def delete_user(self, session_id):
+        packet_regex.check_json_regex({'session_id' : session_id}, packet_regex.syntax_session_id)
         self._check_session_active(session_id)
         email = self._get_email_of_user(session_id)
         self.u_cur.execute('DELETE FROM users WHERE session_id = ?', (session_id,))
@@ -127,10 +134,22 @@ class UserService:
         
 
 def create_email_password():
-    return {'email' : 'karl3@mail.de',
+    return {'email' : 'kasrl3@mail.de',
             'password' : 'dadadada'}
 
 def create_email_packet_session(session_id):
+    return {'packet' : str(uuid.uuid1()),
+            'session_id' : session_id}
+
+def create_test_delete_user_json(session_id):
+    return {'email' : 'karl3@mail.de',
+            'session_id' : session_id}
+
+def create_test_get_packets_from_user_json(session_id):
+    return {'email' : 'karl3@mail.de',
+            'session_id' : session_id}
+
+def create_test_add_packet(session_id):
     return {'packet' : str(uuid.uuid1()),
             'session_id' : session_id}
     
@@ -147,8 +166,10 @@ def test_user_service():
     session_id = user_service.authenticate_user(test_user)
     
     # test add packet to user
-    test_add_packet_to_user = create_email_packet_session(session_id)
-    user_service.add_packet_to_user(test_add_packet_to_user)
+    try:
+        user_service.add_packet_to_user(create_test_add_packet(session_id))
+    except PacketNotFoundException:
+        print('Packet not found')
     
     # test get packets from user
     user_service.get_packets_from_user(session_id)
