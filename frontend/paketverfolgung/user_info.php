@@ -3,6 +3,7 @@
     <head>
         <title>Benutzer registrieren - Post Kundenservice</title>
         <?php include('html/head.html'); ?>
+        <script src="js/user_info.js"></script>
 </head>
     <body>
         <?php include('html/navigation.html'); ?>
@@ -47,6 +48,7 @@
                   </div>                 
             </div>
         </div>
-    </div>    
+    </div>  
+    <?php include('html/scripts.html'); ?>
   </body>
 </html>
