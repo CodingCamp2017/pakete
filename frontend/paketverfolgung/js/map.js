@@ -21,13 +21,18 @@ function address2coords(address) {
         var requests = stations.map(function(item) { return address2coords(item["address"]) })
         
         $.when.apply($, requests).done(function() {
-          var responses = arguments
+          // Workaround that solves problem that arguments is an array when there are multiple responses,
+          // but no array when there is only one response. This makes it an array in every case
+          if (stations.length < 2) {
+            var responses = [arguments]
+          } else {
+            var responses = arguments
+          }
           var coords = [];
           var markers = [];
           var infowindows = [];
           
-          for (let i = 0; i < responses.length; ++i) {
-            console.log(responses[i])
+          for (let i = 0; i < responses.length; ++i) {            
             coords[i] = responses[i][0].results[0].geometry.location                      
 
             markers[i] = new google.maps.Marker({
@@ -44,8 +49,8 @@ function address2coords(address) {
               infowindows[i].open(map, markers[i]);
             });
           }          
-
-          if (coords.length > 1) { // TODO            
+          
+          if (coords.length > 1) {
             var path = new google.maps.Polyline({
             path: coords,
             geodesic: true,
@@ -56,6 +61,9 @@ function address2coords(address) {
 
             path.setMap(map);  
             zoomToObject(map, path)
+          } else {            
+            map.setCenter(coords[0]);
+            map.setZoom(8);
           }
         });
       }
