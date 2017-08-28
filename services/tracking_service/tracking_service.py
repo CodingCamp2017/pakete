@@ -44,7 +44,7 @@ class TrackingService:
                 return
                 
             if eventVersion != 2:
-                print('Unexpected event version (expected: 1, found: ' + str(eventVersion) + ')')
+                #print('Unexpected event version (expected: 1, found: ' + str(eventVersion) + ')')
                 return
                 
             if eventType == 'registered':

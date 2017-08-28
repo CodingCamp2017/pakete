@@ -4,7 +4,8 @@
 import sys
 import os
 
-from flask import Flask
+from flask import Flask, request
+from flask_socketio import SocketIO
 from tracking_service import TrackingService
 
 sys.path.append(os.path.relpath('../common'))
@@ -17,6 +18,7 @@ from Exceptions import InvalidActionException, TYPE_INVALID_KEY
 
 
 app = Flask(__name__)#Initialize flask
+socketio = SocketIO(app)
 # Create the TrackingService
 tracking_service = TrackingService(mykafka.create_consumer('ec2-35-159-21-220.eu-central-1.compute.amazonaws.com', 9092, 'packet'))
 
@@ -47,6 +49,19 @@ def restPacketStatus(packetId):
 def invalidPacketId():
     return create_invalid_key_error()
 
+@socketio.on('connect', namespace='/packetStatus')
+def client_connected():
+    print(str(request.sid)+'client connected:')
+    
+@socketio.on('disconnect', namespace='/packetStatus')
+def client_disconnected():
+    print('Client disconnected')
+
+@socketio.on('subscribe', namespace='/packetStatus')
+def handle_message(message):
+    print('received message: ' + str(message))
+    socketio.emit('update', {'deliveryTime':'4567890'}, namespace='/packetStatus', room=request.sid)
+
 if __name__ == '__main__':
     port = int(sys.argv[1])
-    app.run(debug=True, host='0.0.0.0', port=port) 
+    socketio.run(app, debug=True, host='0.0.0.0', port=port)

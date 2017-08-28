@@ -154,7 +154,7 @@ class PacketStore:
                  receiverStreet, receiverZip, receiverCity)
         self.packets.append(packet)
         
-        print('Added packet with id: ' + str(packetId))
+        #print('Added packet with id: ' + str(packetId))
         
         return True
         
@@ -180,7 +180,7 @@ class PacketStore:
             return
             
         packet.updateLocation(eventTime, stationLocation, stationVehicle)
-        print("Updated packet (id=" + packet_id + ") location to " + stationLocation + ".")
+        #print("Updated packet (id=" + packet_id + ") location to " + stationLocation + ".")
 
     '''
     Marks a packet as delivered.
@@ -201,7 +201,7 @@ class PacketStore:
             return
             
         packet.setDelivered(eventTime)
-        print("Packet (id: " + packetId + ") delivered, time " + str(eventTime))
+        #print("Packet (id: " + packetId + ") delivered, time " + str(eventTime))
     
     '''
     Returns the Packet with the given packetId, or None if no packet has the given id
