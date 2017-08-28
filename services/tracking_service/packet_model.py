@@ -120,7 +120,10 @@ class Packet:
 Stores the history of each packet of the topic
 '''
 class PacketStore:
-    packets = list()
+    def __init__(self, updateCallback = None, deliverCallback = None):
+        self.packets = list()
+        self.updateCallback = updateCallback
+        self.deliverCallback = deliverCallback
     
     '''
     Adds a packet.
@@ -180,6 +183,8 @@ class PacketStore:
             return
             
         packet.updateLocation(eventTime, stationLocation, stationVehicle)
+        if self.updateCallback:
+            self.updateCallback(packet_id, eventTime, stationLocation, stationVehicle)
         #print("Updated packet (id=" + packet_id + ") location to " + stationLocation + ".")
 
     '''
@@ -201,6 +206,8 @@ class PacketStore:
             return
             
         packet.setDelivered(eventTime)
+        if self.deliverCallback:
+            self.deliverCallback(packetId, eventTime)
         #print("Packet (id: " + packetId + ") delivered, time " + str(eventTime))
     
     '''
