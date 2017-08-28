@@ -2,16 +2,21 @@ package com.itestra.codingcamp.androidpost.rest;
 
 import com.itestra.codingcamp.androidpost.exceptions.RestException;
 
+import org.json.JSONObject;
+
 /**
  * This is a helper class that allows "throwing" Exceptions in AsyncTask that is received by a different Thread via getError()
  *
  */
 
-public class AsyncTaskResult<T> {
-    private T result;
+public class AsyncTaskResult {
+    private JSONObject result;
     private RestException error;
 
-    public T getResult() {
+    public JSONObject getResult() throws RestException {
+        if (hasError()) {
+            throw getError();
+        }
         return result;
     }
 
@@ -27,7 +32,7 @@ public class AsyncTaskResult<T> {
         super();
     }
 
-    public AsyncTaskResult(T result) {
+    public AsyncTaskResult(JSONObject result) {
         super();
         this.result = result;
     }
