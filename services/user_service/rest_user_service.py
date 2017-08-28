@@ -6,8 +6,7 @@ import os
 
 sys.path.append(os.path.relpath('../mykafka'))
 sys.path.append(os.path.relpath('../rest_common'))
-sys.path.append(os.path.relpath('../common'))
-import mykafka
+sys.path.append(os.path.relp
 import rest_common
 
 import getopt
@@ -42,6 +41,8 @@ def restAuthenticateUser():
         return rest_common.create_error_response(404, e)
     except InvalidPasswortException as e:
         return rest_common.create_error_response(401, e)
+    except Exception as e:
+        print(e)
     
 @app.route('/update_user_adress', methods=['POST'])
 def restUpdateAdress():
