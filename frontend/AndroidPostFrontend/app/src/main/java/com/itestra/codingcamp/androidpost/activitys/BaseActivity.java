@@ -1,6 +1,9 @@
 package com.itestra.codingcamp.androidpost.activitys;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -19,7 +22,10 @@ import android.widget.Toast;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.itestra.codingcamp.androidpost.R;
+import com.itestra.codingcamp.androidpost.exceptions.NetworkException;
 import com.itestra.codingcamp.androidpost.exceptions.NoScanButtonException;
+import com.itestra.codingcamp.androidpost.exceptions.RestException;
+import com.itestra.codingcamp.androidpost.exceptions.ServerException;
 import com.itestra.codingcamp.androidpost.rest.RestInterface;
 import com.itestra.codingcamp.androidpost.utils.FakeDataProvider;
 import com.itestra.codingcamp.androidpost.utils.FontawesomeProvider;
@@ -151,6 +157,22 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
                 }
             }
         });
+    }
+
+    protected void handleException(Context context, Exception e) {
+        if (e instanceof  ServerException) {
+            System.err.println("ServerException: " + e.getMessage());
+            Toast.makeText(context, "ServerException: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        } else if (e instanceof  NetworkException) {
+            System.err.println("NetworkException: " + e.getMessage());
+            Toast.makeText(context, "Network failed, please check your connection: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        } else if (e instanceof RestException) {
+            System.err.println("RestException: " + e.getMessage());
+            Toast.makeText(context, "RestException: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        } else {
+            e.printStackTrace();
+            Toast.makeText(context, "Unknown error", Toast.LENGTH_SHORT).show();
+        }
     }
 
     abstract int getContentViewId();
