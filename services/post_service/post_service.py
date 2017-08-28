@@ -49,7 +49,7 @@ class PostService:
     Returns a uuid used as packet identifier
     '''
     def assign_package_id(self):
-        return str(uuid.uuid1())
+        return str(uuid.uuid4())
     
     '''
     Sends a register event to kafka and thereby registers a packet. jobj is a
