@@ -64,19 +64,8 @@ public class AddActivity extends BaseActivity {
                     inputMap.get(e.getKey()).setError(e.getMessage());
                     System.err.println(e.getKey() + " has error " + e.getMessage());
                     Toast.makeText(AddActivity.this, "There was an error in the field " + e.getKey(), Toast.LENGTH_LONG).show();
-                } catch (ServerException e) {
-                    System.err.println("ServerException: " + e.getMessage());
-                    Toast.makeText(AddActivity.this, "ServerException: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                } catch (NetworkException e) {
-                    System.err.println("NetworkException: " + e.getMessage());
-                    Toast.makeText(AddActivity.this, "Network failed, please check your connection: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                } catch (RestException e) {
-                    System.err.println("RestException: " + e.getMessage());
-                    Toast.makeText(AddActivity.this, "RestException: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                    Toast.makeText(AddActivity.this, "Unknown error", Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                    handleException(AddActivity.this, e);
                 }
 
                 dialog.dismiss();

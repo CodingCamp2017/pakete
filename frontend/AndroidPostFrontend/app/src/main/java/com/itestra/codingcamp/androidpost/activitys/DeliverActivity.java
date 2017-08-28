@@ -50,31 +50,17 @@ public class DeliverActivity extends BaseActivity {
                     editTextPacketId.setText("");
                     packet_id = "";
                     Toast.makeText(DeliverActivity.this, "Packet delivered!", Toast.LENGTH_SHORT).show();
-                }
-                catch (ResourceNotFoundException e)
-                {
+                } catch (ResourceNotFoundException e) {
                     editTextPacketId.setError(e.getMessage());
                     Toast.makeText(DeliverActivity.this, e.getMessage() , Toast.LENGTH_LONG).show();
-                }
-                catch (InvalidValueException e) {
+                } catch (InvalidValueException e) {
                     if (e.getKey().equals(getResources().getString(R.string.data_packet_id))) {
                         editTextPacketId.setError(e.getMessage());
                     }
                     System.err.println(e.getKey() + " has error " + e.getMessage());
                     Toast.makeText(DeliverActivity.this, e.getKey() + " has error " + e.getMessage() , Toast.LENGTH_LONG).show();
-                } catch (ServerException e) {
-                    System.err.println("ServerException: " + e.getMessage());
-                    Toast.makeText(DeliverActivity.this, "ServerException: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                } catch (NetworkException e) {
-                    System.err.println("NetworkException: " + e.getMessage());
-                    Toast.makeText(DeliverActivity.this, "Network failed, please check your connection: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                } catch (RestException e) {
-                    System.err.println("RestException: " + e.getMessage());
-                    Toast.makeText(DeliverActivity.this, "RestException: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                    Toast.makeText(DeliverActivity.this, "Unknown error", Toast.LENGTH_SHORT).show();
+                }  catch (Exception e) {
+                    handleException(DeliverActivity.this, e);
                 }
 
                 dialog.dismiss();
