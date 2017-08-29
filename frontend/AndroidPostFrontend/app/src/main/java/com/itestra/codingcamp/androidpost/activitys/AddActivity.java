@@ -1,15 +1,23 @@
 package com.itestra.codingcamp.androidpost.activitys;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.itestra.codingcamp.androidpost.R;
 import com.itestra.codingcamp.androidpost.exceptions.InvalidValueException;
+import com.itestra.codingcamp.androidpost.exceptions.NetworkException;
 import com.itestra.codingcamp.androidpost.exceptions.RestException;
 import com.itestra.codingcamp.androidpost.exceptions.ServerException;
+import com.itestra.codingcamp.androidpost.rest.AsyncTaskResult;
+import com.itestra.codingcamp.androidpost.rest.RestInterface;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,20 +50,27 @@ public class AddActivity extends BaseActivity {
     @Override
     void sendData() {
         HashMap<String, String> data = getPacketData();
-        try {
-            packet_id = restInterface.newPacket(data);
-            Toast.makeText(this, "Registered package: "+packet_id, Toast.LENGTH_LONG).show();
-        } catch (InvalidValueException e) {
-            inputMap.get(e.getKey()).setError(e.getMessage());
-            System.err.println(e.getKey() + " has error " + e.getMessage());
-        } catch (ServerException e) {
-            System.err.println("ServerException: " + e.getMessage());
-        } catch (RestException e) {
-            System.err.println("RestException: " + e.getMessage());
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+
+        ProgressDialog dialog = ProgressDialog.show(this, "Anfrage wird verarbeitet", "Paket wird angelegt");
+        dialog.setCancelable(false);
+
+        restInterface.newPacket(data, new RestInterface.ReadyHandler() {
+            @Override
+            public void onReady(AsyncTaskResult result) {
+                try {
+                    packet_id = result.getResult().getString("id");
+                    Toast.makeText(AddActivity.this, "Registered package: "+packet_id, Toast.LENGTH_LONG).show();
+                } catch (InvalidValueException e) {
+                    inputMap.get(e.getKey()).setError(e.getMessage());
+                    System.err.println(e.getKey() + " has error " + e.getMessage());
+                    Toast.makeText(AddActivity.this, "There was an error in the field " + e.getKey(), Toast.LENGTH_LONG).show();
+                } catch (Exception e) {
+                    handleException(e);
+                }
+
+                dialog.dismiss();
+            }
+        });
     }
 
     private void fillWithFakeData() {

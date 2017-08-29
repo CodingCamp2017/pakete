@@ -1,36 +1,11 @@
 <!DOCTYPE html>
 <html lang="de">
-
-  <head>
-
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="Coding-Camp 2017">
-
-    <title>Benutzer registrieren - Post Kundenservice</title>
-    <!-- Bootstrap core CSS -->
-    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">    
-    <link href="css/style.css" rel="stylesheet">
-
-    <!-- rotating Waits CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-
+    <head>
+        <title>Benutzer registrieren - Post Kundenservice</title>
+        <?php include('html/head.html'); ?>
 </head>
-  <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-    <div class="container">
-      <a class="navbar-brand" href="index.html">
-        <b>Itestra Coding-Camp Post Kundenservice</b>
-      </a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-      
-    </div>
-</nav>
+    <body>
+        <?php include('html/navigation.html'); ?>
 
     <div class="row justify-content-center">
         <div class="col-8">
@@ -69,20 +44,12 @@
                   <div class="mx-auto pageContent" >
                   <i hidden class="fa fa-spinner fa-spin" style="font-size:50px" id="spinner"></i><br/>
                       <div hidden id="server_answer"></div>
-                  </div>
-                  
+                  </div>                 
             </div>
         </div>
-    </div>    
-
-    <!-- Bootstrap core JavaScript -->
-    <script src="vendor/jquery/jquery.min.js"></script>
-    <script src="vendor/popper/popper.min.js"></script>
-    <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
-    <script src="js/user_management.js"></script>
-    <script src="js/tracking.js"></script>
+    </div>  
+        
+    <?php include('html/scripts.html'); ?>
     <script src="js/user_info.js"></script>
-
   </body>
-
 </html>

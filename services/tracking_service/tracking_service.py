@@ -19,10 +19,10 @@ class TrackingService:
         '''
         consumer: A consumer listening to the topic packet
         '''
-        def __init__(self, consumer):
+        def __init__(self, consumer, updateCallback = None, deliverCallback = None):
             self.consumer = consumer
             self.consumerThread = 0
-            self.packetStore = PacketStore()
+            self.packetStore = PacketStore(updateCallback, deliverCallback)
             self.readPackets()
              
         def startConsuming(self):
@@ -44,7 +44,7 @@ class TrackingService:
                 return
                 
             if eventVersion != 2:
-                print('Unexpected event version (expected: 1, found: ' + str(eventVersion) + ')')
+                #print('Unexpected event version (expected: 1, found: ' + str(eventVersion) + ')')
                 return
                 
             if eventType == 'registered':
