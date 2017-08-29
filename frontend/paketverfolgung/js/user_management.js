@@ -20,6 +20,40 @@ $("#register_button").click(function() {
     });
 });
 
+function writeSessioIdCookie(serverResponseJson) {
+    if("session_id" in serverResponseJson) {
+        var sessionId = serverResponseJson['session_id']
+        console.log("session id: " + sessionId);
+    } else {
+        console.log("session id not found in response.");
+        return;
+    }
+
+    var exmins = 30;
+    var d = new Date();
+    d.setTime(d.getTime() + (exmins*60*1000));
+    var expires = "expires="+ d.toUTCString();
+    document.cookie = "session_id=" +sessionId + ";" + expires + ";path=/";
+}
+
+function readSessionIdCookie() {
+    var name = "session_id=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+
+    for(var i = 0; i <ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) === ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) === 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+
+    return undefined;
+}
+
 function registerUser(email, password, successCallback, failureCallback) {  
     if(!email || !password) {
         console.log("Email or password not provided.");
@@ -58,11 +92,10 @@ function loginUser(email, password, successCallback, failureCallback) {
     var query = server_url + query_login_user;
     console.log("query: " + query);
        
-    var data = {"email" : email,
-		"password" : password};
+    var requestData = {"email" : email,
+		"password" : password};   
     
-    
-    $.ajax(query, {
+    /*$.ajax(query, {
      method: 'POST',
      data: data,
      crossDomain: true,
@@ -73,7 +106,15 @@ function loginUser(email, password, successCallback, failureCallback) {
       }, error: function() {
         console.log("query: fail");
         failureCallback();
-	 }});
+	 }});*/
+    
+    console.log("query: " + query);
+
+    $.post(query, requestData, function(data) {
+        console.log("query done: " + data);
+        writeSessioIdCookie(data);
+        successCallback();
+      });
 }
 
 function addPacketToUser(packetId, successCallback, failureCallback)
