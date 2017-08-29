@@ -100,8 +100,10 @@ def check_json_regex(dic, req_list):
     for (key, regex) in req_list:
         if(not key in dic):
             raise InvalidActionException(Exceptions.TYPE_KEY_NOT_FOUND, key, "Required key: "+key)
+        elif(not isinstance(dic[key],str)):
+            raise InvalidActionException(Exceptions.TYPE_INVALID_KEY, key, "Invalid type for key "+key+"; expected string")
         elif(not regex_matches_exactly(regex, dic[key])):
-            raise InvalidActionException(Exceptions.TYPE_INVALID_KEY, key, "Invalid value: "+dic[key]+" for key "+key)
+            raise InvalidActionException(Exceptions.TYPE_INVALID_KEY, key, "Invalid value: "+str(dic[key])+" for key "+key)
     if(len(dic) != len(req_list)):
         raise InvalidActionException(Exceptions.TYPE_INVALID_KEY, str(get_first_not_contained(dic, req_list)), "Unknown keys in "+json.dumps(dic))
                 
