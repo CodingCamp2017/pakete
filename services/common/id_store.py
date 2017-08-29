@@ -15,7 +15,7 @@ Stores packet_ids of all packets that are currently in the delivery chain
 (registered but not yet delivered).
 '''
 class IDStore:
-    def __init__(self, verbose=True):
+    def __init__(self, verbose=False):
         self.packet_map = {}
         self.verbose = verbose
     

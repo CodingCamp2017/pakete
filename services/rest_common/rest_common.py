@@ -21,13 +21,10 @@ def get_rest_data(response):
 Creates and returns a flask.Response with the given HTTP status code.
 data (optional): a dictionary containing data to send back
 '''
-def create_response(code, data = {}, origin="*"):
+def create_response(code, data = {}):
     string = json.dumps(data)
     response = Response(response=string, status=code, mimetype="application/json")
-    response.headers["Access-Control-Allow-Origin"] = origin
-    
-    print("RESPONSE headers: " + str(response.headers))
-    
+    response.headers["Access-Control-Allow-Origin"] = "*"
     return response
 
 '''
@@ -36,3 +33,9 @@ message: exception or string will be sent back
 '''
 def create_error_response(errcode, message):
     return create_response(errcode, {"error":str(message)})
+
+def create_cookie_response(code, session_id):
+    response = Response(status=code)
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.set_cookie('session_id', bytes(session_id, 'utf-8'))
+    return response
