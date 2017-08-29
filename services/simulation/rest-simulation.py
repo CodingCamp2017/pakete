@@ -58,7 +58,7 @@ class RestSimulation():
                 id = self._getRandomId()
                 deliverRequest = urllib.request.Request(self.baseurl + 'packet/' + id +'/delivered',
                                                         data=json.dumps({}).encode('utf8'),
-                                                       headers = self.headers)
+                                                        headers = self.headers)
                 urllib.request.urlopen(deliverRequest)
                 self.packetList.remove(id)
             #time.sleep(randint(100,200)/1000.0)
