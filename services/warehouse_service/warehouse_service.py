@@ -30,6 +30,7 @@ This consumer listens to the topic packet and builds the internal packet history
 model.
 '''
 class WarehouseService:
+
         '''
         consumer: A consumer listening to the topic packet
         '''

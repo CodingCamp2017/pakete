@@ -11,7 +11,7 @@
     <title>itestra Coding-Camp Post Statistics</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="vendor/bootstrap/css/bootstrap.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
     <link href="css/style.css" rel="stylesheet">
@@ -22,7 +22,7 @@
 
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-      <div class="container">
+      <div class="container-fluid">
         <a class="navbar-brand" href="#">itestra Coding-Camp Post Statistics</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
@@ -37,51 +37,48 @@
     </nav>
 
     <!-- Page Content -->
-    <div class="container">
+    <div class="container-fluid maincontainer">
 
       <!-- Page Heading -->
-      <h1 class="my-4">Statistiken</h1>
+      <!--<h1 class="my-4">Statistiken</h1>-->
 
       <div class="row">
-        <div class="col-lg-6 portfolio-item">
+        <div class="col-lg-6 portfolio-item" ng-controller="LineCtrl">
           <div class="card">            
             <div class="card-body">
-              <h4 class="card-title">
-                Blabla
-              </h4>             
-
-              <div id="container" class="container" style="width:100%">                
-                <div class="panel-body" ng-controller="LineCtrl">
-                     <p><button ng-click="setData()">Show Chart</button></p>
+              <h4 class="card-title anfragelink" ng-click="setData()">Aufgegebene Pakete pro Stunde</h4>
+              <div id="container" class="container" style="width:100%" ng-show="dataLoaded">                
+                <div class="panel-body">                     
                       <canvas id="line" class="chart chart-line" chart-data="data"
                   chart-labels="labels" chart-series="series" chart-options="options"
                   chart-dataset-override="datasetOverride" chart-create="onCreate" chart-click="onClick">
                   </canvas>                    
-              </div>
+              </div>              
             </div>
+            <div ng-hide="dataLoaded">Laden</div>
             </div>
           </div>
         </div>
-        
-        <div class="col-lg-6 portfolio-item">
-          <div class="card">            
-            <div class="card-body">
-              <h4 class="card-title">
-                Blabla
-              </h4>             
 
-              <div id="container" class="container" style="width:100%">                
-                <div class="panel-body" ng-controller="LineCtrl">
-                     <p><button ng-click="setData()">Show Chart</button></p>
-                      <canvas id="line" class="chart chart-line" chart-data="data"
+        <div class="col-lg-6 portfolio-item" ng-controller="PieCtrl">
+          <div class="card" >            
+            <div class="card-body">
+              <h4 class="card-title anfragelink" ng-click="setData()">Anzahl der Größen</h4>
+              <div id="container" class="container" ng-show="dataLoaded">                
+                <div class="panel-body">                     
+                  <canvas id="pie" class="chart chart-pie" chart-data="data"
                   chart-labels="labels" chart-series="series" chart-options="options"
-                  chart-dataset-override="datasetOverride" chart-create="onCreate" chart-click="onClick">
+                  chart-dataset-override="datasetOverride" chart-create="onCreate" chart-click="onClick" style="height:250px">
                   </canvas>                    
               </div>
             </div>
+            <div ng-hide="dataLoaded">Laden</div>
             </div>
           </div>
         </div>
+
+        <a href="#" onclick="$('.anfragelink').click()">Refresh all</a>
+      </div>
 
         <!--
         <div class="col-lg-6 portfolio-item">
@@ -136,14 +133,13 @@
         </li>
       </ul>
       -->
-
     </div>
     <!-- /.container -->
 
     <!-- Footer -->
-    <footer class="py-5 bg-dark">
+    <footer class="bg-dark footer">
       <div class="container">
-        <p class="m-0 text-center text-white">Copyright &copy; itestra Coding Camp 2017</p>
+        <p class="m-0 text-center text-white">&copy; itestra Coding Camp 2017</p>
       </div>
       <!-- /.container -->
     </footer>
@@ -151,12 +147,12 @@
     <!-- Bootstrap core JavaScript -->
     <script src="vendor/jquery/jquery.min.js"></script>
     <script src="vendor/popper/popper.min.js"></script>
-    <!--<script src="vendor/bootstrap/js/bootstrap.min.js"></script>-->
+    <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
     <script src="js/angular.min.js"></script>
     <script src="js/ui-bootstrap-tpls-2.5.0.min.js"></script>
     <script src="js/Chart.min.js"></script>
     <script src="js/angular-chart.js"></script>
-    <script src="js/app.js"></script>
+    <script src="js/statistics.js"></script>
 
   </body>
 

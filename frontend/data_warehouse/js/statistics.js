@@ -9,33 +9,49 @@
       colors: ['#97BBCD', '#DCDCDC', '#F7464A', '#46BFBD', '#FDB45C', '#949FB1', '#4D5360']
     });
     // Configure all doughnut charts
+    /*
     ChartJsProvider.setOptions('doughnut', {
       cutoutPercentage: 60
     });
     ChartJsProvider.setOptions('bubble', {
       tooltips: { enabled: false }
     });
+    */
   });
 
   app.controller('LineCtrl', ['$scope', '$http', function ($scope, $http) {
-    $scope.labels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-    $scope.series = ['Series A', 'Series B'];
+    $scope.labels = [];
+    $scope.series = ['Pakete'];
     $scope.data = [[]];
+
+    $scope.dataLoaded = false
 
     $scope.onClick = function (points, evt) {
       console.log("onClick")
     };
 
     $scope.setData = function() {
-      $http.get("http://localhost:8000/get").then(function bla(response) {         
-        $scope.data[0].length = $scope.labels.length = 0
-        for (var i = 0; i < response.data.values.length; ++i) {
-          $scope.data[0].push(response.data.values[i] * response.data.values[i])
-          $scope.labels.push(i)
+      $scope.dataLoaded = false
+
+      $http.get("http://localhost:8000/getRegistrationsPerDay").then(function success(response) {                   
+        console.log(response.data)      
+        $scope.data[0] = $scope.data[0].slice(0,0)
+        $scope.labels = $scope.labels.slice(0,0)
+
+        for (var key in response.data.values) {
+          if (response.data.values.hasOwnProperty(key)) {            
+            $scope.data[0].push(response.data.values[key])          
+            $scope.labels.push(key)
+          }
         }
+
+        $scope.dataLoaded = true
+      }, function error() { 
+        alert("error");        
       })
     }
 
+    /*
     $scope.datasetOverride = [{ yAxisID: 'y-axis-1' }, { yAxisID: 'y-axis-2' }];
 
     $scope.options = {
@@ -55,9 +71,44 @@
           }
         ]
       }
-    };
+    }; */
+
+    $scope.setData();
   }]);
 
+  app.controller('PieCtrl', ['$scope', '$http', function ($scope, $http) {
+    $scope.labels = [];
+    $scope.data = [];
+    $scope.options = { legend: { display: true } };    
+
+    $scope.dataLoaded = false;
+
+    $scope.setData = function() {
+      $scope.dataLoaded = false
+
+      $http.get("http://localhost:8000/getSizeDistribution").then(function success(response) {                   
+        console.log(response.data)      
+        $scope.data = $scope.data.slice(0,0)
+        $scope.labels = $scope.labels.slice(0,0)
+
+        for (var key in response.data.values) {
+          if (response.data.values.hasOwnProperty(key)) {            
+            $scope.data.push(response.data.values[key])          
+            $scope.labels.push(key)
+          }
+        }
+
+        $scope.dataLoaded = true
+      }, function error() { 
+        alert("error");        
+      })
+    }
+
+    $scope.setData()
+
+  }]);
+
+  /*
   app.controller('MenuCtrl', ['$scope', function ($scope) {
     $scope.isCollapsed = true;
     $scope.charts = ['Line', 'Bar', 'Doughnut', 'Pie', 'Polar Area', 'Radar', 'Horizontal Bar', 'Bubble', 'Base'];
@@ -82,11 +133,7 @@
     }, 500);
   }]);
 
-  app.controller('PieCtrl', ['$scope', function ($scope) {
-    $scope.labels = ['Download Sales', 'In-Store Sales', 'Mail Sales'];
-    $scope.data = [300, 500, 100];
-    $scope.options = { legend: { display: false } };
-  }]);
+  
 
   app.controller('PolarAreaCtrl', ['$scope', function ($scope) {
     $scope.labels = ['Download Sales', 'In-Store Sales', 'Mail Sales', 'Telesales', 'Corporate Sales'];
@@ -310,4 +357,6 @@
     var y = previous + Math.random() * 10 - 5;
     return y < 0 ? 0 : y > 100 ? 100 : y;
   }
+
+  */
 })();
