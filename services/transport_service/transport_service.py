@@ -84,7 +84,7 @@ class DistributionService(threading.Thread):
                 else:
                     self._update_registered_packet(eventPayload)
                 
-            if eventType == 'updated_location' and eventPayload['receiver_zip'][0] == str(self.service_id):
+            if eventType == 'updated_location' and eventPayload['receiver_zip'][0] == str(self.service_id) and eventPayload['vehicle'] is not 'center':
                 self._deliver_updated_packet(eventPayload)
 
 
