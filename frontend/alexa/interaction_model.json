@@ -10,16 +10,22 @@
       "intent": "AMAZON.StopIntent"
     },
     {
-      "intent": "StartTrackingIntent"
+      "intent": "LoginIntent"
     },
     {
+      "intent": "PaketNumberIntent"
+    },
+    {
+      "intent": "OverviewIntent"
+    },
+    {
+      "intent": "PersonPaketIntent",
       "slots": [
         {
-          "name": "packet_number",
-          "type": "AMAZON.NUMBER"
+          "name": "name",
+          "type": "AMAZON.DE_FIRST_NAME"
         }
-      ],
-      "intent": "TrackingIntent"
+      ]
     }
   ]
 }

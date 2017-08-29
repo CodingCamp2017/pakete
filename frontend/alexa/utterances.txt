@@ -1,13 +1,18 @@
-StartTrackingIntent Finde mein Sendung
-StartTrackingIntent Finde mein Paket
-StartTrackingIntent Finde mein Päckchen
-StartTrackingIntent Wo ist meine Sendung
-StartTrackingIntent Wo ist mein Paket
-StartTrackingIntent Wo ist mein Päckchen
+LoginIntent Ja
+LoginIntent Logge mich ein
+LoginIntent Loggin
 
-TrackingIntent Meine Paketnummer ist {packet_number}
-TrackingIntent Meine Sendungsnummer ist {packet_number}
-TrackingIntent Meine Nummer ist {packet_number}
-TrackingIntent Es hat die Paketnummer {packet_number}
-TrackingIntent Es hat die Sendungsnummer {packet_number}
-TrackingIntent Es hat die Nummer {packet_number}
+AMAZON.StopIntent Nein
+
+PaketNumberIntent Wie viele Pakete habe ich
+PaketNumberIntent Wie viele Pakete sind registriert
+PaketNumberIntent Habe ich Pakete registriert
+PaketNumberIntent Habe ich Pakete 
+
+OverviewIntent Gib mir eine Übersicht
+OverviewIntent Übersicht
+OverviewIntent Liste meine Pakete auf
+
+PersonPaketIntent Wo sind die Pakete von {name}
+PersonPaketIntent Tracke die Pakete von {name}
+PersonPaketIntent Verfolge die Pakete von {name}
