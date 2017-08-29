@@ -34,9 +34,9 @@ command
 '''
 syntax_update = [('packet_id', regex_id),
                  ('station', regex_city),
-                 ('city', regex_city),
-                 ('zip', regex_zip),
-                 ('street', regex_street),
+                 #('city', regex_city),
+                 #('zip', regex_zip),
+                 #('street', regex_street),
                  ('vehicle', regex_vehicle)]
 '''
 This lists the required keys and a regex for the value of the delivered command
@@ -85,8 +85,9 @@ Returns the first key from the given dictionary that is not present in req_list.
 Returns None if every key in the dictionary is present in req_list.
 '''
 def get_first_not_contained(dic, req_list):
+    req_list_keys = [key for (key, value) in req_list]
     for (key, value) in dic:
-        if(not key in req_list):
+        if(not key in req_list_keys):
             return key
     return None
 

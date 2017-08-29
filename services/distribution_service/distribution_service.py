@@ -10,6 +10,7 @@ import urllib
 import signal
 from post_service import PostService
 import time
+import http.client
 
 
 distributionCenter = {0 : {'station' : 'Brief Leipzig', 'zip' : '04158', 'city' : 'Leipzig', 'street': 'Poststr. 28'},
@@ -30,8 +31,9 @@ class DistributionService(threading.Thread):
         
         threading.Thread.__init__(self)
         self.center_id = center_id
-        self.baseurl = 'http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8000/'
+        self.baseurl = 'ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8000'
         self.headers = {'Content-Type':'application/json'}
+        self.connection = http.client.HTTPConnection(self.baseurl)
         self.threadStop = threadStop
         
     def _zip_in_purview(self, zip_code):
@@ -42,11 +44,16 @@ class DistributionService(threading.Thread):
         data = {'vehicle' : vehicle}
         data.update(distributionCenter[center_id])
         print('___test1')
-        updateRequest = urllib.request.Request(self.baseurl + 'packet/' + packet_id + '/update',
-                                               data = json.dumps(data).encode('utf8'),
-                                               headers = self.headers)
+        #updateRequest = urllib.request.Request(self.baseurl + 'packet/' + packet_id + '/update',
+        #                                       data = json.dumps(data).encode('utf8'),
+        #                                       headers = self.headers)
+        
+        self.connection.request("POST", '/packet/' + packet_id + '/update', body=json.dumps(data).encode('utf8'), headers = self.headers)
         print('___test2')
-        urllib.request.urlopen(updateRequest)
+        #urllib.request.urlopen(updateRequest)
+        response = self.connection.getresponse()
+        if response.code != 200:
+            print(str(response.code))#+": "+str(response.read()))
         print('DIST-CENTER '+str(self.center_id)+': transport to '+str(center_id)+' with '+vehicle+' complete.')
             
     def _deliver_packet(self, packet_id):
@@ -137,15 +144,15 @@ if __name__ == '__main__':
     signal.signal(signal.SIGINT, sigint_handler)
     
     threadStop.clear()
-    tester = Tester(threadStop)
-    dist = DistributionService(0, threadStop)
-    #threads = list()
-    #for i in range(2):
-    #    threads.append(DistributionService(i, threadStop))
-    #threads.append(Tester(threadStop))
+    #tester = Tester(threadStop)
+    #dist = DistributionService(0, threadStop)
+    threads = list()
+    for i in range(2):
+        threads.append(DistributionService(i, threadStop))
+    threads.append(Tester(threadStop))
     
-    #for t in threads:
-    #    t.daemon = True
-    #    t.start()
+    for t in threads:
+        t.daemon = True
+        t.start()
 
-    #time.sleep(SIMULATION_TIME)
+    time.sleep(SIMULATION_TIME)
