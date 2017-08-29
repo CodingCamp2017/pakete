@@ -26,7 +26,7 @@ class UserService:
             self.u_cur.execute('INSERT INTO users (email, password, name, street, zip, city, session_id, session_id_timestamp) VALUES (?,?,?,?,?,?,?,?)',
                                ('dummy_email', '123', '', '', '', '', '', ''))
         except sql.OperationalError:
-            print('User database is locked')
+            #print('User database is locked')
             os.system('mv user_database.db temp.db')
             os.system('cp temp.db user_database.db')
             self.u_con = sql.connect('user_database.db', check_same_thread=False)
@@ -36,7 +36,7 @@ class UserService:
             self.p_cur.execute('INSERT INTO followed_packets (email, packet) VALUES (?,?)',
                                ('dummy_email', '123'))
         except sql.OperationalError:
-            print('Packets database is locked')
+            #print('Packets database is locked')
             os.system('mv followed_packets_database.db temp.db')
             os.system('cp temp.db followed_packets_database.db')
             self.p_con = sql.connect('followed_packets_database.db', check_same_thread=False)
@@ -88,10 +88,13 @@ class UserService:
         password_hash = self.u_cur.fetchone()[0]
         if not pbkdf2_sha256.verify(data['password'], password_hash):
             raise InvalidPasswortException
+        session_id = str(uuid.uuid1())
+        self.u_cur.execute('UPDATE users SET session_id = ? WHERE email = ?',
+                           (session_id, data['email']))
         self.u_cur.execute('UPDATE users SET session_id_timestamp = ? WHERE email = ?',
                            (str(datetime.now()), data['email']))
         self.u_con.commit()
-        return True
+        return session_id
 
 #    def update_user_adress(self, data):
 #        packet_regex.check_json_regex(data, packet_regex.syntax_update_user_adress)
@@ -115,11 +118,7 @@ class UserService:
         
     # TODO remove packet from user
         
-    def get_packets_from_user(self, userEmail):
-        print('getting packets')
-        
-        return "packets"
-        
+    def get_packets_from_user(self, session_id):        
         packet_regex.check_json_regex({'session_id' : session_id}, packet_regex.syntax_session_id)
         self._check_session_active(session_id)
         self._update_session_id_timestamp(session_id)

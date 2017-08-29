@@ -137,14 +137,15 @@ if __name__ == '__main__':
     signal.signal(signal.SIGINT, sigint_handler)
     
     threadStop.clear()
+    tester = Tester(threadStop)
+    dist = DistributionService(0, threadStop)
+    #threads = list()
+    #for i in range(2):
+    #    threads.append(DistributionService(i, threadStop))
+    #threads.append(Tester(threadStop))
     
-    threads = list()
-    for i in range(2):
-        threads.append(DistributionService(i, threadStop))
-    threads.append(Tester(threadStop))
-    
-    for t in threads:
-        t.daemon = True
-        t.start()
+    #for t in threads:
+    #    t.daemon = True
+    #    t.start()
 
-    time.sleep(SIMULATION_TIME)
+    #time.sleep(SIMULATION_TIME)
