@@ -80,14 +80,14 @@ def restAddPacket():
     except PacketNotFoundException as e:
         return rest_common.create_error_response(410, e)
     
-@app.route('/get_packets_from_user', methods=['GET'])
-def restGetPacket():
+@app.route('/get_packets_from_user/<session_id>', methods=['GET'])
+def restGetPacket(session_id):
     try:
-        data = rest_common.get_rest_data(request)
+        data = {'session_id' : session_id}
         packets = user_service.get_packets_from_user(data)
         if not packets:
-            raise NoPacketException
-        return rest_common.create_response(200, packets)
+            packets = []
+        return rest_common.create_response(200, {'packets':packets})
     except InvalidActionException as e:
         return rest_common.create_error_response(400, e)
     except SessionElapsedException as e:

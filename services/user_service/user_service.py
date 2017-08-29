@@ -1,6 +1,7 @@
 import sys
 import os
 sys.path.append(os.path.relpath('../common'))
+sys.path.append(os.path.relpath('../mykafka'))
 
 import packet_regex
 from id_store import IDStore, IDUpdater

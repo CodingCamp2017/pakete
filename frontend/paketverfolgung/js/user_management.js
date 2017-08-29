@@ -1,5 +1,5 @@
-var server_url = "http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8002/";
-//var server_url = "http://bla.bla:8001/";
+//var server_url = "http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8002/";
+var server_url = "http://localhost:8002/";
 
 var query_register_user = "add_user";
 var query_login_user = "authenticate_user";
@@ -122,9 +122,18 @@ function addPacketToUser(packetId, successCallback, failureCallback)
     var query = server_url + query_add_packet_to_user;
     console.log("query: " + query);
     
-    var data = {"packet" : packetId};
+    var requestData = {"packet" : packetId};
     
-    $.post(query, data, function(responseText) {
+    var sessionId = readSessionIdCookie();
+    if(sessionId !== undefined) {
+        requestData['session_id'] = sessionId;
+    } else {
+        console.log("no session id available");
+        // TODO not logged in
+        return;
+    }
+    
+    $.post(query, requestData, function(responseText) {
         console.log("query: response");
         successCallback();
 		
@@ -159,10 +168,29 @@ function deleteUser(successCallback, failureCallback)
 
 function getUserPackets(successCallback, failureCallback) 
 {
+    
     var query = server_url + query_get_user_packets;
+                
+    var sessionId = readSessionIdCookie();
+    if(sessionId !== undefined) {
+        query = query + "/" + sessionId;
+    } else {
+        console.log("no session id available");
+        // TODO not logged in
+        return;
+    }
+  
     console.log("query: " + query);
     
-    $.ajax(query, {
+    $.get(query, function(responseData) {
+        //var obj = JSON.parse(responseText);
+        console.log(responseData);
+        
+        // dummy answer
+        var packets = ["packet1", "packet2"];
+        successCallback(packets);
+    });
+    /*$.ajax(query, {
      method: 'GET',
      xhrFields: { withCredentials: true },
      crossDomain: true,
@@ -181,5 +209,5 @@ function getUserPackets(successCallback, failureCallback)
         console.log("query: fail");
         failureCallback();
 	 }
-  });
+  });*/
 }
