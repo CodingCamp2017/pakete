@@ -19,7 +19,7 @@ import time
 This consumer listens to the topic packet and builds the internal packet history
 model.
 '''
-class TrackingService:        
+class WarehouseService:        
         '''
         consumer: A consumer listening to the topic packet
         '''
@@ -246,7 +246,7 @@ class TrackingService:
 
 if __name__ == "__main__":
     consumer = mykafka.create_consumer('ec2-35-159-21-220.eu-central-1.compute.amazonaws.com', 9092, 'packet')
-    srv = TrackingService(consumer)
+    srv = WarehouseService(consumer)
 
     time.sleep(5)
     '''print("Anzahl Pakete: " + str(srv.getPacketCount()))
