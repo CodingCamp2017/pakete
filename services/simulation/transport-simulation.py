@@ -4,6 +4,7 @@ import codecs
 import threading
 import time
 import json
+import signal
 import multiprocessing
 
 class Provider():
@@ -47,7 +48,7 @@ class TransportSimulation():
                     'size':self.getRandomSize(),
                     'weight':str(randint(0, 100))
                     }
-            print(str(packet))
+            #print(str(packet))
             connection.request("POST", '/register', body=json.dumps(packet).encode('utf8'), headers = self.headers)
             response = connection.getresponse()
             if response.code != 200:
@@ -74,5 +75,12 @@ if __name__ == '__main__':
     for t in threads:
         t.daemon = True
         t.start()
+        
+    def sigint_handler(signum, frame):
+        print('Interrupted')
+        transportSimulation.threadStop.set()
+    
+    signal.signal(signal.SIGINT, sigint_handler)
 
     time.sleep(SIMULATION_TIME)
+    transportSimulation.threadStop.set()
