@@ -1,5 +1,5 @@
-var server_url = "http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8002/";
-//var server_url = "http://bla.bla:8001/";
+//var server_url = "http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8002/";
+var server_url = "http://localhost:8002/";
 
 var query_register_user = "add_user";
 var query_login_user = "authenticate_user";
@@ -19,6 +19,40 @@ $("#register_button").click(function() {
         console.log("Error registering user");
     });
 });
+
+function writeSessioIdCookie(serverResponseJson) {
+    if("session_id" in serverResponseJson) {
+        var sessionId = serverResponseJson['session_id']
+        console.log("session id: " + sessionId);
+    } else {
+        console.log("session id not found in response.");
+        return;
+    }
+
+    var exmins = 30;
+    var d = new Date();
+    d.setTime(d.getTime() + (exmins*60*1000));
+    var expires = "expires="+ d.toUTCString();
+    document.cookie = "session_id=" +sessionId + ";" + expires + ";path=/";
+}
+
+function readSessionIdCookie() {
+    var name = "session_id=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+
+    for(var i = 0; i <ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) === ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) === 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+
+    return undefined;
+}
 
 function registerUser(email, password, successCallback, failureCallback) {  
     if(!email || !password) {
@@ -58,11 +92,10 @@ function loginUser(email, password, successCallback, failureCallback) {
     var query = server_url + query_login_user;
     console.log("query: " + query);
        
-    var data = {"email" : email,
-		"password" : password};
+    var requestData = {"email" : email,
+		"password" : password};   
     
-    
-    $.ajax(query, {
+    /*$.ajax(query, {
      method: 'POST',
      data: data,
      crossDomain: true,
@@ -73,7 +106,15 @@ function loginUser(email, password, successCallback, failureCallback) {
       }, error: function() {
         console.log("query: fail");
         failureCallback();
-	 }});
+	 }});*/
+    
+    console.log("query: " + query);
+
+    $.post(query, requestData, function(data) {
+        console.log("query done: " + data);
+        writeSessioIdCookie(data);
+        successCallback();
+      });
 }
 
 function addPacketToUser(packetId, successCallback, failureCallback)
@@ -81,9 +122,18 @@ function addPacketToUser(packetId, successCallback, failureCallback)
     var query = server_url + query_add_packet_to_user;
     console.log("query: " + query);
     
-    var data = {"packet" : packetId};
+    var requestData = {"packet" : packetId};
     
-    $.post(query, data, function(responseText) {
+    var sessionId = readSessionIdCookie();
+    if(sessionId !== undefined) {
+        requestData['session_id'] = sessionId;
+    } else {
+        console.log("no session id available");
+        // TODO not logged in
+        return;
+    }
+    
+    $.post(query, requestData, function(responseText) {
         console.log("query: response");
         successCallback();
 		
@@ -118,10 +168,29 @@ function deleteUser(successCallback, failureCallback)
 
 function getUserPackets(successCallback, failureCallback) 
 {
+    
     var query = server_url + query_get_user_packets;
+                
+    var sessionId = readSessionIdCookie();
+    if(sessionId !== undefined) {
+        query = query + "/" + sessionId;
+    } else {
+        console.log("no session id available");
+        // TODO not logged in
+        return;
+    }
+  
     console.log("query: " + query);
     
-    $.ajax(query, {
+    $.get(query, function(responseData) {
+        //var obj = JSON.parse(responseText);
+        console.log(responseData);
+        
+        // dummy answer
+        var packets = ["packet1", "packet2"];
+        successCallback(packets);
+    });
+    /*$.ajax(query, {
      method: 'GET',
      xhrFields: { withCredentials: true },
      crossDomain: true,
@@ -140,5 +209,5 @@ function getUserPackets(successCallback, failureCallback)
         console.log("query: fail");
         failureCallback();
 	 }
-  });
+  });*/
 }
