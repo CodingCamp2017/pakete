@@ -14,12 +14,22 @@ import pandas as pd
 import numpy as np
 
 import time
+class Filter:
+    __start = 0
+    __end = -1
+    def __init__(self,start = 0,end=-1):
+        self.__start = start
+        self.__end = end
 
+    def accept(self, timestame):
+        if(self.__end == -1):
+            return True
+        return self.__start < timestame & self.__end > timestame
 '''
 This consumer listens to the topic packet and builds the internal packet history
 model.
 '''
-class TrackingService:        
+class WarehouseService:
         '''
         consumer: A consumer listening to the topic packet
         '''
@@ -93,12 +103,9 @@ class TrackingService:
                 #print(eventPayload)
             else:
                 print("Unknown eventType: " + eventType)
-
+#Summe aller Pakete
         def getPacketCount(self):
             return len(self.packets)
-        def getPacketCountByTime(self,timestamp):
-            return self.getListbyRegistrationDay(timestamp);
-
 
         def getAverageDeliveryTime(self):
             timesum = 0
@@ -120,18 +127,25 @@ class TrackingService:
                     delivered_count += 1
 
             return summWeight/ delivered_count;
-
-        def getListOfKey(self,key):
+        def getAverageWeight(self,timefilter,filter = Filter()):
             values = {}
+            delivered_count = 0
+            summWeight = 0
             for packet_id, packet_data in self.packets.items():
-                if packet_data[key] not in values:
-                    values[packet_data[key]] = 1
+                timestamp = self._getDate(packet_data['register_time'], timefilter)
+                if not filter.accept(int(packet_data['register_time'])):
+                    continue
+                if timestamp not in values:
+                    values[timestamp] = {"summWeight" : float(packet_data["weight"]),"count" : 1}
                 else:
-                    values[packet_data[key]] +=1
+                    values[timestamp]["summWeight"] += float(packet_data["weight"])
+                    values[timestamp]["count"] +=1
+            for timeframe in values:
+                values[timeframe]["averageWeight"] = float( values[timeframe]["summWeight"])/values[timeframe]["count"]
 
             return values;
-        # end of FKT
 
+# Git die Anzahl des Values die in diesem Key zurück
         def getCountOfKeyValue(self,key,value):
             keycout = 0
             for packet_id, packet_data in self.packets.items():
@@ -139,6 +153,7 @@ class TrackingService:
                     keycout +=1
             return keycout;
         # end of FKT
+
         def getCountOfKeyValueByTime(self,key,value,timefilter):
             values = {}
             for packet_id, packet_data in self.packets.items():
@@ -150,8 +165,18 @@ class TrackingService:
                         values[timestamp] += 1
 
             return values;
-
         # end of FKT
+# Git die Anzahl von gleichen Values für einen Key zurück
+        def getListOfKey(self, key):
+            values = {}
+            for packet_id, packet_data in self.packets.items():
+                if packet_data[key] not in values:
+                    values[packet_data[key]] = 1
+                else:
+                    values[packet_data[key]] += 1
+            return values;
+            # end of FKT
+
         def getCountOfKeyByTime(self, key, timefilter):
             values = {}
             for packet_id, packet_data in self.packets.items():
@@ -167,10 +192,12 @@ class TrackingService:
             return values;
            # end of FKT
 
-        def getListbyRegistrationDay(self,timefilter):
+        def getListbyRegistrationDay(self,timefilter,filter = Filter()):
             values = {}
             for packet_id, packet_data in self.packets.items():
                 timestamp = self._getDate(packet_data['register_time'],timefilter)
+                if not filter.accept(int(packet_data['register_time'])):
+                    continue
                 if timestamp not in values:
                     values[timestamp] = 1
                 else:
@@ -246,20 +273,21 @@ class TrackingService:
 
 if __name__ == "__main__":
     consumer = mykafka.create_consumer('ec2-35-159-21-220.eu-central-1.compute.amazonaws.com', 9092, 'packet')
-    srv = TrackingService(consumer)
+    srv = WarehouseService(consumer)
 
     time.sleep(5)
     '''print("Anzahl Pakete: " + str(srv.getPacketCount()))
-print("Lieferzeit: " + str(srv.getAverageDeliveryTime()))
-print("Gewicht " + str(srv.getAverageWeight()))
-print("Anzahl Sender_name von Otto Hahn: "+str(srv.getCountOfKeyValue("sender_name","Otto Hahn")))
-print("Anzahl Sender_name von Otto Hahn: "+str(srv.getCountOfKeyValueByTime("sender_name","Otto Hahn",'%Y-%m-%d %H:%M')))
-print("Anzahl Sender_name nach Zeit: " + str(srv.getCountOfKeyByTime("sender_name", '%Y-%m-%d %H')))
-print("Anzahl Sender_name "+str(srv.getListOfKey("sender_name")))
-print("Anzahl sender_city "+str(srv.getListOfKey("sender_city")))'''
+    print("Lieferzeit: " + str(srv.getAverageDeliveryTime()))
+    print("Gewicht " + str(srv.getAverageWeight()))
+    print("Anzahl Sender_name von Otto Hahn: "+str(srv.getCountOfKeyValue("sender_name","Otto Hahn")))
+    print("Anzahl Sender_name von Otto Hahn: "+str(srv.getCountOfKeyValueByTime("sender_name","Otto Hahn",'%Y-%m-%d %H:%M')))
+    print("Anzahl Sender_name nach Zeit: " + str(srv.getCountOfKeyByTime("sender_name", '%Y-%m-%d %H')))
+    print("Anzahl Sender_name "+str(srv.getListOfKey("sender_name")))
+    print("Anzahl sender_city "+str(srv.getListOfKey("sender_city")))'''
     print(srv.getListbyRegistrationDay('%Y-%m-%d'))
     print(srv.getListbyRegistrationDay('%w'))
     print(srv.getListbyRegistrationDay('%Y-%m-%d %H'))
+    print(srv.getAverageWeight('%Y-%m-%d %H'))
     '''
     print(srv.getListbyDeliveredDay('%Y-%m-%d %H'))
     print(srv.getListOfCurrendLocationOfPackets())
@@ -272,3 +300,4 @@ print("Anzahl sender_city "+str(srv.getListOfKey("sender_city")))'''
     print(srv.getListbyLacationDay('%Y-%m-%d', True, False))
     print(srv.getListbyLacationDay('%Y-%m-%d', True, False, False))
     print(srv.getListbyLacationDay('%Y-%m-%d', True, True, False))'''
+
