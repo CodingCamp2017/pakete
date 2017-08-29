@@ -1,11 +1,12 @@
-//var server_url = "http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8002/";
-var server_url = "http://localhost:8002/";
+var server_url = "http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8002/";
+//var server_url = "http://localhost:8002/";
 
 var query_register_user = "add_user";
 var query_login_user = "authenticate_user";
 var query_delete_user = "delete_user";
 var query_add_packet_to_user = "add_packet_to_user";
 var query_get_user_packets = "get_packets_from_user";
+var query_logout = "logout";
 
 $("#register_button").click(function() {
     register_email = $("#register_email").val();
@@ -95,19 +96,6 @@ function loginUser(email, password, successCallback, failureCallback) {
     var requestData = {"email" : email,
 		"password" : password};   
     
-    /*$.ajax(query, {
-     method: 'POST',
-     data: data,
-     crossDomain: true,
-     success: function(xhr, status, error) {
-        console.log("query: response");
-        successCallback();
-		
-      }, error: function() {
-        console.log("query: fail");
-        failureCallback();
-	 }});*/
-    
     console.log("query: " + query);
 
     $.post(query, requestData, function(data) {
@@ -151,19 +139,51 @@ function deleteUser(successCallback, failureCallback)
 {
     var query = server_url + query_delete_user;
     console.log("query: " + query);
-    
-    $.post(query, function(responseText) {
-        console.log("query: response");
-        successCallback();
+
+    var sessionId = readSessionIdCookie();
+    if(sessionId !== undefined) {
+        $.post(query, {'session_id':sessionId}, function(responseText) {
+            console.log("query: response");
+            successCallback();
 		
-      })
-      .done(function() {
-        console.log("query: done");
-      })
-      .fail(function(xhr, status, error) {
-        console.log("query: fail");
-        failureCallback();
-	 });
+        })
+        .done(function() {
+          console.log("query: done");
+        })
+        .fail(function(xhr, status, error) {
+          console.log("query: fail");
+          failureCallback();
+       });
+    } else {
+        console.log("no session id available");
+        // TODO not logged in
+        return;
+    } 
+}
+
+function logout(successCallback, failureCallback) 
+{  
+    var query = server_url + query_logout;
+                
+    var sessionId = readSessionIdCookie();
+    if(sessionId !== undefined) {
+        $.post(query, {'session_id':sessionId}, function(responseText) {
+            console.log("query: response");
+            successCallback();	
+            deleteSessionCookie();
+        })
+        .done(function() {
+          console.log("query: done");
+        })
+        .fail(function(xhr, status, error) {
+          console.log("query: fail");
+          failureCallback();
+       });
+    } else {
+        console.log("no session id available");
+        // TODO not logged in
+        return;
+    }  
 }
 
 function getUserPackets(successCallback, failureCallback) 
@@ -183,31 +203,12 @@ function getUserPackets(successCallback, failureCallback)
     console.log("query: " + query);
     
     $.get(query, function(responseData) {
-        //var obj = JSON.parse(responseText);
         console.log(responseData);
+        if('packets' in responseData) {
+            successCallback(responseData['packets']);
+        } else {
+            failureCallback();
+        }
         
-        // dummy answer
-        var packets = ["packet1", "packet2"];
-        successCallback(packets);
     });
-    /*$.ajax(query, {
-     method: 'GET',
-     xhrFields: { withCredentials: true },
-     crossDomain: true,
-     success: function(response) {
-        console.log("query: response");
-        
-        //var obj = JSON.parse(responseText);
-        console.log("response: " + response);
-        
-        // dummy answer
-        var packets = ["packet1", "packet2"];
-        successCallback(packets);
-		
-      },
-     error: function() {
-        console.log("query: fail");
-        failureCallback();
-	 }
-  });*/
 }

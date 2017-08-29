@@ -44,6 +44,19 @@ $("#button_delete_user").click(function() {
     });
 });
 
+$("#button_logout").click(function() {
+    logoutUser(function() {
+        //success
+        // TODO redirect to index
+        packetTable_clear();
+        packetTable_addRow('-', "Logout successfull.");  
+    }, function() {
+        // failure
+        packetTable_clear();
+        packetTable_addRow('-', "Error logging out");       
+    });
+});
+
 function packetTable_clear() {
     $('#table_user_packets > tbody').html("");
 }
