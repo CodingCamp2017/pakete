@@ -34,9 +34,9 @@ command
 '''
 syntax_update = [('packet_id', regex_id),
                  ('station', regex_city),
-                 #('city', regex_city),
-                 #('zip', regex_zip),
-                 #('street', regex_street),
+                 ('city', regex_city),
+                 ('zip', regex_zip),
+                 ('street', regex_street),
                  ('vehicle', regex_vehicle)]
 '''
 This lists the required keys and a regex for the value of the delivered command
