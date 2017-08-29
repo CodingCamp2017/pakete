@@ -18,10 +18,7 @@ import signal
 
 app = Flask(__name__)
 app.secret_key = "hallo blub foo bar"
-#app.config['SESSION_TYPE'] = 'filesystem'
-app.config['SERVER_NAME'] = 'userservice.com:8002'
-
-web_origin = "http://userservice.com:8000"
+app.config['SESSION_TYPE'] = 'filesystem'
 
 user_service = UserService()
 
@@ -43,7 +40,7 @@ def restAddUser():
     try:
         data = rest_common.get_rest_data(request)
         user_service.add_user(data)
-        return rest_common.create_response(200, origin=web_origin)
+        return rest_common.create_response(200)
     except InvalidActionException as e:
         return rest_common.create_error_response(400, e)
     except UserExistsException as e:
@@ -61,7 +58,7 @@ def restAuthenticateUser():
             
             print('SESSION: ' + str(session))
 
-            return rest_common.create_response(200, origin=web_origin)
+            return rest_common.create_response(200)
     except InvalidActionException as e:
         return rest_common.create_error_response(400, e)
     except UserUnknownException as e:
@@ -77,7 +74,7 @@ def restUpdateAdress():
     try:
         data = rest_common.get_rest_data(request)
         user_service.update_user_adress(data)
-        return rest_common.create_response(200, origin=web_origin)
+        return rest_common.create_response(200)
     except InvalidActionException as e:
         return rest_common.create_error_response(400, e)
     except UserUnknownException as e:
@@ -97,7 +94,7 @@ def restAddPacket():
             raise NoSessionIdException
         data = {'packet' : packet_id, 'session_id' : session_id}
         user_service.add_packet_to_user(data)
-        return rest_common.create_response(200, origin=web_origin)
+        return rest_common.create_response(200)
     except NoPacketException as e:
         return rest_common.create_error_response(421, e)
     except NoSessionIdException as e:
@@ -123,7 +120,7 @@ def restGetPacket():
         else:
             print("Not logged in")
             return rest_common.create_error_response(400, "User not logged in.") # TODO which error code?
-        return rest_common.create_response(200, packets, origin=web_origin)
+        return rest_common.create_response(200, packets)
     except InvalidActionException as e:
         return rest_common.create_error_response(400, e)
     except SessionElapsedException as e:
@@ -138,7 +135,7 @@ def restDeleteUser():
     try:
         session_id = request.cookies.get('session_id')
         user_service.delete_user(session_id)
-        return rest_common.create_response(200, origin=web_origin)
+        return rest_common.create_response(200)
     except InvalidActionException as e:
         return rest_common.create_error_response(400, e)
     except UserUnknownException as e:
