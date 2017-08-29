@@ -1,0 +1,15 @@
+stop: Danke, dass du mich verwendet hast um deine Pakete zu verfolgen!
+
+welcome: Willkommen zur Coding Camp Paketverfolgung.
+
+get_packet_number: Nenne mir deine Sendungsnummer.
+
+already_delivered: Dein Paket wurde bereits ausgeliefert. Schau in deinen Briefkasten.
+
+packet_located_at: Dein Paket befindet sich momentan in {{city}}.
+
+just_sent: Dein Paket wurde gerade erst losgeschickt.
+
+error: Es ist ein Fehler aufgetreten. Versuche es bitte nochmal.
+
+help: Nenne mir deine Sendungsnummer und ich sage dir, wo sich dein Paket momentan befindet.
