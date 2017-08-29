@@ -9,6 +9,7 @@ import multiprocessing
 class Provider():
     def __init__(self, file, rootName):
         self.data = json.load(codecs.open(file, 'r', 'utf-8-sig'))[rootName]
+        print("File "+file+" contains "+str(len(self.data))+" elements")
         
     def getRandom(self):
         return self.data[randint(0,len(self.data)-1)]
