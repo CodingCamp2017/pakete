@@ -5,7 +5,9 @@ $(function() {
 
        console.log(packetNames);
        for(var i = 0; i < packetNames.length; i++) {
-            packetTable_addRow(i, packetNames[i]);
+           var packet = packetNames[i];
+           var link = "<a href='index.php?packet_id="+ packet +"'>"+ packet +"</a>";
+            packetTable_addRow(i, link);
        }
    }, function() {
        // failure
@@ -44,7 +46,7 @@ $("#button_delete_user").click(function() {
     });
 });
 
-$("#button_logout").click(function() {
+$("#button_logout_user").click(function() {
     logoutUser(function() {
         //success
         // TODO redirect to index

@@ -42,7 +42,7 @@
                   <br>
                   <br>
                 <h2>Logout</h2>
-                  <input type='button' value='Logout' class='btn btn-primary' id ='button_logout' />
+                  <input type='button' value='Logout' class='btn btn-primary' id ='button_logout_user' />
                   <!--bestätigung ID-->
                   <div class="mx-auto pageContent" >
                   <i hidden class="fa fa-spinner fa-spin" style="font-size:50px" id="spinner"></i><br/>

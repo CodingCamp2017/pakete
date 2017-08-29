@@ -161,7 +161,7 @@ function deleteUser(successCallback, failureCallback)
     } 
 }
 
-function logout(successCallback, failureCallback) 
+function logoutUser(successCallback, failureCallback) 
 {  
     var query = server_url + query_logout;
                 
