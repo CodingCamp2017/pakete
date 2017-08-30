@@ -14,19 +14,22 @@ regex_vehicle = '(car|foot|plane|rocket|ship|train|truck|center|failed)'
 regex_email = '[\w\d.+]+@[\w\d]+(?:\.[a-z]{2,4}){1,2}'
 regex_password = '\w{8}'#8 char password
 regex_session_id = '[\w-]+'#alphanumeric and '-'
+
+# Warehouse
+regex_timestamp = '-?\d+'
 '''
 This lists the required keys and a regex for the value of the registerPacket
 command
 '''
 syntax_register = [('sender_name', regex_name),
-                   ('sender_street',regex_street), 
-                   ('sender_zip', regex_zip), 
+                   ('sender_street',regex_street),
+                   ('sender_zip', regex_zip),
                    ('sender_city', regex_city),
                    ('receiver_name', regex_name),
-                   ('receiver_street', regex_street), 
+                   ('receiver_street', regex_street),
                    ('receiver_zip', regex_zip),
-                   ('receiver_city', regex_city), 
-                   ('size', regex_size), 
+                   ('receiver_city', regex_city),
+                   ('size', regex_size),
                    ('weight', regex_weight)]
 '''
 This lists the required keys and a regex for the value of the updateLocation
@@ -45,7 +48,7 @@ This lists the required keys and a regex for the value of the addUser command
 syntax_add_user = [('email', regex_email),
                    #('name',regex_name),
                    #('street', regex_street),
-                   #('zip', regex_zip), 
+                   #('zip', regex_zip),
                    #('city', regex_city),
                    ('password', regex_password)]
 '''
@@ -59,7 +62,7 @@ This lists the required keys and a regex for the value of the updateAddress comm
 '''
 syntax_update_user_adress = [('email', regex_email),
                              ('street', regex_street),
-                             ('zip', regex_zip), 
+                             ('zip', regex_zip),
                              ('city', regex_city),
                              ('session_id', regex_session_id)]
 '''
@@ -104,7 +107,7 @@ def check_json_regex(dic, req_list):
             raise InvalidActionException(Exceptions.TYPE_INVALID_KEY, key, "Invalid value: "+dic[key]+" for key "+key)
     if(len(dic) != len(req_list)):
         raise InvalidActionException(Exceptions.TYPE_INVALID_KEY, str(get_first_not_contained(dic, req_list)), "Unknown keys in "+json.dumps(dic))
-                
+
 def test_check_json_regex():
     req = [("a", "\\d{2}"), ("b", "hgf")]
     dic = {'a':'45', 'b':'hgf'}
@@ -117,7 +120,7 @@ def test_check_json_regex():
     except InvalidActionException:
         pass
     print("test_checkAvailable#2")
-        
+
     dic2 = {'a':'12', 'b':'fgtd', 'c':'wer'}
     try:
         check_json_regex(dic2, req)
@@ -132,10 +135,10 @@ def test_check_json_regex():
     except InvalidActionException as e:
         pass
     print("test_checkAvailable#4")
-          
 
-        
-    
-        
+
+
+
+
 if __name__ == '__main__':
     test_check_json_regex()
