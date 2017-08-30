@@ -11,7 +11,8 @@ sys.path.append(os.path.relpath('../mykafka'))
 import mykafka
 
 import getopt
-from Exceptions import InvalidActionException, UserExistsException, UserUnknownException, SessionElapsedException, InvalidPasswortException, PacketNotFoundException, NoPacketException, InvalidSessionIdException, NoSessionIdException
+from Exceptions import *
+#InvalidActionException, UserExistsException, UserUnknownException, SessionElapsedException, InvalidPasswortException, PacketNotFoundException, NoPacketException, InvalidSessionIdException, NoSessionIdException
 from flask import Flask, request
 from user_service import UserService
 
@@ -34,6 +35,8 @@ def restAddUser():
         return rest_common.create_response(400, e.toDict())
     except UserExistsException as e:
         return rest_common.create_error_response(409, e)
+    except CommandFailedException as e:
+        return rest_common.create_error_response(504, e)
 
 @app.route('/authenticate_user', methods=['POST'])
 def restAuthenticateUser():
@@ -47,6 +50,8 @@ def restAuthenticateUser():
         return rest_common.create_error_response(404, e)
     except InvalidPasswortException as e:
         return rest_common.create_error_response(401, e)
+    except CommandFailedException as e:
+        return rest_common.create_error_response(504, e)
 
 #@app.route('/update_user_adress', methods=['POST'])
 #def restUpdateAdress():
@@ -75,6 +80,8 @@ def restAddPacket():
         return rest_common.create_error_response(422, e)
     except PacketNotFoundException as e:
         return rest_common.create_error_response(410, e)
+    except CommandFailedException as e:
+        return rest_common.create_error_response(504, e)
 
 @app.route('/get_packets_from_user/<session_id>', methods=['GET'])
 def restGetPacket(session_id):
@@ -103,6 +110,8 @@ def restDeleteUser():
         return rest_common.create_error_response(401, e)
     except InvalidSessionIdException as e:
         return rest_common.create_error_response(422, e)
+    except CommandFailedException as e:
+        return rest_common.create_error_response(504, e)
 
 @app.route('/logout', methods=['POST'])
 def restLogoutUser():
@@ -116,7 +125,8 @@ def restLogoutUser():
         return rest_common.create_error_response(401, e)
     except InvalidSessionIdException as e:
         return rest_common.create_error_response(422, e)
-
+    except CommandFailedException as e:
+        return rest_common.create_error_response(504, e)
 
 def print_help():
     print("Options:\n\t-p Port to use")

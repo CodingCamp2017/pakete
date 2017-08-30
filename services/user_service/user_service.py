@@ -6,10 +6,11 @@ from user_events import UserEvent, UserPacketEvent
 sys.path.append(os.path.relpath('../mykafka'))
 import mykafka
 
+from kafka.errors import KafkaError
+
 import packet_regex
 from id_store import IDStore, IDUpdater
-from Exceptions import UserExistsException, UserUnknownException, SessionElapsedException, InvalidPasswortException, PacketNotFoundException, InvalidSessionIdException
-
+from Exceptions import *
 import sqlite3 as sql
 from passlib.hash import pbkdf2_sha256
 from datetime import datetime
@@ -79,8 +80,14 @@ class UserService:
         self.u_cur.execute('UPDATE users SET session_id_timestamp = ? WHERE session_id = ?',
                            (str(datetime.now()), session_id))
 
+    '''
+    May raise CommandFailedException
+    '''
     def _send_user_event(self, event_type, user_event):
-        mykafka.sendSync(self.producer, constants.USER_TOPIC, event_type, constants.USER_EVENT_VERSION, user_event.toDict())
+        try:
+            mykafka.sendSync(self.producer, constants.USER_TOPIC, event_type, constants.USER_EVENT_VERSION, user_event.toDict())
+        except KafkaError as e:
+            raise CommandFailedException("Kafka Error: "+str(e))
 
     def add_user(self, data):
         packet_regex.check_json_regex(data, packet_regex.syntax_add_user)
