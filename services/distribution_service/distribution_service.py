@@ -10,6 +10,16 @@ import urllib
 import signal
 from post_service import PostService
 import time
+import http.client
+
+from threading import Lock
+
+mylock = Lock()
+p = print
+
+def print(*a, **b):
+	with mylock:
+		p(*a, **b)
 
 
 distributionCenter = {0 : {'station' : 'Brief Leipzig', 'zip' : '04158', 'city' : 'Leipzig', 'street': 'Poststr. 28'},
@@ -30,30 +40,26 @@ class DistributionService(threading.Thread):
         
         threading.Thread.__init__(self)
         self.center_id = center_id
-        self.baseurl = 'http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8000/'
+        self.baseurl = 'ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8000'
         self.headers = {'Content-Type':'application/json'}
         self.threadStop = threadStop
+        self.lock = threading.Lock()
+        self.post_service = PostService(mykafka.create_producer('ec2-35-159-21-220.eu-central-1.compute.amazonaws.com', 9092))
         
     def _zip_in_purview(self, zip_code):
         return zip_code[0] == str(self.center_id)
         
     def _transport_packet(self, center_id, vehicle, packet_id):
-        print('DIST-CENTER '+str(self.center_id)+': ...try transport packet to '+str(center_id)+' with '+vehicle)
-        data = {'vehicle' : vehicle}
-        data.update(distributionCenter[center_id])
-        print('___test1')
-        updateRequest = urllib.request.Request(self.baseurl + 'packet/' + packet_id + '/update',
-                                               data = json.dumps(data).encode('utf8'),
-                                               headers = self.headers)
-        print('___test2')
-        urllib.request.urlopen(updateRequest)
-        print('DIST-CENTER '+str(self.center_id)+': transport to '+str(center_id)+' with '+vehicle+' complete.')
+        with self.lock:
+            data = {'vehicle' : vehicle, 'packet_id' : packet_id}
+            data.update(distributionCenter[center_id])
+            self.post_service.update_package_location(data)
+            print(str(packet_id) + ' in ' + vehicle + ' with destination ' + str(center_id))
             
     def _deliver_packet(self, packet_id):
-        deliverRequest = urllib.request.Request(self.baseurl + 'packet/' + packet_id + '/delivered',
-                                                data=json.dumps({}).encode('utf8'),
-                                                headers = self.headers)
-        urllib.request.urlopen(deliverRequest)
+        with self.lock:
+            self.post_service.mark_delivered({'packet_id' : packet_id})
+            print(str(packet_id) + ' delivered')
         
     def _update_registered_packet(self, packet):
         # update location: distribution center
@@ -80,23 +86,25 @@ class DistributionService(threading.Thread):
                 except(Exception) as e:
                     print('Event information missing.')
                     return
-                
-                #print(event)
+                try:
+                    print(eventPayload['id'] + ' is consumed: event type is ' + eventType)
+                except KeyError:
+                    print(event)
                     
                 if eventVersion != 2:
                     print('Unexpected event version (expected: 1, found: ' + str(eventVersion) + ')')
                     return
-                    
+                
                 if eventType == 'registered' and eventPayload['sender_zip'][0] == str(self.center_id):
                     if eventPayload['receiver_zip'][0] == str(self.center_id):
                         self._deliver_updated_packet(eventPayload)
                     else:
-                        print('DIST-CENTER '+str(self.center_id)+': ...try update registered packet')
                         self._update_registered_packet(eventPayload)
                         print('DIST-CENTER '+str(self.center_id)+': UPDATED REGISTERED PACKET')
                     
-                if eventType == 'updated_location' and eventPayload['station'] == distributionCenter[self.center_id]['station'] and eventPayload['vehicle'] is not 'center':
-                    print('DIST-CENTER '+str(self.center_id)+': ...try deliver updated packet...')
+                if eventType == 'updated_location':# and eventPayload['station'] == distributionCenter[self.center_id]['station'] and eventPayload['vehicle'] is not 'center':
+                    print(eventPayload['station'], distributionCenter[self.center_id]['station'])
+                    print(eventPayload['vehicle'], 'center')
                     self._deliver_updated_packet(eventPayload)
                     print('DIST-CENTER '+str(self.center_id)+': DELIVERED UPDATED PACKET')
         print('DIST-CENTER '+str(self.center_id)+' ***stopped***')
@@ -111,23 +119,22 @@ class Tester(threading.Thread):
     def run(self):
         packet = {'sender_name' : 'Otto Hahn',
                   'sender_street' : 'Veilchenweg 2324',
-                  'sender_zip' : '01234',
+                  'sender_zip' : '12345',
                   'sender_city' : 'Hamburg',
                   'receiver_name' : 'Lise Meitner',
                   'receiver_street' : 'Amselstraße 7',
-                  'receiver_zip' : '12345',
+                  'receiver_zip' : '01234',
                   'receiver_city' : 'Berlin',
                   'size' : 'big',
                   'weight' : '200'}
         while not self.threadStop.is_set():
-            print('...try register test packet...')
-            self.post_service.register_package(packet)
-            print('TEST PACKET REGISTERED')
+            packet_id = self.post_service.register_package(packet)
+            print(str(packet_id) + ' REGISTERED')
             time.sleep(5)
         
 if __name__ == '__main__':
     
-    SIMULATION_TIME = 120 # Seconds
+    SIMULATION_TIME = 30 # Seconds
     threadStop = threading.Event()
     
     def sigint_handler(signum, frame):
@@ -137,15 +144,16 @@ if __name__ == '__main__':
     signal.signal(signal.SIGINT, sigint_handler)
     
     threadStop.clear()
-    tester = Tester(threadStop)
-    dist = DistributionService(0, threadStop)
-    #threads = list()
-    #for i in range(2):
-    #    threads.append(DistributionService(i, threadStop))
-    #threads.append(Tester(threadStop))
+    #tester = Tester(threadStop)
+    #dist = DistributionService(0, threadStop)
+    threads = list()
+    for i in range(2):
+        threads.append(DistributionService(i, threadStop))
+    threads.append(Tester(threadStop))
     
-    #for t in threads:
-    #    t.daemon = True
-    #    t.start()
+    for t in threads:
+        t.daemon = True
+        t.start()
 
-    #time.sleep(SIMULATION_TIME)
+    time.sleep(SIMULATION_TIME)
+    threadStop.set()

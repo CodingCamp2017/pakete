@@ -41,12 +41,16 @@
                 <br>
                 <h2>Account entfernen</h2>
                   <input type='button' value='User löschen' class='btn btn-primary' id ='button_delete_user' />
-
+                  <br>
+                  <br>
+                <h2>Logout</h2>
+                  <input type='button' value='Logout' class='btn btn-primary' id ='button_logout_user' />
                   <!--bestätigung ID-->
                   <div class="mx-auto pageContent" >
                   <i hidden class="fa fa-spinner fa-spin" style="font-size:50px" id="spinner"></i><br/>
                       <div hidden id="server_answer"></div>
-                  </div>                 
+                  </div>    
+                  <br>
             </div>
         </div>
     </div>  
