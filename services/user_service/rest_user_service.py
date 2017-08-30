@@ -4,9 +4,11 @@
 import sys
 import os
 
-sys.path.append(os.path.relpath('../mykafka'))
+
 sys.path.append(os.path.relpath('../rest_common'))
 import rest_common
+sys.path.append(os.path.relpath('../mykafka'))
+import mykafka
 
 import getopt
 from Exceptions import InvalidActionException, UserExistsException, UserUnknownException, SessionElapsedException, InvalidPasswortException, PacketNotFoundException, NoPacketException, InvalidSessionIdException, NoSessionIdException
@@ -18,7 +20,8 @@ app = Flask(__name__)
 app.secret_key = "hallo blub foo bar"
 app.config['SESSION_TYPE'] = 'filesystem'
 
-user_service = UserService()
+
+user_service = UserService(mykafka.create_producer('ec2-35-159-21-220.eu-central-1.compute.amazonaws.com', 9092))
 
 
 @app.route('/add_user', methods=['POST'])
@@ -135,5 +138,6 @@ if __name__ == '__main__':
         else:
             print("Unknown option "+opt)
             sys.exit(1)
+
 
     app.run(debug=True, port=port, host="0.0.0.0")

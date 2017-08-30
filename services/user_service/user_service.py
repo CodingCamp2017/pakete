@@ -1,7 +1,10 @@
 import sys
 import os
 sys.path.append(os.path.relpath('../common'))
+import constants
+from user_events import UserEvent, UserPacketEvent
 sys.path.append(os.path.relpath('../mykafka'))
+import mykafka
 
 import packet_regex
 from id_store import IDStore, IDUpdater
@@ -14,7 +17,8 @@ import uuid
 
 class UserService:
 
-    def __init__(self):
+    def __init__(self, producer):
+        self.producer = producer
         if not os.path.isfile('user_database.db'):
             os.system('sqlite3 user_database.db < user_database_schema.sql')
             os.system('sqlite3 followed_packets_database.db < followed_packets_database_schema.sql')
@@ -75,6 +79,8 @@ class UserService:
         self.u_cur.execute('UPDATE users SET session_id_timestamp = ? WHERE session_id = ?',
                            (str(datetime.now()), session_id))
 
+    def _send_user_event(self, event_type, user_event):
+        mykafka.sendSync(self.producer, constants.USER_TOPIC, event_type, constants.USER_EVENT_VERSION, user_event.toDict())
 
     def add_user(self, data):
         packet_regex.check_json_regex(data, packet_regex.syntax_add_user)
@@ -85,6 +91,8 @@ class UserService:
         self.u_cur.execute('INSERT INTO users (email, password, name, street, zip, city, session_id, session_id_timestamp) VALUES (?,?,?,?,?,?,?,?)',
                            (data['email'], password_hash, '', '', '', '', '', ''))
         self.u_con.commit()
+        #send user event
+        self._send_user_event(constants.USER_EVENT_ADD, UserEvent(data['email']))
 
     def authenticate_user(self, data):
         packet_regex.check_json_regex(data, packet_regex.syntax_authenticate_user)
@@ -101,6 +109,8 @@ class UserService:
         self.u_cur.execute('UPDATE users SET session_id_timestamp = ? WHERE email = ?',
                            (str(datetime.now()), data['email']))
         self.u_con.commit()
+        # send user event
+        self._send_user_event(constants.USER_EVENT_LOGIN, UserEvent(data['email']))
         return session_id
 
 #    def update_user_adress(self, data):
@@ -121,7 +131,10 @@ class UserService:
                            (email, data['packet']))
         self._update_session_id_timestamp(data['session_id'])
         self.u_con.commit()
-
+        # send user event
+        email = self._get_email_of_user(data['session_id'])
+        if email:
+            self._send_user_event(constants.USER_EVENT_ADDED_PACKET, UserPacketEvent(email, data['packet']))
     # TODO remove packet from user
 
     def get_packets_from_user(self, data):
@@ -137,10 +150,13 @@ class UserService:
     def logout_user(self, data):
         packet_regex.check_json_regex(data, packet_regex.syntax_session_id)
         session_id = data['session_id']
+        email = self._get_email_of_user(session_id)
         self._check_session_active(session_id)
         self.u_cur.execute('UPDATE users SET session_id = ? WHERE session_id = ?', ('', session_id))
         self.u_cur.execute('UPDATE users SET session_id_timestamp = ? WHERE session_id = ?', ('', session_id))
         self.u_con.commit()
+        if email:
+            self._send_user_event(constants.USER_EVENT_LOGOUT, UserEvent(email))
 
     def delete_user(self, data):
         packet_regex.check_json_regex(data, packet_regex.syntax_session_id)
@@ -150,6 +166,7 @@ class UserService:
         self.u_cur.execute('DELETE FROM users WHERE session_id = ?', (session_id,))
         self.p_cur.execute('DELETE FROM followed_packets WHERE email = ?', (email,))
         self.u_con.commit()
+        self._send_user_event(constants.USER_EVENT_DELETE, UserEvent(email))
 
     def print_databases(self):
         self.u_cur.execute('SELECT * FROM users')
