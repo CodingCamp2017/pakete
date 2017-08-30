@@ -1,14 +1,23 @@
 <div class="card">
     <div class="card-body">
-      	<h4 class="card-title anfragelink" ng-click="setData()">{{$ctrl.name}}</h4>
+      	<h4 class="card-title anfragelink" ng-click="setData()"><i ng-hide="dataLoaded" class="fa fa-spinner fa-spin"></i>{{$ctrl.name}}</h4>
       	<select ng-model="$ctrl.type" ng-options="x for x in type_options"></select>
-        <div id="container" class="container" style="width:100%" ng-show="dataLoaded">
+      	<div style="display: inline; padding:5px">
+      		<a ng-click="openFromCalendar()"><i class="fa fa-calendar"></i>Von: {{from_date}}</a>
+      		
+      		<datepicker id="from_picker"> <input ng-model="from_date" type="text" style="display: none" /> </datepicker>
+      	</div>
+      	<div style="display: inline; padding:5px">
+      		<a ng-click="openToCalendar()"><i class="fa fa-calendar"></i>Bis: {{to_date}}</a>
+      		 <datepicker id="to_picker"> <input ng-model="to_date" type="text" style="display: none" /> </datepicker>
+      	</div>
+      	
+        <div id="container" class="container" style="">
            	<div class="panel-body">
                	<canvas id="chart_test" ng-if="$ctrl.type === 'pie'" class="chart chart-pie" chart-data="data" chart-labels="labels" chart-series="series" chart-options="options" chart-dataset-override="datasetOverride"></canvas>
                	<canvas id="chart_test" ng-if="$ctrl.type === 'line'" class="chart chart-line" chart-data="data" chart-labels="labels" chart-series="series" chart-options="options" chart-dataset-override="datasetOverride"></canvas>
                	<canvas id="chart_test" ng-if="$ctrl.type === 'bar'" class="chart chart-bar" chart-data="data" chart-labels="labels" chart-series="series" chart-options="options" chart-dataset-override="datasetOverride"></canvas>
           	</div>
-        </div>
-        <div ng-hide="dataLoaded">Laden</div>
+        </div>        
     </div>
 </div>

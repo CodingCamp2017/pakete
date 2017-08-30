@@ -38,3 +38,7 @@ body {
 .maincontainer {
 	padding: 20px
 }
+
+.chart {
+	height: 250px;
+}

@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var app = angular.module("app", ['chart.js', 'ui.bootstrap']);
+  var app = angular.module("app", ['chart.js', 'ui.bootstrap', '720kb.datepicker']);
 
   app.config(function (ChartJsProvider) {
     // Configure all charts
@@ -19,7 +19,7 @@
     */
   });  
 
-  app.controller('ChartController', ['$scope', '$http', '$attrs', function ($scope, $http, $attrs) {
+  app.controller('ChartController', ['$scope', '$http', '$attrs', '$element', function ($scope, $http, $attrs, $element) {
     $scope.labels = [];
     $scope.series = ['Pakete'];
     $scope.data = [[]];    
@@ -27,11 +27,30 @@
     $scope.type = $scope.type_options[0];
     $scope.options = { legend: { display: true } };    
 
-    $scope.colors = ['#97BBCD', '#DCDCDC', '#F7464A', '#46BFBD', '#FDB45C', '#949FB1', '#4D5360']
-
     $scope.dataLoaded = false
 
-    $scope.setData = function() {
+    $scope.from_date = new Date(0)
+    $scope.to_date = new Date()
+
+
+    /*
+    $scope.$watch('from_date', function (value) {
+      try {
+       $scope.from_date = new Date(value);
+      } catch(e) {
+        console.log(e)
+      }
+    }); */
+
+    $scope.openFromCalendar = function() {
+      $element.find("#from_picker input").trigger("click")      
+    }
+
+    $scope.openToCalendar = function() {
+      $element.find("#to_picker input").trigger("click")      
+    }
+
+    $scope.setData = function() {      
       $scope.dataLoaded = false
 
       if ($attrs.information == "sizes") {
