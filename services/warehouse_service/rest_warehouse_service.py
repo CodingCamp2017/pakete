@@ -13,8 +13,6 @@ import rest_common
 from warehouse_service import WarehouseService
 import mykafka
 
-
-
 app = Flask(__name__)#Initialize flask
 
 srv = WarehouseService(mykafka.create_consumer('ec2-35-159-21-220.eu-central-1.compute.amazonaws.com', 9092, 'packet'))
@@ -25,7 +23,8 @@ this server.
 '''
 @app.route('/getRegistrationsPerDay', methods=['GET'])
 def restPacketStatus():
-    #res = {"values": srv.getListbyRegistrationDay('%Y-%m-%d')}
+    res = {"values": srv.getCountOfRegistrationByTime('%A')}
+    return rest_common.create_response(200, res)
     byhour = srv.getCountOfRegistrationByTime('%H')
     hours = range(24)
     res = {"values": { hour : 0 for hour in hours}}
@@ -37,7 +36,7 @@ def restPacketStatus():
     return rest_common.create_response(200, res)
 
 @app.route('/getAverageDeliveryTime', methods=['GET'])
-def restPacketStatus():
+def restPacketStatusFFFFFFFFff():
     # res = {"values": srv.getListbyRegistrationDay('%Y-%m-%d')}
     byhour = srv.getAverageDeliveryTime('%H')
     hours = range(24)
