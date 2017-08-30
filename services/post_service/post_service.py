@@ -87,7 +87,7 @@ class PostService:
         if not self.idstore.check_packet_state(packet_id, PACKET_STATE_UPDATE_LOCATION):
             raise Exceptions.InvalidActionException(Exceptions.TYPE_INVALID_KEY, "packet_id", "Packet with id '"+packet_id+"' has not yet been registered or has been delivered")
         try:
-            mykafka.sendSync(self.producer, PACKET_TOPIC, PACKET_STATE_DELIVERED, 2, jobj)
+            mykafka.sendSync(self.producer, PACKET_TOPIC, PACKET_STATE_DELIVERED, VERSION, jobj)
         except KafkaError as e:
             raise Exceptions.CommandFailedException("Kafka Error: "+str(e))
         

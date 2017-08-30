@@ -7,6 +7,8 @@ import time
 import json
 import multiprocessing
 
+
+
 class RestSimulation():
     def __init__(self, baseurl, headers, fakeDataProvider):
         self.baseurl = baseurl
@@ -35,16 +37,19 @@ class RestSimulation():
         while not self.threadStop.is_set():
             if len(self.packetList) < 1:
                 continue
-            data = {}
-            data['station'] = self.fakeDataProvider.getRandomCity()
-            data['vehicle'] = self.fakeDataProvider.getRandomVehicle()
+            data = {'vehicle' : self.fakeDataProvider.getRandomVehicle()}
+            data.update(self.fakeDataProvider.getRandomStation())
             with self.lock:
                 #print("update")
                 packet_id = self._getRandomId()
                 updateRequest = urllib.request.Request(self.baseurl + 'packet/' + packet_id +'/update',
                                                        data = json.dumps(data).encode('utf8'),
                                                        headers = self.headers)
-                urllib.request.urlopen(updateRequest)
+                try:
+                    urllib.request.urlopen(updateRequest)
+                except urllib.error.HTTPError as e:
+                    error_message = e.read()
+                    print(error_message)
             #time.sleep(randint(100,200)/1000.0)
         print("update stoped")
 
@@ -59,7 +64,11 @@ class RestSimulation():
                 deliverRequest = urllib.request.Request(self.baseurl + 'packet/' + packet_id +'/delivered',
                                                         data=json.dumps({}).encode('utf8'),
                                                         headers = self.headers)
-                urllib.request.urlopen(deliverRequest)
+                try:
+                    urllib.request.urlopen(deliverRequest)
+                except urllib.error.HTTPError as e:
+                    error_message = e.read()
+                    print(error_message)
                 self.packetList.remove(packet_id)
             #time.sleep(randint(100,200)/1000.0)
         print("deliver stoped")
@@ -90,3 +99,5 @@ if __name__ == '__main__':
         t.start()
 
     time.sleep(SIMULATION_TIME)
+    
+    restSimulation.stopThreads()

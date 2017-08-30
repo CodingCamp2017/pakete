@@ -64,7 +64,7 @@ def restAuthenticateUser():
 @app.route('/add_packet_to_user', methods=['POST'])
 def restAddPacket():
     try:
-        data  =rest_common.get_rest_data(request)
+        data = rest_common.get_rest_data(request)
         user_service.add_packet_to_user(data)
         return rest_common.create_response(200)
     except NoPacketException as e:
