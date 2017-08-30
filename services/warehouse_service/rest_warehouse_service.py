@@ -26,7 +26,7 @@ this server.
 @app.route('/getRegistrationsPerDay', methods=['GET'])
 def restPacketStatus():
     #res = {"values": srv.getListbyRegistrationDay('%Y-%m-%d')}
-    byhour = srv.getListbyRegistrationDay('%H')
+    byhour = srv.getCountOfRegistrationByTime('%H')
     hours = range(24)
     res = {"values": { hour : 0 for hour in hours}}
     
@@ -36,9 +36,22 @@ def restPacketStatus():
     
     return rest_common.create_response(200, res)
 
+@app.route('/getAverageDeliveryTime', methods=['GET'])
+def restPacketStatus():
+    # res = {"values": srv.getListbyRegistrationDay('%Y-%m-%d')}
+    byhour = srv.getAverageDeliveryTime('%H')
+    hours = range(24)
+    res = {"values": {hour: 0 for hour in hours}}
+
+    for hour, count in byhour.items():
+        res["values"][int(hour)] = count
+    print(res)
+
+    return rest_common.create_response(200, res)
+
 @app.route('/getSizeDistribution', methods=['GET'])
 def getSizeDistribution():
-    res = {"values" : srv.getListOfKey("size") }
+    res = {"values" : srv.getCountOfKey("size") }
 
     return rest_common.create_response(200, res)
 

@@ -27,7 +27,8 @@ class ClientSubscriptionManager:
             client_list.append(sid)
             self.subscribed_ids[packet_id] = client_list
             clients = len(client_list)
-        print("Client ("+sid+") subscribed to "+packet_id+", total_subs="+str(subs)+", packet is subscribed by "+str(clients))
+        p{'2017-08-28 16': {'summWeight': 12.566106152, 'count': 4, 'averageWeight': 3.141526538}, '2017-08-28 17': {'summWeight': 3.141526538, 'count': 1, 'averageWeight': 3.141526538}, '2017-08-29 09': {'summWeight': 1234.0, 'count': 1, 'averageWeight': 1234.0}, '2017-08-29 10': {'summWeight': 9.0, 'count': 3, 'averageWeight': 3.0}, '2017-08-29 11': {'summWeight': 16420.0, 'count': 100, 'averageWeight': 164.2}, '2017-08-29 12': {'summWeight': 3200.0, 'count': 16, 'averageWeight': 200.0}, '2017-08-29 13': {'summWeight': 3067.0, 'count': 57, 'averageWeight': 53.80701754385965}, '2017-08-29 14': {'summWeight': 288492.3, 'count': 3616, 'averageWeight': 79.78216261061947}, '2017-08-29 15': {'summWeight': 19200.0, 'count': 96, 'averageWeight': 200.0}, '2017-08-29 16': {'summWeight': 172906.8, 'count': 3213, 'averageWeight': 53.81475256769374}}
+rint("Client ("+sid+") subscribed to "+packet_id+", total_subs="+str(subs)+", packet is subscribed by "+str(clients))
             
     def client_disconnect(self, sid):
         ids = list()
