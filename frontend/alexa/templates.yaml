@@ -1,28 +1,40 @@
 # Information messages
 
-welcome: Willkommen zur Coding Camp Paketverfolgung. Soll ich dich bei der Paketverfolgung anmelden?
+welcome: Willkommen zur Coding Camp Paketverfolgung. Soll ich dich anmelden?
 
 help: Ich kann dir eine Übersicht über deine registrierten Pakete geben.
 
 login_success: Du bist nun als {{ email }} an der Paketverfolgung angemeldet.
 
+alredy_logged_in: Du bist bereits angemeldet.
+
 stop: Danke, dass du mich verwendet hast um deine Pakete zu verfolgen!
 
 error: Es ist ein Fehler aufgetreten. Versuche es bitte nochmal.
 
-# Questions
+# Person packet answers
 
-get_name: Nenne mir einen Namen, für den du eine Übersicht erhalten möchtest.
+get_name: Nenne mir bitte zusätzlich einen Namen, für den du Informationen erhalten möchtest.
 
-just_sent: {{ number | speakable_number }} Paket{{ number | get_plural_e }} von {{ sender }} an {{ receiver }} wurde{{ number | get_plural_n }} gerade erst losgeschickt. Gedulde dich ein wenig.
+just_sent: Ein Paket von {{ sender }} an {{ receiver }} wurde gerade erst losgeschickt. Gedulde dich ein wenig.
 
-already_delivered: {{ number | speakable_number }} Paket{{ number | get_plural_e }} von {{ sender }} an {{ receiver }} wurde{{ number | get_plural_n }} bereits ausgeliefert. Schaut doch mal im Briefkasten nach.
+no_paket: Ich habe keine Pakete von {{ name }} gefunden.
 
-packet_on_the_way: Ich habe {{ number | speakable_number }} Paket{{ number | get_plural_e }} von {{ sender }} an {{ receiver }} in {{ city }} gefunden.
+already_delivered: Ein von {{ sender }} an {{ receiver }} wurde bereits ausgeliefert. Schaut doch mal im Briefkasten nach.
+
+packet_on_the_way: Ich habe ein Paket von {{ sender }} an {{ receiver }} in {{ city }} gefunden.
 
 number_of_packets: Ich habe {{ number | speakable_number }} Paket{{ number | get_plural_e }} gefunden.
 
-there_are_x_packets: Es gibt {{ number | speakable_number }} Paket{{ number | get_plural_e }} von {{ sender }} an {{ receiver }}.
+# Overview answers
+
+there_are_x_packets_0: Es gibt {{ number | speakable_number }} Paket{{ number | get_plural_e }} von {{ sender }} an {{ receiver }}.
+
+there_are_x_packets_1: |
+    {{ number | speakable_number }} Paket{{ number | get_plural_e }} von {{ sender }} an {{ receiver }}.
+
+there_are_x_packets_2: Außerdem habe ich {{ number | speakable_number }} Paket{{ number | get_plural_e }} von {{ sender }} an {{ receiver }} gefunden.
+
 
 # Helper
 

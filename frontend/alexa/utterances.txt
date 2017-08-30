@@ -1,6 +1,7 @@
 LoginIntent Ja
 LoginIntent Logge mich ein
 LoginIntent Loggin
+LoginIntent Melde mich an
 
 AMAZON.StopIntent Nein
 
