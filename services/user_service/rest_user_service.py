@@ -9,7 +9,7 @@ sys.path.append(os.path.relpath('../rest_common'))
 import rest_common
 
 import getopt
-from Exceptions import InvalidActionException, UserExistsException, UserUnknownException, SessionElapsedException, InvalidPasswortException, PacketNotFoundException, NoPacketException, NoSessionIdException
+from Exceptions import InvalidActionException, UserExistsException, UserUnknownException, SessionElapsedException, InvalidPasswortException, PacketNotFoundException, NoPacketException, InvalidSessionIdException, NoSessionIdException
 from flask import Flask, request
 from user_service import UserService
 
@@ -37,7 +37,7 @@ def restAuthenticateUser():
     try:
         data = rest_common.get_rest_data(request)
         session_id = user_service.authenticate_user(data)
-        return rest_common.create_cookie_response(200, session_id)
+        return rest_common.create_response(200, {'session_id':str(session_id)})
     except InvalidActionException as e:
         return rest_common.create_error_response(400, e)
     except UserUnknownException as e:
@@ -48,35 +48,28 @@ def restAuthenticateUser():
         print("TypeError in authenticate_user")
         return "123"
     
-@app.route('/update_user_adress', methods=['POST'])
-def restUpdateAdress():
-    try:
-        data = rest_common.get_rest_data(request)
-        user_service.update_user_adress(data)
-        return rest_common.create_response(200)
-    except InvalidActionException as e:
-        return rest_common.create_error_response(400, e)
-    except UserUnknownException as e:
-        return rest_common.create_error_response(404, e)
-    except SessionElapsedException as e:
-        return rest_common.create_error_response(401, e)
+#@app.route('/update_user_adress', methods=['POST'])
+#def restUpdateAdress():
+#    try:
+#        data = rest_common.get_rest_data(request)
+#        user_service.update_user_adress(data)
+#        return rest_common.create_response(200)
+#    except InvalidActionException as e:
+#        return rest_common.create_error_response(400, e)
+#    except UserUnknownException as e:
+#        return rest_common.create_error_response(404, e)
+#    except SessionElapsedException as e:
+#        return rest_common.create_error_response(401, e)
 
 @app.route('/add_packet_to_user', methods=['POST'])
 def restAddPacket():
     try:
-        packet_id = request.json('packet')
-        #return rest_common.create_error_response(421, str(packet_id))
-        if not packet_id:
-            raise NoPacketException
-        session_id = request.cookies.get('session_id')
-        if not packet_id:
-            raise NoSessionIdException
-        data = {'packet' : packet_id, 'session_id' : session_id}
+        data  =rest_common.get_rest_data(request)
         user_service.add_packet_to_user(data)
         return rest_common.create_response(200)
     except NoPacketException as e:
         return rest_common.create_error_response(421, e)
-    except NoSessionIdException as e:
+    except (InvalidSessionIdException, NoSessionIdException) as e:
         return rest_common.create_error_response(422, e)
     except InvalidActionException as e:
         return rest_common.create_error_response(400, e)
@@ -87,31 +80,28 @@ def restAddPacket():
     except PacketNotFoundException as e:
         return rest_common.create_error_response(410, e)
     
-@app.route('/get_packets_from_user', methods=['GET'])
-def restGetPacket():
+@app.route('/get_packets_from_user/<session_id>', methods=['GET'])
+def restGetPacket(session_id):
     try:
-        session_id = request.cookies.get('session_id')
-        if not session_id:
-            raise NoSessionIdException
-        print("Session id is " + str(session_id))
-        packets = user_service.get_packets_from_user(session_id)
+        data = {'session_id' : session_id}
+        packets = user_service.get_packets_from_user(data)
         if not packets:
-            raise NoPacketException
-        return rest_common.create_response(200, packets)
+            packets = []
+        return rest_common.create_response(200, {'packets':packets})
     except InvalidActionException as e:
         return rest_common.create_error_response(400, e)
     except SessionElapsedException as e:
         return rest_common.create_error_response(401, e)
     except UserUnknownException as e:
         return rest_common.create_error_response(404, e)
-    except NoSessionIdException as e:
+    except (InvalidSessionIdException, NoSessionIdException) as e:
         return rest_common.create_error_response(422, e)
     
 @app.route('/delete_user', methods=['POST'])
 def restDeleteUser():
     try:
-        session_id = request.cookies.get('session_id')
-        user_service.delete_user(session_id)
+        data = rest_common.get_rest_data(request)
+        user_service.delete_user(data)
         return rest_common.create_response(200)
     except InvalidActionException as e:
         return rest_common.create_error_response(400, e)
@@ -119,6 +109,23 @@ def restDeleteUser():
         return rest_common.create_error_response(404, e)
     except SessionElapsedException as e:
         return rest_common.create_error_response(401, e)
+    except (InvalidSessionIdException, NoSessionIdException) as e:
+        return rest_common.create_error_response(422, e)
+    
+@app.route('/logout', methods=['POST'])
+def restLogoutUser():
+    try:
+        data = rest_common.get_rest_data(request)
+        user_service.logout_user(data)
+        return rest_common.create_response(200)
+    except InvalidActionException as e:
+        return rest_common.create_error_response(400, e)
+    except UserUnknownException as e:
+        return rest_common.create_error_response(404, e)
+    except SessionElapsedException as e:
+        return rest_common.create_error_response(401, e)
+    except (InvalidSessionIdException, NoSessionIdException) as e:
+        return rest_common.create_error_response(422, e)
     
         
 def print_help():

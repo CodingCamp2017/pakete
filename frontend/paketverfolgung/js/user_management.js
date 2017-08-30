@@ -1,144 +1,111 @@
 var server_url = "http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8002/";
-//var server_url = "http://bla.bla:8001/";
+//var server_url = "http://localhost:8002/";
 
 var query_register_user = "add_user";
 var query_login_user = "authenticate_user";
 var query_delete_user = "delete_user";
 var query_add_packet_to_user = "add_packet_to_user";
 var query_get_user_packets = "get_packets_from_user";
-
-$("#register_button").click(function() {
-    register_email = $("#register_email").val();
-    register_password = $("#register_password").val();
-    
-    registerUser(register_email, register_password, function() {
-        //success
-        console.log("Registering user successfully.");
-    }, function() {
-        //failure
-        console.log("Error registering user");
-    });
-});
+var query_logout = "logout";
 
 function registerUser(email, password, successCallback, failureCallback) {  
     if(!email || !password) {
-        console.log("Email or password not provided.");
+        failureCallback("Email or password not provided.")
         return;
     }
     
-    var query = server_url + query_register_user;
-    console.log("query: " + query);
+    var query = server_url + query_register_user;    
+    var requestData = {"email" : email, "password" : password};
     
-    var data = {"email" : email,
-		"password" : password};
-    
-    $.post(query, data, function(responseText) {
-        console.log("query: response");
-        
-        var obj = JSON.parse(responseText);
-        console.log("response: " + obj);
-		
+    $.post(query, requestData, function(response) {     
         successCallback();
       })
-      .done(function() {
-        console.log("query: done");
-      })
       .fail(function(xhr, status, error) {
-        console.log("query: fail");
-        failureCallback();
+        failureCallback("Unable to register user.");
 	 });
 }
 
 function loginUser(email, password, successCallback, failureCallback) {
     if(!email || !password) {
-        console.log("Email or password not provided.");
+        failureCallback("Email or password not provided.");
         return;
     }
     
     var query = server_url + query_login_user;
-    console.log("query: " + query);
-       
-    var data = {"email" : email,
-		"password" : password};
+    var requestData = {"email" : email, "password" : password};   
     
-    
-    $.ajax(query, {
-     method: 'POST',
-     data: data,
-     crossDomain: true,
-     success: function(xhr, status, error) {
-        console.log("query: response");
+    $.post(query, requestData, function(response) {
+        writeSessioIdCookie(response);
         successCallback();
-		
-      }, error: function() {
-        console.log("query: fail");
-        failureCallback();
-	 }});
+    })
+    .fail(function (xhr, status, error) {
+        failureCallback("Login failed.");
+    });
 }
 
 function addPacketToUser(packetId, successCallback, failureCallback)
 {
-    var query = server_url + query_add_packet_to_user;
-    console.log("query: " + query);
+    var query = server_url + query_add_packet_to_user;    
     
-    var data = {"packet" : packetId};
-    
-    $.post(query, data, function(responseText) {
-        console.log("query: response");
-        successCallback();
-		
-      })
-      .done(function() {
-        console.log("query: done");
-      })
-      .fail(function(xhr, status, error) {
-        console.log("query: fail");
-        failureCallback();
-	 });
+    var sessionId = readSessionIdCookie();
+    if(sessionId !== undefined) {
+        var requestData = {"packet": packetId, "session_id": sessionId};
+        $.post(query, requestData, function (response) {
+            successCallback();
+        })
+        .fail(function (xhr, status, error) {
+            failureCallback("Adding packet failed.");
+        });
+    } else {
+        failureCallback("User not logged in.");
+        return;
+    } 
 }
 
 function deleteUser(successCallback, failureCallback)
 {
-    var query = server_url + query_delete_user;
-    console.log("query: " + query);
-    
-    $.post(query, function(responseText) {
-        console.log("query: response");
-        successCallback();
-		
-      })
-      .done(function() {
-        console.log("query: done");
-      })
-      .fail(function(xhr, status, error) {
-        console.log("query: fail");
-        failureCallback();
-	 });
+    var sessionId = readSessionIdCookie();
+    if(sessionId !== undefined) {
+        var query = server_url + query_delete_user;
+        $.post(query, {"session_id": sessionId}, function (response) {
+            clearSessionIdCookie();
+            successCallback();
+        })
+        .fail(function (xhr, status, error) {
+            failureCallback("Unable to delete user.");
+        });
+    }   
 }
 
 function getUserPackets(successCallback, failureCallback) 
+{               
+    var sessionId = readSessionIdCookie();
+    if(sessionId !== undefined) {
+        var query = server_url + query_get_user_packets + "/" + sessionId;
+        $.get(query, function (responseData) {
+            successCallback(responseData['packets']);
+        });
+    } else {
+        failureCallback("User not logged in.");
+        return;
+    } 
+}
+
+function logoutUser(successCallback, failureCallback)
 {
-    var query = server_url + query_get_user_packets;
-    console.log("query: " + query);
-    
-    $.ajax(query, {
-     method: 'GET',
-     xhrFields: { withCredentials: true },
-     crossDomain: true,
-     success: function(response) {
-        console.log("query: response");
-        
-        //var obj = JSON.parse(responseText);
-        console.log("response: " + response);
-        
-        // dummy answer
-        var packets = ["packet1", "packet2"];
-        successCallback(packets);
-		
-      },
-     error: function() {
-        console.log("query: fail");
-        failureCallback();
-	 }
-  });
+    var query = server_url + query_logout;
+
+    var sessionId = readSessionIdCookie();
+    if (sessionId !== undefined) {
+        $.post(query, {'session_id': sessionId}, function (response) {
+            clearSessionIdCookie();
+            successCallback();
+        })
+        .fail(function (xhr, status, error) {
+            failureCallback("Logging out user failed.");
+        });
+    } else {
+        failureCallback("User not logged in.");
+        return;
+    }
 }

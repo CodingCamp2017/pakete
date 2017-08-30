@@ -13,6 +13,8 @@
                 <br><br>
                 <h1>User Info</h1>
                 <br>
+                <div id="info_message_container" class="alert alert-success">info</div>
+                <div id="error_message_container" class="alert alert-warning">error</div>
                 <h2>Pakete</h2>
 
                 <table id ="table_user_packets" class="table table-striped">
@@ -39,12 +41,16 @@
                 <br>
                 <h2>Account entfernen</h2>
                   <input type='button' value='User löschen' class='btn btn-primary' id ='button_delete_user' />
-
+                  <br>
+                  <br>
+                <h2>Logout</h2>
+                  <input type='button' value='Logout' class='btn btn-primary' id ='button_logout_user' />
                   <!--bestätigung ID-->
                   <div class="mx-auto pageContent" >
                   <i hidden class="fa fa-spinner fa-spin" style="font-size:50px" id="spinner"></i><br/>
                       <div hidden id="server_answer"></div>
-                  </div>                 
+                  </div>    
+                  <br>
             </div>
         </div>
     </div>  
