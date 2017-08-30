@@ -66,7 +66,7 @@ class TransportSimulation():
 
 if __name__ == '__main__':
     
-    local_post_host = 'http://0.0.0.0:34273'
+    local_post_host = 'http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8000'
     
     SIMULATION_TIME = 60 # Seconds
     transportSimulation = TransportSimulation(local_post_host,

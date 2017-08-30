@@ -94,8 +94,8 @@ class DistributionService(threading.Thread):
                 except KeyError:
                     print(event)
                     
-                if eventVersion != 2:
-                    print('Unexpected event version (expected: 1, found: ' + str(eventVersion) + ')')
+                if eventVersion != 3:
+                    print('Skipping event with version older than 3 (found: ' + str(eventVersion) + ')')
                     return
                 
                 if eventType == 'registered' and eventPayload['sender_zip'][0] == str(self.center_id):
