@@ -1,5 +1,5 @@
-//var server_url = "http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8002/";
-var server_url = "http://localhost:8002/";
+var server_url = "http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8002/";
+//var server_url = "http://localhost:8002/";
 
 var query_register_user = "add_user";
 var query_login_user = "authenticate_user";
