@@ -28,10 +28,10 @@ def restAddUser():
         user_service.add_user(data)
         return rest_common.create_response(200)
     except InvalidActionException as e:
-        return rest_common.create_error_response(400, e)
+        return rest_common.create_response(400, e.toDict())
     except UserExistsException as e:
         return rest_common.create_error_response(409, e)
-        
+
 @app.route('/authenticate_user', methods=['POST'])
 def restAuthenticateUser():
     try:
@@ -39,15 +39,12 @@ def restAuthenticateUser():
         session_id = user_service.authenticate_user(data)
         return rest_common.create_response(200, {'session_id':str(session_id)})
     except InvalidActionException as e:
-        return rest_common.create_error_response(400, e)
+        return rest_common.create_response(400, e.toDict())
     except UserUnknownException as e:
         return rest_common.create_error_response(404, e)
     except InvalidPasswortException as e:
         return rest_common.create_error_response(401, e)
-    except TypeError as e:
-        print("TypeError in authenticate_user")
-        return "123"
-    
+
 #@app.route('/update_user_adress', methods=['POST'])
 #def restUpdateAdress():
 #    try:
@@ -67,19 +64,15 @@ def restAddPacket():
         data  =rest_common.get_rest_data(request)
         user_service.add_packet_to_user(data)
         return rest_common.create_response(200)
-    except NoPacketException as e:
-        return rest_common.create_error_response(421, e)
-    except (InvalidSessionIdException, NoSessionIdException) as e:
-        return rest_common.create_error_response(422, e)
     except InvalidActionException as e:
-        return rest_common.create_error_response(400, e)
-    except UserUnknownException as e:
-        return rest_common.create_error_response(404, e)
+        return rest_common.create_response(400, e.toDict())
     except SessionElapsedException as e:
         return rest_common.create_error_response(401, e)
+    except InvalidSessionIdException as e:
+        return rest_common.create_error_response(422, e)
     except PacketNotFoundException as e:
         return rest_common.create_error_response(410, e)
-    
+
 @app.route('/get_packets_from_user/<session_id>', methods=['GET'])
 def restGetPacket(session_id):
     try:
@@ -89,14 +82,12 @@ def restGetPacket(session_id):
             packets = []
         return rest_common.create_response(200, {'packets':packets})
     except InvalidActionException as e:
-        return rest_common.create_error_response(400, e)
+        return rest_common.create_response(400, e.toDict())
     except SessionElapsedException as e:
         return rest_common.create_error_response(401, e)
-    except UserUnknownException as e:
-        return rest_common.create_error_response(404, e)
-    except (InvalidSessionIdException, NoSessionIdException) as e:
+    except InvalidSessionIdException as e:
         return rest_common.create_error_response(422, e)
-    
+
 @app.route('/delete_user', methods=['POST'])
 def restDeleteUser():
     try:
@@ -104,14 +95,12 @@ def restDeleteUser():
         user_service.delete_user(data)
         return rest_common.create_response(200)
     except InvalidActionException as e:
-        return rest_common.create_error_response(400, e)
-    except UserUnknownException as e:
-        return rest_common.create_error_response(404, e)
+        return rest_common.create_response(400, e.toDict())
     except SessionElapsedException as e:
         return rest_common.create_error_response(401, e)
-    except (InvalidSessionIdException, NoSessionIdException) as e:
+    except InvalidSessionIdException as e:
         return rest_common.create_error_response(422, e)
-    
+
 @app.route('/logout', methods=['POST'])
 def restLogoutUser():
     try:
@@ -119,18 +108,16 @@ def restLogoutUser():
         user_service.logout_user(data)
         return rest_common.create_response(200)
     except InvalidActionException as e:
-        return rest_common.create_error_response(400, e)
-    except UserUnknownException as e:
-        return rest_common.create_error_response(404, e)
+        return rest_common.create_response(400, e.toDict())
     except SessionElapsedException as e:
         return rest_common.create_error_response(401, e)
-    except (InvalidSessionIdException, NoSessionIdException) as e:
+    except InvalidSessionIdException as e:
         return rest_common.create_error_response(422, e)
-    
-        
+
+
 def print_help():
     print("Options:\n\t-p Port to use")
-    
+
 if __name__ == '__main__':
     port = 0
     try:
