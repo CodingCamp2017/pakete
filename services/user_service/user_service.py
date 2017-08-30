@@ -111,11 +111,11 @@ class UserService:
     def add_packet_to_user(self, data):
         packet_regex.check_json_regex(data, packet_regex.syntax_add_packet_to_user)
         self._check_session_active(data['session_id'])
-        if not self.idstore.packet_in_store(data['packet']):
+        if not self.idstore.packet_in_store(data['packet_id']):
             raise PacketNotFoundException
         email = self._get_email_of_user(data['session_id'])
         self.p_cur.execute('INSERT INTO followed_packets (email, packet) VALUES (?,?)',
-                           (email, data['packet']))
+                           (email, data['packet_id']))
         self._update_session_id_timestamp(data['session_id'])
         self.u_con.commit()
         
@@ -168,7 +168,7 @@ def create_email_password():
             'password' : 'dadadada'}
 
 def create_email_packet_session(session_id):
-    return {'packet' : str(uuid.uuid1()),
+    return {'packet_id' : str(uuid.uuid1()),
             'session_id' : session_id}
 
 def create_test_delete_user_json(session_id):
@@ -180,7 +180,7 @@ def create_test_get_packets_from_user_json(session_id):
             'session_id' : session_id}
 
 def create_test_add_packet(session_id):
-    return {'packet' : str(uuid.uuid1()),
+    return {'packet_id' : str(uuid.uuid1()),
             'session_id' : session_id}
     
 def test_user_service():

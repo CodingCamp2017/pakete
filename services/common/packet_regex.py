@@ -64,7 +64,7 @@ syntax_update_user_adress = [('email', regex_email),
 '''
 This lists the required keys and a regex for the value of the addPacketToUser command
 '''
-syntax_add_packet_to_user = [('packet', regex_id),
+syntax_add_packet_to_user = [('packet_id', regex_id),
                              ('session_id', regex_session_id)]
 '''
 This lists the required keys and a regex for the value of commands that require only a session id

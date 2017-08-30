@@ -15,6 +15,8 @@ import codecs
 from kafka.errors import KafkaError
 import uuid
 
+VERSION = 3
+
 '''
 The Post-Service provides a web interface to register packets, update their
 locations and to mark them as delivered.
@@ -31,7 +33,7 @@ class PostService:
     '''
     Returns a uuid used as packet identifier
     '''
-    def assign_package_id(self):
+    def assign_packet_id(self):
         return str(uuid.uuid4())
     
     '''
@@ -41,17 +43,17 @@ class PostService:
     Raises Exception.InvalidActionException if jobj contains an invalid value or is missing a key
     Raises Exception.CommandFailedException if the underlying kafka service could not acknowledge the event
     '''
-    def register_package(self, jobj):
-        #print("Register Package: "+str(jobj))
+    def register_packet(self, jobj):
+        #print("Register packet: "+str(jobj))
         packet_regex.check_json_regex(jobj, packet_regex.syntax_register)
-        package_id = self.assign_package_id()
+        packet_id = self.assign_packet_id()
         newjobj = { key : value for (key, value) in jobj.items()}
-        newjobj['id'] = package_id
+        newjobj['packet_id'] = packet_id
         try:
-            mykafka.sendSync(self.producer, PACKET_TOPIC, PACKET_STATE_REGISTERED, 2, newjobj)
+            mykafka.sendSync(self.producer, PACKET_TOPIC, PACKET_STATE_REGISTERED, VERSION, newjobj)
         except KafkaError as e:
             raise Exceptions.CommandFailedException("Kafka Error: "+str(e))
-        return package_id
+        return packet_id
     
     '''
     Updates the location of a packet by sending a updateLocation event to kafka. jobj is a
@@ -60,14 +62,14 @@ class PostService:
     Raises Exception.InvalidActionException if jobj contains an invalid value or is missing a key
     Raises Exception.CommandFailedException if the underlying kafka service could not acknowledge the event
     '''
-    def update_package_location(self, jobj):
-        #print("Update Package Location: "+str(jobj))
+    def update_packet_location(self, jobj):
+        #print("Update packet Location: "+str(jobj))
         packet_id = jobj["packet_id"]
-        if not self.idstore.check_package_state(packet_id, PACKET_STATE_UPDATE_LOCATION):
+        if not self.idstore.check_packet_state(packet_id, PACKET_STATE_UPDATE_LOCATION):
             raise Exceptions.InvalidActionException(Exceptions.TYPE_INVALID_KEY, "packet_id", "Packet with id '"+packet_id+"' has not yet been registered or has been delivered")
         packet_regex.check_json_regex(jobj, packet_regex.syntax_update)
         try:
-            mykafka.sendSync(self.producer, PACKET_TOPIC, PACKET_STATE_UPDATE_LOCATION, 2, jobj)
+            mykafka.sendSync(self.producer, PACKET_TOPIC, PACKET_STATE_UPDATE_LOCATION, VERSION, jobj)
         except KafkaError as e:
             raise Exceptions.CommandFailedException("Kafka Error: "+str(e))
     
@@ -82,7 +84,7 @@ class PostService:
         #print("Mark delivered: "+str(jobj))
         packet_regex.check_json_regex(jobj, packet_regex.syntax_delivered)
         packet_id = jobj["packet_id"]
-        if not self.idstore.check_package_state(packet_id, PACKET_STATE_UPDATE_LOCATION):
+        if not self.idstore.check_packet_state(packet_id, PACKET_STATE_UPDATE_LOCATION):
             raise Exceptions.InvalidActionException(Exceptions.TYPE_INVALID_KEY, "packet_id", "Packet with id '"+packet_id+"' has not yet been registered or has been delivered")
         try:
             mykafka.sendSync(self.producer, PACKET_TOPIC, PACKET_STATE_DELIVERED, 2, jobj)

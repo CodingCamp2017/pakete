@@ -26,7 +26,7 @@ class RestSimulation():
                 headers = self.headers)
             response = urllib.request.urlopen(registerRequest)
             responseJson = json.loads(response.read().decode('utf8'))
-            self.packetList.append(responseJson['id'])
+            self.packetList.append(responseJson['packet_id'])
             #time.sleep(randint(100,200)/1000.0)
         print("register stoped")
 
@@ -40,8 +40,8 @@ class RestSimulation():
             data['vehicle'] = self.fakeDataProvider.getRandomVehicle()
             with self.lock:
                 #print("update")
-                id = self._getRandomId()
-                updateRequest = urllib.request.Request(self.baseurl + 'packet/' + id +'/update',
+                packet_id = self._getRandomId()
+                updateRequest = urllib.request.Request(self.baseurl + 'packet/' + packet_id +'/update',
                                                        data = json.dumps(data).encode('utf8'),
                                                        headers = self.headers)
                 urllib.request.urlopen(updateRequest)
@@ -55,12 +55,12 @@ class RestSimulation():
                 continue
             with self.lock:
                 #print("deliver")
-                id = self._getRandomId()
-                deliverRequest = urllib.request.Request(self.baseurl + 'packet/' + id +'/delivered',
+                packet_id = self._getRandomId()
+                deliverRequest = urllib.request.Request(self.baseurl + 'packet/' + packet_id +'/delivered',
                                                         data=json.dumps({}).encode('utf8'),
                                                         headers = self.headers)
                 urllib.request.urlopen(deliverRequest)
-                self.packetList.remove(id)
+                self.packetList.remove(packet_id)
             #time.sleep(randint(100,200)/1000.0)
         print("deliver stoped")
     
@@ -73,7 +73,7 @@ class RestSimulation():
         self.threadStop.set()
 
 if __name__ == '__main__':
-    SIMULATION_TIME = 120 # Seconds
+    SIMULATION_TIME = 60 # Seconds
     fakeDataProvider = FakeDataProvider('fakedata.json')
     restSimulation = RestSimulation('http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8000/',
                                     {"Content-Type":"application/json"},

@@ -31,8 +31,8 @@ this server.
 def restRegister():
     try:
         data = rest_common.get_rest_data(request)
-        packet_id = post_service.register_package(data)
-        return rest_common.create_response(200, {"id":str(packet_id)})
+        packet_id = post_service.register_packet(data)
+        return rest_common.create_response(200, {"packet_id":str(packet_id)})
     except Exceptions.InvalidActionException as e:
         return rest_common.create_response(400, e.toDict())
     except Exceptions.CommandFailedException as e:
@@ -40,44 +40,44 @@ def restRegister():
 
 '''
 This function is called whenever a client visits the '/packet/packet_id/update
-"page" on this server, where packet_id is the id of the package the client wants
+"page" on this server, where packet_id is the id of the packet the client wants
 to update
 '''
-@app.route('/packet/<id>/update', methods=['POST'])
-def restUpdateLocation(id):
+@app.route('/packet/<packet_id>/update', methods=['POST'])
+def restUpdateLocation(packet_id):
     try:
         request_data = rest_common.get_rest_data(request)
         print(str(request_data))
         data = copy_dict(request_data)#Copy the dict as request_data is immutable
-        data["packet_id"] = id
+        data["packet_id"] = packet_id
         print(str(data))
-        post_service.update_package_location(data)
+        post_service.update_packet_location(data)
         return rest_common.create_response(200)
     except Exceptions.InvalidActionException as e:
-        print("InvalidAction: update for id '"+id+"' failed: "+str(e))
+        print("InvalidAction: update for packet_id '"+packet_id+"' failed: "+str(e))
         return rest_common.create_response(400, e.toDict())
     except Exceptions.CommandFailedException as e:
-        print("CommandFailed: update for id '"+id+"' failed: "+str(e))
+        print("CommandFailed: update for packet_id '"+packet_id+"' failed: "+str(e))
         return rest_common.create_error_response(504, e)
     
 '''
 This function is called whenever a client visits the '/packet/packet_id/delivered
-"page" on this server, where packet_id is the id of the package the client wants
+"page" on this server, where packet_id is the id of the packet the client wants
 to be marked as delivered
 '''
-@app.route('/packet/<id>/delivered', methods=['POST'])
-def restDelivered(id):
+@app.route('/packet/<packet_id>/delivered', methods=['POST'])
+def restDelivered(packet_id):
     try:
         request_data = rest_common.get_rest_data(request)
         data = copy_dict(request_data)
-        data["packet_id"] = id
+        data["packet_id"] = packet_id
         post_service.mark_delivered(data)
         return rest_common.create_response(200)
     except Exceptions.InvalidActionException as e:
-        print("InvalidAction: register for id '"+id+"' failed: "+str(e))
+        print("InvalidAction: register for packet_id '"+packet_id+"' failed: "+str(e))
         return rest_common.create_response(400, e.toDict())
     except Exceptions.CommandFailedException as e:
-        print("CommandFailed: register for id '"+id+"' failed: "+str(e))
+        print("CommandFailed: register for packet_id '"+packet_id+"' failed: "+str(e))
         return rest_common.create_error_response(504, e)
 
 '''

@@ -70,7 +70,7 @@ class TrackingService:
                 return "Consumer already running."
             
         '''
-        Returns the packet status of the given id or None no packet was found
+        Returns the packet status of the given packet_id or None no packet was found
         '''
         def packetStatus(self, packet_id):
             dictPacketStatus = self.packetStore.packetStatus(packet_id)

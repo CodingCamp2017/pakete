@@ -53,7 +53,7 @@ class DistributionService(threading.Thread):
         with self.lock:
             data = {'vehicle' : vehicle, 'packet_id' : packet_id}
             data.update(distributionCenter[center_id])
-            self.post_service.update_package_location(data)
+            self.post_service.update_packet_location(data)
             print(str(packet_id) + ' in ' + vehicle + ' with destination ' + str(center_id))
             
     def _deliver_packet(self, packet_id):
@@ -63,15 +63,15 @@ class DistributionService(threading.Thread):
         
     def _update_registered_packet(self, packet):
         # update location: distribution center
-        self._transport_packet(self.center_id, 'center', packet['id'])
+        self._transport_packet(self.center_id, 'center', packet['packet_id'])
         # update location: transport to next distribution center
-        self._transport_packet(int(packet['receiver_zip'][0]), 'car', packet['id'])
+        self._transport_packet(int(packet['receiver_zip'][0]), 'car', packet['packet_id'])
             
     def _deliver_updated_packet(self, packet):
         # update location: distribution center
-        self._transport_packet(self.center_id, 'center', packet['id'])
+        self._transport_packet(self.center_id, 'center', packet['packet_id'])
         # update location: transport to next distribution center
-        self._deliver_packet(packet['id'])
+        self._deliver_packet(packet['packet_id'])
         
         
     def run(self):
@@ -87,7 +87,7 @@ class DistributionService(threading.Thread):
                     print('Event information missing.')
                     return
                 try:
-                    print(eventPayload['id'] + ' is consumed: event type is ' + eventType)
+                    print(eventPayload['packet_id'] + ' is consumed: event type is ' + eventType)
                 except KeyError:
                     print(event)
                     
@@ -128,7 +128,7 @@ class Tester(threading.Thread):
                   'size' : 'big',
                   'weight' : '200'}
         while not self.threadStop.is_set():
-            packet_id = self.post_service.register_package(packet)
+            packet_id = self.post_service.register_packet(packet)
             print(str(packet_id) + ' REGISTERED')
             time.sleep(5)
         

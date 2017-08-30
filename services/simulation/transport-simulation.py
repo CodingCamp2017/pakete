@@ -36,18 +36,16 @@ class TransportSimulation():
             address1 = self.addressProvider.getRandom()
             name2 = self.nameProvider.getRandom()
             address2 = self.addressProvider.getRandom()
-            packet = {
-                    'sender_name':name1,
-                    'sender_street':address1['street'],
-                    'sender_zip':str(address1['zip']),
-                    'sender_city':address1['city'],
-                    'receiver_name':name2,
-                    'receiver_street':address2['street'],
-                    'receiver_zip':str(address2['zip']),
-                    'receiver_city':address2['city'],
-                    'size':self.getRandomSize(),
-                    'weight':str(randint(0, 100))
-                    }
+            packet = {'sender_name':name1,
+                      'sender_street':address1['street'],
+                      'sender_zip':str(address1['zip']),
+                      'sender_city':address1['city'],
+                      'receiver_name':name2,
+                      'receiver_street':address2['street'],
+                      'receiver_zip':str(address2['zip']),
+                      'receiver_city':address2['city'],
+                      'size':self.getRandomSize(),
+                      'weight':str(randint(0, 100))}
             #print(str(packet))
             connection.request("POST", '/register', body=json.dumps(packet).encode('utf8'), headers = self.headers)
             response = connection.getresponse()

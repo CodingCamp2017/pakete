@@ -22,7 +22,7 @@ fakedata = json.load(codecs.open('fakedata.json', 'r', 'utf-8-sig'))['data']
 
 post_service = PostService(mykafka.create_producer('ec2-35-159-21-220.eu-central-1.compute.amazonaws.com', 9092))
 
-packageList = list()
+packetList = list()
 lock = threading.Lock()
 threadStop = threading.Event()
 
@@ -32,28 +32,28 @@ def sigint_handler(signum, frame):
 
 signal.signal(signal.SIGINT, sigint_handler)
 
-def create_random_package():
+def create_random_packet():
     sender = fakedata[randint(0, len(fakedata)-1)]
     receiver = fakedata[randint(0, len(fakedata)-1)]
-    package = {}
-    package['sender_name'] = sender['name']
-    package['sender_street'] = sender['street']
-    package['sender_zip'] = str(randint(10000,99999))
-    package['sender_city'] = sender['city']
-    package['receiver_name'] = receiver['name']
-    package['receiver_street'] = receiver['street']
-    package['receiver_zip'] = str(randint(10000,99999))
-    package['receiver_city'] = receiver['city']
-    package['size'] = sizes[randint(0,2)]
-    package['weight'] = str(sender['weight'])
-    return package
+    packet = {}
+    packet['sender_name'] = sender['name']
+    packet['sender_street'] = sender['street']
+    packet['sender_zip'] = str(randint(10000,99999))
+    packet['sender_city'] = sender['city']
+    packet['receiver_name'] = receiver['name']
+    packet['receiver_street'] = receiver['street']
+    packet['receiver_zip'] = str(randint(10000,99999))
+    packet['receiver_city'] = receiver['city']
+    packet['size'] = sizes[randint(0,2)]
+    packet['weight'] = str(sender['weight'])
+    return packet
 
 def simulate_register():
     while not threadStop.is_set():
-        package = create_random_package()
+        packet = create_random_packet()
         with lock:
-            id = post_service.register_package(package)
-            packageList.append(id)
+            packet_id = post_service.register_packet(packet)
+            packetList.append(packet_id)
         #time.sleep(randint(100,2000)/1000.0)
 
 def simulate_update():
@@ -63,11 +63,11 @@ def simulate_update():
         fakecity = fakedata[randint(0, len(fakedata)-1)]['city']
         vehicle = vehicles[randint(0,len(vehicles)-1)]
         with lock:
-            if not packageList:
+            if not packetList:
                 continue
-            id = packageList[randint(0, len(packageList)-1)]
+            packet_id = packetList[randint(0, len(packetList)-1)]
             try:
-                post_service.update_package_location({'packet_id':id,'station':fakecity, 'vehicle':vehicle})
+                post_service.update_packet_location({'packet_id':packet_id,'station':fakecity, 'vehicle':vehicle})
             except InvalidActionException as e:
                 pass
         #time.sleep(randint(500,2000)/1000.0)
@@ -75,14 +75,14 @@ def simulate_update():
 def simulate_deliver():
     while not threadStop.is_set():
         with lock:
-            if not packageList:
+            if not packetList:
                 continue
-            id = packageList[randint(0, len(packageList)-1)]
+            packet_id = packetList[randint(0, len(packetList)-1)]
             try:
-                post_service.mark_delivered({'packet_id':id})
+                post_service.mark_delivered({'packet_id':packet_id})
             except InvalidActionException as e:
                 pass
-            packageList.remove(id) 
+            packetList.remove(packet_id) 
         #time.sleep(randint(1000,4000)/1000.0)
 
 if __name__ == '__main__':
