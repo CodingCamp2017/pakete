@@ -23,7 +23,7 @@ class RestSimulation():
         while not self.threadStop.is_set():
             #print("register")
             packet = self.fakeDataProvider.getRandomPacket()
-            registerRequest = urllib.request.Request(self.baseurl + 'register',
+            registerRequest = urllib.request.Request(self.baseurl + '/register',
                 data = json.dumps(packet).encode('utf8'),
                 headers = self.headers)
             response = urllib.request.urlopen(registerRequest)
@@ -37,12 +37,12 @@ class RestSimulation():
         while not self.threadStop.is_set():
             if len(self.packetList) < 1:
                 continue
-            data = {'vehicle' : self.fakeDataProvider.getRandomVehicle()}
-            data.update(self.fakeDataProvider.getRandomStation())
+            data = {'vehicle' : self.fakeDataProvider.getRandomVehicle(),
+                    'station' : self.fakeDataProvider.getRandomStation()}
             with self.lock:
                 #print("update")
                 packet_id = self._getRandomId()
-                updateRequest = urllib.request.Request(self.baseurl + 'packet/' + packet_id +'/update',
+                updateRequest = urllib.request.Request(self.baseurl + '/packet/' + packet_id +'/update',
                                                        data = json.dumps(data).encode('utf8'),
                                                        headers = self.headers)
                 try:
@@ -61,7 +61,7 @@ class RestSimulation():
             with self.lock:
                 #print("deliver")
                 packet_id = self._getRandomId()
-                deliverRequest = urllib.request.Request(self.baseurl + 'packet/' + packet_id +'/delivered',
+                deliverRequest = urllib.request.Request(self.baseurl + '/packet/' + packet_id +'/delivered',
                                                         data=json.dumps({}).encode('utf8'),
                                                         headers = self.headers)
                 try:
@@ -82,10 +82,10 @@ class RestSimulation():
         self.threadStop.set()
 
 if __name__ == '__main__':
-    SIMULATION_TIME = 60 # Seconds
+    SIMULATION_TIME = 10 # Seconds
     fakeDataProvider = FakeDataProvider('fakedata.json')
     #restSimulation = RestSimulation('http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8000/',
-    restSimulation = RestSimulation('http://0.0.0.0:37633/',
+    restSimulation = RestSimulation('http://0.0.0.0:44653',
                                     {"Content-Type":"application/json"},
                                     fakeDataProvider)
     restSimulation.threadStop.clear()

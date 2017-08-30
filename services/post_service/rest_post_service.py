@@ -31,6 +31,11 @@ this server.
 def restRegister():
     try:
         data = rest_common.get_rest_data(request)
+        if 'auto_deliver' not in data:
+            data['auto_deliver'] = False
+        elif data['auto_deliver'] not in [True, False]:
+            print('Invalid value for auto_deliver flag!!')
+            return rest_common.create_response(400, 'Invalid value for auto_deliver flag!!')
         packet_id = post_service.register_packet(data)
         return rest_common.create_response(200, {"packet_id":str(packet_id)})
     except Exceptions.InvalidActionException as e:

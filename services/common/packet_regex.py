@@ -34,9 +34,6 @@ command
 '''
 syntax_update = [('packet_id', regex_id),
                  ('station', regex_city),
-                 ('city', regex_city),
-                 ('zip', regex_zip),
-                 ('street', regex_street),
                  ('vehicle', regex_vehicle)]
 '''
 This lists the required keys and a regex for the value of the delivered command
@@ -85,9 +82,8 @@ Returns the first key from the given dictionary that is not present in req_list.
 Returns None if every key in the dictionary is present in req_list.
 '''
 def get_first_not_contained(dic, req_list):
-    req_list_keys = [key for (key, value) in req_list]
     for (key, value) in dic:
-        if(not key in req_list_keys):
+        if(not key in req_list.keys()):
             return key
     return None
 
@@ -104,8 +100,8 @@ def check_json_regex(dic, req_list):
             raise InvalidActionException(Exceptions.TYPE_INVALID_KEY, key, "Invalid type for key "+key+"; expected string")
         elif(not regex_matches_exactly(regex, dic[key])):
             raise InvalidActionException(Exceptions.TYPE_INVALID_KEY, key, "Invalid value: "+str(dic[key])+" for key "+key)
-    if(len(dic) != len(req_list)):
-        raise InvalidActionException(Exceptions.TYPE_INVALID_KEY, str(get_first_not_contained(dic, req_list)), "Unknown keys in "+json.dumps(dic))
+#    if(len(dic) != len(req_list)):
+#        raise InvalidActionException(Exceptions.TYPE_INVALID_KEY, str(get_first_not_contained(dic, req_list)), "Unknown keys in "+json.dumps(dic))
                 
 def test_check_json_regex():
     req = [("a", "\\d{2}"), ("b", "hgf")]
