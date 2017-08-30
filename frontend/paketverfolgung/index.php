@@ -12,7 +12,8 @@
         <div class="row justify-content-center">
             <div class="col-8">
                 <h1 class="mt-5">Paketnachverfolgung</h1>
-
+                <div id="info_message_container" class="alert alert-success">info</div>
+                <div id="error_message_container" class="alert alert-warning">error</div>
 
                 <!-- Paket Suche -->
                 <div class="mx-auto pageContent" id="update_container">
@@ -100,6 +101,9 @@
         </div>    
 
         <?php include('html/scripts.html'); ?>
+        <script src="js/tracking.js"></script>
+        <script src="js/map.js"></script>
+        <!--<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyASQQsfeuEWdnMjDjSKS8HhIjl6Gr6Qzfo&callback=initMap"></script>-->
+        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyASQQsfeuEWdnMjDjSKS8HhIjl6Gr6Qzfo"></script>
   </body>
-
 </html>

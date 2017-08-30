@@ -13,6 +13,8 @@
                 <br><br>
                 <h1>User Info</h1>
                 <br>
+                <div id="info_message_container" class="alert alert-success">info</div>
+                <div id="error_message_container" class="alert alert-warning">error</div>
                 <h2>Pakete</h2>
 
                 <table id ="table_user_packets" class="table table-striped">

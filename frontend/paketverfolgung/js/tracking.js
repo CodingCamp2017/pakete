@@ -15,7 +15,7 @@ $(function() {
 	id = $("#packet_id").val();
 	$.get( server_url + "packetStatus/"+id, function(responseText) {
 		
-		var obj = JSON.parse(responseText);
+		var obj = responseText;
 		//sender Adresse
 		$("#sender_name").val(obj.sender_name);
 		$("#sender_street").val(obj.sender_street);
@@ -93,32 +93,6 @@ $(function() {
 	function removeRows(){
 		$("[name='addedRow']").remove();
 	}
-  //Login
-  $("#login").click(function(){
-    login_email = $("#email").val();
-    login_password = $("#password").val();
-        
-    loginUser(login_email, login_password, function() {
-        //login succsess       
-        console.log("Logging in user successfully.");
-	$("#login_bar").prop("hidden",true);
-	$("#eingeloggt_bar").prop("hidden",false);
-        $("#email_label").html(login_email);
-    }, function() {
-        //failure
-        console.log("Error authenticating user");
-    });
-    return false;
-  });
-  //Logout
-  $("#logout").click(function(){
-	  //try to logout
-	  
-	  //logout succsess
-	  $("#login_bar").prop("hidden",false);
-	  $("#eingeloggt_bar").prop("hidden",true);
-	  return false;
-  });
 });
 
 function getDate(date){
