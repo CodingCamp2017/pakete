@@ -1,7 +1,6 @@
 import sys
 import os
 sys.path.append(os.path.relpath('../mykafka'))
-sys.path.append(os.path.relpath('../post_service'))
 sys.path.append(os.path.relpath('../common'))
 
 import distribution_center
@@ -12,7 +11,6 @@ import json
 import urllib
 import urllib.request
 import signal
-from post_service import PostService
 import time
 
 from threading import Lock
@@ -39,7 +37,6 @@ class DistributionService(threading.Thread):
         self.headers = {'Content-Type':'application/json'}
         self.threadStop = threadStop
         self.lock = threading.Lock()
-        self.post_service = PostService(mykafka.create_producer('ec2-35-159-21-220.eu-central-1.compute.amazonaws.com', 9092))
         
     def _zip_in_purview(self, zip_code):
         return zip_code[0] == str(self.center_id)
@@ -92,7 +89,10 @@ class DistributionService(threading.Thread):
     def run(self):
         consumer = mykafka.create_consumer('ec2-35-159-21-220.eu-central-1.compute.amazonaws.com', 9092, 'packet', from_beginning=False)
         while not self.threadStop.is_set():
+            print('Starting ' + str(self.center_id))
             for event in consumer:
+                time.sleep(1)
+                print(str(self.center_id) + ' consumes event')
                 
                 eventJson = json.loads(event.value.decode('utf-8'))
                 try:
@@ -147,15 +147,16 @@ class Tester(threading.Thread):
                   'receiver_city' : 'Berlin',
                   'size' : 'big',
                   'weight' : '200'}
-        while not self.threadStop.is_set():
-            time.sleep(1)
+        #while not self.threadStop.is_set():
+        time.sleep(1)
+        for i in range(10):
             registerRequest = urllib.request.Request(self.baseurl + '/register',
                 data = json.dumps(packet).encode('utf8'),
                 headers = self.headers)
             response = urllib.request.urlopen(registerRequest)
             packet_id = json.loads(response.read().decode('utf8'))['packet_id']
             print(str(packet_id) + ' REGISTERED')
-            time.sleep(10)
+        #t
         
 if __name__ == '__main__':
     
@@ -174,8 +175,10 @@ if __name__ == '__main__':
     threadStop.clear()
     #tester = Tester(threadStop)
     #dist = DistributionService(0, threadStop)
+
+    
     threads = [Tester(threadStop, post_service_url, headers)]
-    for i in range(1):
+    for i in range(2):
         threads.append(DistributionService(i, threadStop, post_service_url))
     
     for t in threads:
