@@ -33,7 +33,7 @@ This lists the required keys and a regex for the value of the updateLocation
 command
 '''
 syntax_update = [('station', regex_city),
-                 ('street', regex_street),
+                 ('id', regex_id),
                  ('vehicle', regex_vehicle)]
 '''
 This lists the required keys and a regex for the value of the delivered command
