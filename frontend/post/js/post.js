@@ -136,7 +136,7 @@ function failReturned(responseText,statu,fset,pbutton){
 				showError(obj.key);
 				errortext = "Ein Input ist nicht richtig.";
 			}else {
-				errortext += "Server meldet: " + data.message;
+				errortext += "Server meldet: " + obj.message;
 			}
 			console.log(obj.message);
 		}else if(statu == 504){
