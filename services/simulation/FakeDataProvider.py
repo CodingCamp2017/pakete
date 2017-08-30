@@ -19,6 +19,8 @@ class FakeDataProvider:
                          7 : {'station' : 'Brief Reutlingen', 'zip' : '72184', 'city' : 'Eutingen im Gäu', 'street': 'Am Flugplatz 14'},
                          8 : {'station' : 'Brief Augsburg', 'zip' : '86154', 'city' : 'Augsburg', 'street': 'Stuttgarter Str. 33'},
                          9 : {'station' : 'Brief Nürnberg', 'zip' : '90475', 'city' : 'Nürnberg', 'street': 'Am Tower 10'}}
+        self.fakenames = json.load(codecs.open('names.json', 'r', 'utf-8-sig'))['names']
+        self.fakeaddresses = json.load(codecs.open('addresses.json', 'r', 'utf-8-sig'))['addresses']
 
 
     def getRandomPacket(self):
@@ -39,9 +41,18 @@ class FakeDataProvider:
 
     def getRandomCity(self):
         return self.fakedata[randint(0, len(self.fakedata)-1)]['city']
+    
+    def getRandomSize(self):
+        return self.sizes[randint(0, len(self.sizes)-1)]
 
     def getRandomVehicle(self):
         return self.vehicles[randint(0,len(self.vehicles)-1)]
 
     def getRandomStation(self):
         return self.stations[randint(0, len(self.stations)-1)]
+    
+    def getRandomName(self):
+        return self.fakenames[randint(0, len(self.fakenames)-1)]
+    
+    def getRandomAddress(self):
+        return self.fakeaddresses[randint(0, len(self.fakeaddresses)-1)]

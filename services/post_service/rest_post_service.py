@@ -47,10 +47,10 @@ to update
 def restUpdateLocation(packet_id):
     try:
         request_data = rest_common.get_rest_data(request)
-        print(str(request_data))
+        #print(str(request_data))
         data = copy_dict(request_data)#Copy the dict as request_data is immutable
         data["packet_id"] = packet_id
-        print(str(data))
+        #print(str(data))
         post_service.update_packet_location(data)
         return rest_common.create_response(200)
     except Exceptions.InvalidActionException as e:

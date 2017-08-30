@@ -20,6 +20,9 @@ p = print
 def print(*a, **b):
 	with mylock:
 		p(*a, **b)
+        
+
+MAX_NUMBER = 10
 
 
 distributionCenter = {0 : {'station' : 'Brief Leipzig', 'zip' : '04158', 'city' : 'Leipzig', 'street': 'Poststr. 28'},
@@ -36,11 +39,11 @@ distributionCenter = {0 : {'station' : 'Brief Leipzig', 'zip' : '04158', 'city' 
 
 class DistributionService(threading.Thread):
     
-    def __init__(self, center_id, threadStop):
+    def __init__(self, center_id, threadStop, baseurl):
         
         threading.Thread.__init__(self)
         self.center_id = center_id
-        self.baseurl = 'ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8000'
+        self.baseurl = baseurl
         self.headers = {'Content-Type':'application/json'}
         self.threadStop = threadStop
         self.lock = threading.Lock()

@@ -1,3 +1,4 @@
+from FakeDataProvider import FakeDataProvider
 from random import randint
 import http.client
 import codecs
@@ -17,26 +18,21 @@ class Provider():
         return self.data[randint(0,len(self.data)-1)]
 
 class TransportSimulation():
-    def __init__(self, baseurl, headers, nameProvider, addressProvider):
+    def __init__(self, baseurl, headers):
         self.baseurl = baseurl
         self.headers = headers
-        self.nameProvider = nameProvider
-        self.addressProvider = addressProvider
+        self.fakeDataProvider = FakeDataProvider('fakedata.json')
         self.threadStop = threading.Event()
-        self.sizes = ['small', 'normal', 'big']
-        
-    def getRandomSize(self):
-        return self.sizes[randint(0, len(self.sizes)-1)]
 
     def registerRandomPackets(self):
         print("Started registering ")
         connection = http.client.HTTPConnection(self.baseurl)
         while not self.threadStop.is_set():
             #print("register")
-            name1 = self.nameProvider.getRandom()
-            address1 = self.addressProvider.getRandom()
-            name2 = self.nameProvider.getRandom()
-            address2 = self.addressProvider.getRandom()
+            name1 = self.fakeDataProvider.getRandomName()
+            address1 = self.fakeDataProvider.getRandomAddress()
+            name2 = self.fakeDataProvider.getRandomName()
+            address2 = self.fakeDataProvider.getRandomAddress()
             packet = {'sender_name':name1,
                       'sender_street':address1['street'],
                       'sender_zip':str(address1['zip']),
@@ -45,7 +41,7 @@ class TransportSimulation():
                       'receiver_street':address2['street'],
                       'receiver_zip':str(address2['zip']),
                       'receiver_city':address2['city'],
-                      'size':self.getRandomSize(),
+                      'size':self.fakeDataProvider.getRandomSize(),
                       'weight':str(randint(0, 100))}
             
             registerRequest = urllib.request.Request(self.baseurl + '/register',
@@ -70,14 +66,11 @@ class TransportSimulation():
 
 if __name__ == '__main__':
     
-    local_post_host = 'http://0.0.0.0:37669'
+    local_post_host = 'http://0.0.0.0:34273'
     
     SIMULATION_TIME = 60 # Seconds
-    nameProvider = Provider('names.json', 'names')
-    addrProvider = Provider('result.json', 'addresses')
     transportSimulation = TransportSimulation(local_post_host,
-                                    {"Content-Type":"application/json"},
-                                    nameProvider, addrProvider)
+                                    {"Content-Type":"application/json"})
     transportSimulation.threadStop.clear()
     threads = list()
     for i in range(int(multiprocessing.cpu_count()/2)):
