@@ -1,5 +1,5 @@
-var server_url = "http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8002/";
-//var server_url = "http://localhost:8002/";
+var user_server_url = "http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8002/";
+//var user_server_url = "http://localhost:8002/";
 
 var query_register_user = "add_user";
 var query_login_user = "authenticate_user";
@@ -14,7 +14,7 @@ function registerUser(email, password, successCallback, failureCallback) {
         return;
     }
     
-    var query = server_url + query_register_user;    
+    var query = user_server_url + query_register_user;    
     var requestData = {"email" : email, "password" : password};
     
     $.post(query, requestData, function(response) {     
@@ -31,11 +31,11 @@ function loginUser(email, password, successCallback, failureCallback) {
         return;
     }
     
-    var query = server_url + query_login_user;
+    var query = user_server_url + query_login_user;
     var requestData = {"email" : email, "password" : password};   
     
     $.post(query, requestData, function(response) {
-        writeSessioIdCookie(response);
+        writeSessioIdCookie(response, email);
         successCallback();
     })
     .fail(function (xhr, status, error) {
@@ -45,7 +45,7 @@ function loginUser(email, password, successCallback, failureCallback) {
 
 function addPacketToUser(packetId, successCallback, failureCallback)
 {
-    var query = server_url + query_add_packet_to_user;    
+    var query = user_server_url + query_add_packet_to_user;    
     
     var sessionId = readSessionIdCookie();
     if(sessionId !== undefined) {
@@ -66,7 +66,7 @@ function deleteUser(successCallback, failureCallback)
 {
     var sessionId = readSessionIdCookie();
     if(sessionId !== undefined) {
-        var query = server_url + query_delete_user;
+        var query = user_server_url + query_delete_user;
         $.post(query, {"session_id": sessionId}, function (response) {
             clearSessionIdCookie();
             successCallback();
@@ -81,7 +81,7 @@ function getUserPackets(successCallback, failureCallback)
 {               
     var sessionId = readSessionIdCookie();
     if(sessionId !== undefined) {
-        var query = server_url + query_get_user_packets + "/" + sessionId;
+        var query = user_server_url + query_get_user_packets + "/" + sessionId;
         $.get(query, function (responseData) {
             successCallback(responseData['packets']);
         });
@@ -93,7 +93,7 @@ function getUserPackets(successCallback, failureCallback)
 
 function logoutUser(successCallback, failureCallback)
 {
-    var query = server_url + query_logout;
+    var query = user_server_url + query_logout;
 
     var sessionId = readSessionIdCookie();
     if (sessionId !== undefined) {

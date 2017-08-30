@@ -61,7 +61,8 @@ class IDStore:
     '''
     def update(self, packet_id, state):
         if not self.check_package_state(packet_id, state):
-            print("Package "+str(packet_id)+" has not yet been registered or has been delivered")
+            pass
+            #print("Package "+str(packet_id)+" has not yet been registered or has been delivered")
         elif state == PACKET_STATE_DELIVERED:
             del self.packet_map[packet_id]
         else:

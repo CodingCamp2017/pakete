@@ -24,7 +24,7 @@ function setLoginbarStatus() {
     if(userLoggedIn()) {
         $("#login_bar").prop("hidden", true);
         $("#eingeloggt_bar").prop("hidden", false);
-        $("#email_label").html("Logged in"); // TODO insert mail adress
+        $("#email_label").html(readEmailCookie()); // TODO insert mail adress
     } else {
         $("#login_bar").prop("hidden", false);
         $("#eingeloggt_bar").prop("hidden", true);
@@ -51,6 +51,13 @@ $("#button_logout_user").click(function () {
         //success
         setLoginbarStatus();
         infoMessage("Logout successfull.");
+        
+        if(location.pathname !== "/index.php") {
+            // redirect to index after 1 second
+            setTimeout(function () {
+                location = "/index.php";
+            }, 1000); 
+        }
     }, function (message) {
         // failure
         errorMessage(message);

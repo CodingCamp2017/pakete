@@ -1,4 +1,4 @@
-var server_url = "http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8001/";
+var tracking_server_url = "http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8001/";
 
 var subscribed_ids = new Set();
 var socket = undefined;
@@ -40,7 +40,7 @@ $(function() {
 
 function trackPacketId(packetId) {
     waitOnServer(set, butt);
-    $.get(server_url + "packetStatus/" + packetId, function (responseData) {
+    $.get(tracking_server_url + "packetStatus/" + packetId, function (responseData) {
         initMap();
         
         //sender Adresse

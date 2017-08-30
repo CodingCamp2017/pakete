@@ -11,9 +11,15 @@
 
         <div class="row justify-content-center">
             <div class="col-8">
-                <h1 class="mt-5">Paketnachverfolgung</h1>
+                <br>
                 <div id="info_message_container" class="alert alert-success">info</div>
                 <div id="error_message_container" class="alert alert-warning">error</div>
+                <!-- Spinning wheel-->
+                <div hidden class="mx-auto pageContent" id="spinner">
+                    <i class="fa fa-spinner fa-spin" style="font-size:50px" ></i>
+                </div>
+                
+                <h1 class="mt-5">Paketnachverfolgung</h1>                
 
                 <!-- Paket Suche -->
                 <div class="mx-auto pageContent" id="update_container">
@@ -87,14 +93,7 @@
 	
                 <!--Neue Suche-->
             </div>	
-                
-           
-
-            <!--bestätigung ID-->
-            <div class="mx-auto pageContent" >
-                <i hidden class="fa fa-spinner fa-spin" style="font-size:50px" id="spinner"></i><br/>
-                  <div hidden id="server_answer"></div>
-            </div>
+          
              <div id="map"></div>	  
             <!-- /.container -->
             </div>

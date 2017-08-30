@@ -9,7 +9,7 @@ sys.path.append(os.path.relpath('../rest_common'))
 import rest_common
 
 import getopt
-from Exceptions import InvalidActionException, UserExistsException, UserUnknownException, SessionElapsedException, InvalidPasswortException, PacketNotFoundException, NoPacketException, InvalidSessionIdException, NoSessionIdException
+from Exceptions import InvalidActionException, UserExistsException, UserUnknownException, SessionElapsedException, InvalidPasswortException, PacketNotFoundException, NoPacketException, InvalidSessionIdException, NoSessionIdException, PacketAlreadyAddedException
 from flask import Flask, request
 from user_service import UserService
 
@@ -79,6 +79,8 @@ def restAddPacket():
         return rest_common.create_error_response(401, e)
     except PacketNotFoundException as e:
         return rest_common.create_error_response(410, e)
+    except PacketAlreadyAddedException as e:
+        return rest_common.create_error_response(409, e)
     
 @app.route('/get_packets_from_user/<session_id>', methods=['GET'])
 def restGetPacket(session_id):

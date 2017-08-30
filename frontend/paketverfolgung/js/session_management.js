@@ -1,4 +1,4 @@
-function writeSessioIdCookie(serverResponseJson) {
+function writeSessioIdCookie(serverResponseJson, email) {
     if("session_id" in serverResponseJson) {
         var sessionId = serverResponseJson['session_id'];
         console.log("session id: " + sessionId);
@@ -11,15 +11,25 @@ function writeSessioIdCookie(serverResponseJson) {
     var d = new Date();
     d.setTime(d.getTime() + (exmins*60*1000));
     var expires = "expires="+ d.toUTCString();
-    document.cookie = "session_id=" +sessionId + ";" + expires + ";path=/";
+    document.cookie = "session_id=" + sessionId + ";" + expires + ";path=/";
+    document.cookie = "user_email=" + email + ";" + expires + ";path=/";
 }
 
 function clearSessionIdCookie() {
     document.cookie = "session_id=;";
+    document.cookie = "user_email=;";
 }
 
 function readSessionIdCookie() {
-    var name = "session_id=";
+    return readCookie('session_id');
+}
+
+function readEmailCookie() {
+    return readCookie('user_email');
+}
+
+function readCookie(name) {
+    var name = name + "=";
     var decodedCookie = decodeURIComponent(document.cookie);
     var ca = decodedCookie.split(';');
 

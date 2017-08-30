@@ -5,7 +5,7 @@ sys.path.append(os.path.relpath('../mykafka'))
 
 import packet_regex
 from id_store import IDStore, IDUpdater
-from Exceptions import UserExistsException, UserUnknownException, SessionElapsedException, InvalidPasswortException, PacketNotFoundException, InvalidSessionIdException
+from Exceptions import UserExistsException, UserUnknownException, SessionElapsedException, PacketAlreadyAddedException, InvalidPasswortException, PacketNotFoundException, InvalidSessionIdException
 
 import sqlite3 as sql
 from passlib.hash import pbkdf2_sha256
@@ -57,6 +57,15 @@ class UserService:
         if email:
             return email[0]
             
+    def _packet_added_to_user(self, email, packet_id):
+        print('checking ' + email + ', id: ' + packet_id)       
+        self.p_cur.execute('SELECT (packet) FROM followed_packets WHERE email=?', (email,))
+        result = self.u_cur.fetchone();  
+        # TODO does not seem to return results
+        if result:
+            return True
+        return False
+
     def _check_session_active(self, session_id):
         self.u_cur.execute('SELECT session_id_timestamp FROM users WHERE session_id=?', (session_id,))
         ids = self.u_cur.fetchone()
@@ -114,6 +123,11 @@ class UserService:
         if not self.idstore.packet_in_store(data['packet']):
             raise PacketNotFoundException
         email = self._get_email_of_user(data['session_id'])
+        
+        #check if packet already added to user
+        if self._packet_added_to_user(email, data['packet']):
+            raise PacketAlreadyAddedException
+        
         self.p_cur.execute('INSERT INTO followed_packets (email, packet) VALUES (?,?)',
                            (email, data['packet']))
         self._update_session_id_timestamp(data['session_id'])
