@@ -93,11 +93,15 @@ def login():
 
 @ask.intent('PaketNumberIntent')
 def packet_number():
+    if not authData.packetIds:
+        return noPacketsRegistratedQuestion()
     number_of_packets_text = render_template('number_of_packets', number=len(authData.packetIds))
     return question(number_of_packets_text)
 
 @ask.intent('OverviewIntent')
 def overview():
+    if not authData.packetIds:
+        return noPacketsRegistratedQuestion()
     overviewDict = dict()
     for packetInfo in authData.packetsVerbose:
         if not (packetInfo['sender_name'], packetInfo['receiver_name']) in overviewDict:
@@ -122,12 +126,15 @@ def overview():
 
 @ask.intent('PersonPaketIntent')
 def personPaketInfo(name):
+    logging.debug("Got name: ", name)
+    if not authData.packetIds:
+        return noPacketsRegistratedQuestion()
     if not name:
         get_name_text = render_template('get_name')
         return question(get_name_text)
     personPacketInfoMessages = list()
     for packetInfo in authData.packetsVerbose:
-        if not name.lower() in packetInfo['sender_name'].lower() and not name.lower() in packetInfo['sender_name'].lower():
+        if not name.lower() in packetInfo['sender_name'].lower() and not name.lower() in packetInfo['receiver_name'].lower():
             continue
         template_name = ''
         current_city = ''
@@ -142,7 +149,6 @@ def personPaketInfo(name):
             city = current_city,
             sender = packetInfo['sender_name'],
             receiver = packetInfo['receiver_name']))
-    logging.debug(' '.join(personPacketInfoMessages))
     if personPacketInfoMessages:
         return question(' '.join(personPacketInfoMessages))
     else:
@@ -176,7 +182,11 @@ def get_plural_n(number):
 #########
 # Helper
 #########
-         
+
+def noPacketsRegistratedQuestion():
+    no_paket_registered_text = render_template('no_paket_registered')
+    return question(no_paket_registered_text)
+
 def fetchDataAsync():
     fetchPacketDataThread = threading.Thread(target=fetchPacketData)
     fetchPacketDataThread.start()

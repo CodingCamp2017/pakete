@@ -1,6 +1,6 @@
 # Information messages
 
-welcome: Willkommen zur Coding Camp Paketverfolgung. Soll ich dich anmelden?
+welcome: Willkommen #zur Coding Camp Paketverfolgung. Soll ich dich anmelden?
 
 help: Ich kann dir eine Übersicht über deine registrierten Pakete geben.
 
@@ -12,6 +12,8 @@ stop: Danke, dass du mich verwendet hast um deine Pakete zu verfolgen!
 
 error: Es ist ein Fehler aufgetreten. Versuche es bitte nochmal.
 
+no_paket_registered: Es sind keine Pakete in deinem Benutzerkonto registriert.
+
 # Person packet answers
 
 get_name: Nenne mir bitte zusätzlich einen Namen, für den du Informationen erhalten möchtest.
@@ -20,7 +22,7 @@ just_sent: Ein Paket von {{ sender }} an {{ receiver }} wurde gerade erst losges
 
 no_paket: Ich habe keine Pakete von {{ name }} gefunden.
 
-already_delivered: Ein von {{ sender }} an {{ receiver }} wurde bereits ausgeliefert. Schaut doch mal im Briefkasten nach.
+already_delivered: Ein Paket von {{ sender }} an {{ receiver }} wurde bereits ausgeliefert. Schau doch mal im Briefkasten nach.
 
 packet_on_the_way: Ich habe ein Paket von {{ sender }} an {{ receiver }} in {{ city }} gefunden.
 
@@ -34,7 +36,6 @@ there_are_x_packets_1: |
     {{ number | speakable_number }} Paket{{ number | get_plural_e }} von {{ sender }} an {{ receiver }}.
 
 there_are_x_packets_2: Außerdem habe ich {{ number | speakable_number }} Paket{{ number | get_plural_e }} von {{ sender }} an {{ receiver }} gefunden.
-
 
 # Helper
 
