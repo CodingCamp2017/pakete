@@ -1,0 +1,14 @@
+<div class="card">
+    <div class="card-body">
+      	<h4 class="card-title anfragelink" ng-click="setData()">{{$ctrl.name}}</h4>
+      	<select ng-model="$ctrl.type" ng-options="x for x in type_options"></select>
+        <div id="container" class="container" style="width:100%" ng-show="dataLoaded">
+           	<div class="panel-body">
+               	<canvas id="chart_test" ng-if="$ctrl.type === 'pie'" class="chart chart-pie" chart-data="data" chart-labels="labels" chart-series="series" chart-options="options" chart-dataset-override="datasetOverride"></canvas>
+               	<canvas id="chart_test" ng-if="$ctrl.type === 'line'" class="chart chart-line" chart-data="data" chart-labels="labels" chart-series="series" chart-options="options" chart-dataset-override="datasetOverride"></canvas>
+               	<canvas id="chart_test" ng-if="$ctrl.type === 'bar'" class="chart chart-bar" chart-data="data" chart-labels="labels" chart-series="series" chart-options="options" chart-dataset-override="datasetOverride"></canvas>
+          	</div>
+        </div>
+        <div ng-hide="dataLoaded">Laden</div>
+    </div>
+</div>

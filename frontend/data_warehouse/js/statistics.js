@@ -17,24 +17,30 @@
       tooltips: { enabled: false }
     });
     */
-  });
+  });  
 
-  app.controller('LineCtrl', ['$scope', '$http', function ($scope, $http) {
+  app.controller('ChartController', ['$scope', '$http', '$attrs', function ($scope, $http, $attrs) {
     $scope.labels = [];
     $scope.series = ['Pakete'];
-    $scope.data = [[]];
+    $scope.data = [[]];    
+    $scope.type_options = ["line", "pie", "bar"];
+    $scope.type = $scope.type_options[0];
+    $scope.options = { legend: { display: true } };    
+
+    $scope.colors = ['#97BBCD', '#DCDCDC', '#F7464A', '#46BFBD', '#FDB45C', '#949FB1', '#4D5360']
 
     $scope.dataLoaded = false
-
-    $scope.onClick = function (points, evt) {
-      console.log("onClick")
-    };
 
     $scope.setData = function() {
       $scope.dataLoaded = false
 
-      $http.get("http://localhost:8000/getRegistrationsPerDay").then(function success(response) {                   
-        console.log(response.data)      
+      if ($attrs.information == "sizes") {
+        var url = "http://localhost:8000/getSizeDistribution";
+      } else if($attrs.information == "registrations") {
+        var url = "http://localhost:8000/getRegistrationsPerDay";
+      }
+
+      $http.get(url).then(function success(response) {
         $scope.data[0] = $scope.data[0].slice(0,0)
         $scope.labels = $scope.labels.slice(0,0)
 
@@ -47,7 +53,7 @@
 
         $scope.dataLoaded = true
       }, function error() { 
-        alert("error");        
+        console.log("error");        
       })
     }
 
@@ -75,6 +81,12 @@
 
     $scope.setData();
   }]);
+
+  app.component("statistic", {
+    "templateUrl": "templates/statistic.html",
+    "bindings": {"name" : "@", "type" : "@"},    
+    "controller": 'ChartController'
+  });
 
   app.controller('PieCtrl', ['$scope', '$http', function ($scope, $http) {
     $scope.labels = [];

@@ -43,41 +43,15 @@
       <!--<h1 class="my-4">Statistiken</h1>-->
 
       <div class="row">
-        <div class="col-lg-6 portfolio-item" ng-controller="LineCtrl">
-          <div class="card">            
-            <div class="card-body">
-              <h4 class="card-title anfragelink" ng-click="setData()">Aufgegebene Pakete pro Stunde</h4>
-              <div id="container" class="container" style="width:100%" ng-show="dataLoaded">                
-                <div class="panel-body">                     
-                      <canvas id="line" class="chart chart-line" chart-data="data"
-                  chart-labels="labels" chart-series="series" chart-options="options"
-                  chart-dataset-override="datasetOverride" chart-create="onCreate" chart-click="onClick">
-                  </canvas>                    
-              </div>              
-            </div>
-            <div ng-hide="dataLoaded">Laden</div>
-            </div>
-          </div>
+        <div class="col-lg-6 portfolio-item">
+          <statistic name="Verteilung der Paketgrößen" type="line" information="sizes"></statistic>        
         </div>
-
-        <div class="col-lg-6 portfolio-item" ng-controller="PieCtrl">
-          <div class="card" >            
-            <div class="card-body">
-              <h4 class="card-title anfragelink" ng-click="setData()">Anzahl der Größen</h4>
-              <div id="container" class="container" ng-show="dataLoaded">                
-                <div class="panel-body">                     
-                  <canvas id="pie" class="chart chart-pie" chart-data="data"
-                  chart-labels="labels" chart-series="series" chart-options="options"
-                  chart-dataset-override="datasetOverride" chart-create="onCreate" chart-click="onClick" style="height:250px">
-                  </canvas>                    
-              </div>
-            </div>
-            <div ng-hide="dataLoaded">Laden</div>
-            </div>
-          </div>
+        <div class="col-lg-6 portfolio-item">
+          <statistic name="Registrierte Pakete" type="pie" information="registrations"></statistic>
         </div>
-
-        <a href="#" onclick="$('.anfragelink').click()">Refresh all</a>
+      </div>
+      
+      <a href="#" onclick="$('.anfragelink').click()">Refresh all</a>
       </div>
 
         <!--
