@@ -32,10 +32,7 @@ syntax_register = [('sender_name', regex_name),
 This lists the required keys and a regex for the value of the updateLocation
 command
 '''
-syntax_update = [('packet_id', regex_id),
-                 ('station', regex_city),
-                 ('city', regex_city),
-                 ('zip', regex_zip),
+syntax_update = [('station', regex_city),
                  ('street', regex_street),
                  ('vehicle', regex_vehicle)]
 '''
