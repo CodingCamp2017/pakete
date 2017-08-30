@@ -18,7 +18,7 @@
                 <!-- Paket Suche -->
                 <div class="mx-auto pageContent" id="update_container">
 
-                <form id="update_form">
+                <form id="search_id">
                 <fieldset>
                   <input type="text" class="form-control" placeholder="ID" id="packet_id" /><br>
                   <input type="submit"  value="Paket suchen" id="update_packet_button" class="btn btn-primary" />
