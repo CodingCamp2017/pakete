@@ -2,6 +2,7 @@ import json
 import urllib
 import urllib.request
 import uuid
+import time
 
 url = 'http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com'
 port = ':8002'
@@ -45,31 +46,38 @@ request = urllib.request.Request(url+':8000' + '/register', data=json.dumps(pack
 try:
     response = urllib.request.urlopen(request)
     packet_id = json.loads(response.read().decode("utf-8"))['packet_id']
-    print('Successfully registered packet')
+    print('Successfully registered packet: '+packet_id)
 except:
     print('Register went wrong')
+time.sleep(1) # wait for id_store to update
 data = {'session_id' : session_id, 'packet_id' : packet_id}
 request = urllib.request.Request(url+port+'/add_packet_to_user', data=json.dumps(data).encode('utf8'), headers=headers)
 try:
     urllib.request.urlopen(request)
-    print('Successful added packet to user')
+    print('Successfully added packet to user')
 except urllib.error.HTTPError as e:
     print(e, e.msg)
 
 
 # test restGetPacket(session_id)
-data = {'session_id' : session_id}
-request = urllib.request.Request(url+port+'/get_packets_from_user/'+session_id, data=json.dumps(data).encode('utf8'), headers=headers)
-response = urllib.request.urlopen(request)
-packets = json.loads(response.read().decode("utf-8"))['session_id']
-print('Successful got packet from user')
+request = urllib.request.Request(url+port+'/get_packets_from_user/'+session_id, headers=headers)
+try:
+    response = urllib.request.urlopen(request)
+    packets = json.loads(response.read().decode("utf-8"))['packets']
+    print('Successfully got packets from user: '+str(packets))
+except urllib.error.HTTPError as e:
+    print(e)
+
 
 
 # test restLogoutUser()
 data = {'session_id' : session_id}
 request = urllib.request.Request(url+port+'/logout', data=json.dumps(data).encode('utf8'), headers=headers)
-urllib.request.urlopen(request)
-print('Successful logged out')
+try:
+    urllib.request.urlopen(request)
+    print('Successfully logged out')
+except urllib.error.HTTPError as e:
+    print(e, e.msg)
 
 
 # test restDeleteUser()
@@ -77,13 +85,13 @@ request = urllib.request.Request(url+port+'/authenticate_user', data=json.dumps(
 try:
     response = urllib.request.urlopen(request)
     session_id = json.loads(response.read().decode("utf-8"))['session_id']
-    print('Successful authenticated user')
+    print('Successfully authenticated user')
 except urllib.error.HTTPError as e:
     print(e, e.msg, e.info, e.strerror)
 data = {'session_id' : session_id}
 request = urllib.request.Request(url+port+'/delete_user', data=json.dumps(data).encode('utf8'), headers=headers)
 try:
     urllib.request.urlopen(request)
-    print('Successful deleted user')
+    print('Successfully deleted user')
 except urllib.error.HTTPError as e:
     print(e, e.msg, e.info, e.strerror)
