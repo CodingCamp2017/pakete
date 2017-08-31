@@ -74,7 +74,7 @@ class WarehouseService:
                 print('Event information missing.')
                 return
                 
-            if eventVersion !=2:
+            if eventVersion !=3:
                 #print('Unexpected event version (expected: 1, found: ' + str(eventVersion) + ')')
                 return
         
@@ -269,6 +269,10 @@ class WarehouseService:
                         values[vehicle] = 1
                     else:
                         values[vehicle] +=1;
+            if(values['registert'] == 0):
+                values.pop('registert', None)
+            if (values['delivery'] == 0):
+                values.pop('delivery', None)
             return values;
         # end of FKT
 
