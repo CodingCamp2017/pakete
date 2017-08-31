@@ -28,6 +28,8 @@
     $scope.options  = { legend: { display: true } };    
     $scope.all_time = true
 
+    $scope.colours = ['#72C02C', '#3498DB', '#717984', '#F1C40F'];
+
     $scope.dataLoaded = false
 
     $scope.from_date = new Date(0)
