@@ -144,7 +144,7 @@ class UserService:
         email = self._get_email_of_user(data['session_id'])
         
         #check if packet already added to user
-        if self._packet_added_to_user(email, data['packet']):
+        if self._packet_added_to_user(email, data['packet_id']):
             raise PacketAlreadyAddedException
         
         self.p_cur.execute('INSERT INTO followed_packets (email, packet) VALUES (?,?)',
@@ -160,14 +160,14 @@ class UserService:
     def remove_packet_from_user(self, data):
         packet_regex.check_json_regex(data, packet_regex.syntax_remove_packet_from_user)
         self._check_session_active(data['session_id'])
-        if not self.idstore.packet_in_store(data['packet']):
+        if not self.idstore.packet_in_store(data['packet_id']):
             raise PacketNotFoundException
         email = self._get_email_of_user(data['session_id'])
         
         #check if packet already added to user
-        if self._packet_added_to_user(email, data['packet']):
+        if self._packet_added_to_user(email, data['packet_id']):
             self.p_cur.execute('DELETE FROM followed_packets WHERE email=? AND packet=?',
-                               (email, data['packet']))
+                               (email, data['packet_id']))
             self._update_session_id_timestamp(data['session_id'])
             self.u_con.commit()
         else:
