@@ -50,10 +50,7 @@ authData = AlexaPacketTrackingData()
 
 @ask.launch
 def launch():
-    global authData
-    authData = AlexaPacketTrackingData(email='alexa@itestra.de', password='testtest')
     welcome_text = render_template('welcome')
-    help_text = render_template('help')
     return question(welcome_text)
 
 @ask.intent('AMAZON.HelpIntent')

@@ -78,15 +78,16 @@ class IDStore:
 Consumer that reads the packet topic and updates IDStore
 '''
 class IDUpdater:
-    def __init__(self, idstore):
+    def __init__(self, idstore, from_beginning = True):
         self.idstore = idstore
         self.thread = None
+        self.from_beginning = from_beginning
         
     def start(self):
         self.thread = threading.Thread(target=self.run)
         self.thread.start()
         
     def run(self):
-        consumer = mykafka.create_consumer('ec2-35-159-21-220.eu-central-1.compute.amazonaws.com', 9092, PACKET_TOPIC)
+        consumer = mykafka.create_consumer('ec2-35-159-21-220.eu-central-1.compute.amazonaws.com', 9092, PACKET_TOPIC, from_beginning = self.from_beginning)
         mykafka.readFromStart(consumer, self.idstore)
         

@@ -1,6 +1,5 @@
 import json
 import urllib.request
-import uuid
 
 url = 'http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com'
 post_port = 8000

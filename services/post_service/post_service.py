@@ -8,14 +8,13 @@ import Exceptions
 import mykafka
 import packet_regex
 from id_store import IDStore, IDUpdater
-from constants import PACKET_TOPIC, PACKET_STATE_REGISTERED, PACKET_STATE_UPDATE_LOCATION, PACKET_STATE_DELIVERED
+from constants import PACKET_TOPIC, PACKET_STATE_REGISTERED, PACKET_STATE_UPDATE_LOCATION, PACKET_STATE_DELIVERED, PACKET_EVENT_VERSION
 
 import json
 import codecs
 from kafka.errors import KafkaError
 import uuid
 
-VERSION = 3
 #add all registered packets
 add  = lambda state, payload: state == PACKET_STATE_REGISTERED
 #remove if delivered
@@ -31,7 +30,7 @@ class PostService:
     '''
     def __init__(self, producer):
         self.producer = producer
-        self.idstore = IDStore(VERSION, add, delete)
+        self.idstore = IDStore(PACKET_EVENT_VERSION, add, delete)
         self.updater = IDUpdater(self.idstore)
         self.updater.start()
     '''
@@ -54,7 +53,7 @@ class PostService:
         newdata = { key : value for (key, value) in data.items()}
         newdata['packet_id'] = packet_id
         try:
-            mykafka.sendSync(self.producer, PACKET_TOPIC, PACKET_STATE_REGISTERED, VERSION, newdata)
+            mykafka.sendSync(self.producer, PACKET_TOPIC, PACKET_STATE_REGISTERED, PACKET_EVENT_VERSION, newdata)
         except KafkaError as e:
             raise Exceptions.CommandFailedException("Kafka Error: "+str(e))
         return packet_id
@@ -73,7 +72,7 @@ class PostService:
             raise Exceptions.InvalidActionException(Exceptions.TYPE_INVALID_KEY, "packet_id", "Packet with id '"+packet_id+"' has not yet been registered or has been delivered")
         packet_regex.check_json_regex(data, packet_regex.syntax_update)
         try:
-            mykafka.sendSync(self.producer, PACKET_TOPIC, PACKET_STATE_UPDATE_LOCATION, VERSION, data)
+            mykafka.sendSync(self.producer, PACKET_TOPIC, PACKET_STATE_UPDATE_LOCATION, PACKET_EVENT_VERSION, data)
         except KafkaError as e:
             raise Exceptions.CommandFailedException("Kafka Error: "+str(e))
     
@@ -91,7 +90,7 @@ class PostService:
         if not self.idstore.packet_in_store(packet_id):
             raise Exceptions.InvalidActionException(Exceptions.TYPE_INVALID_KEY, "packet_id", "Packet with id '"+packet_id+"' has not yet been registered or has been delivered")
         try:
-            mykafka.sendSync(self.producer, PACKET_TOPIC, PACKET_STATE_DELIVERED, VERSION, data)
+            mykafka.sendSync(self.producer, PACKET_TOPIC, PACKET_STATE_DELIVERED, PACKET_EVENT_VERSION, data)
         except KafkaError as e:
             raise Exceptions.CommandFailedException("Kafka Error: "+str(e))
         
