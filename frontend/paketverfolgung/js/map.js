@@ -35,24 +35,36 @@ function showPathInMap(map, stations) {
         }
         var coords = [];
         var markers = [];
-        var infowindows = [];
+        var infowindows = [];  
 
-        for (var i = 0; i < responses.length; ++i) {
-            coords[i] = responses[i][0].results[0].geometry.location;
+        var realIdx = 0;              
 
-            markers[i] = new google.maps.Marker({
-                position: coords[i],
+        for (var i = 0; i < responses.length; ++i) {            
+            if (responses[i][0].status != "OK") {
+                console.log(responses[i])
+                console.log("Invalid response")                
+                continue;
+            }            
+            
+            let idx = realIdx;
+
+            coords[idx] = responses[i][0].results[0].geometry.location;
+
+            markers[idx] = new google.maps.Marker({
+                position: coords[idx],
                 label: (i + 1).toString(),
                 map: map
             });
-
-            infowindows[i] = new google.maps.InfoWindow({
+            
+            infowindows[idx] = new google.maps.InfoWindow({
                 content: "<i class=\"" + iconMap(stations[i]["vehicle"]) + "\"></i> <b>" + stations[i]["address"] + "</b><br /><b>Zeit:</b> " + stations[i]["time"]
-            });
+            });            
 
-            markers[i].addListener('click', function () {
-                infowindows[i].open(map, markers[i]);
-            });
+            markers[idx].addListener('click', function () {
+                infowindows[idx].open(map, markers[idx]);
+            }); 
+
+            realIdx++;
         }
 
         if (coords.length > 1) {
