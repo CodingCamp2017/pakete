@@ -7,10 +7,11 @@ var query_delete_user = "delete_user";
 var query_add_packet_to_user = "add_packet_to_user";
 var query_get_user_packets = "get_packets_from_user";
 var query_logout = "logout";
+var query_delete_packet_from_user = "remove_packet_from_user";
 
 function registerUser(email, password, successCallback, failureCallback) {  
-    if(!email || !password) {
-        failureCallback("Email or password not provided.")
+    if(!email || !password || email.length === 0 || password.length === 0) {
+        failureCallback("Email or password not provided.");
         return;
     }
     
@@ -55,6 +56,25 @@ function addPacketToUser(packetId, successCallback, failureCallback)
         })
         .fail(function (xhr, status, error) {
             failureCallback("Adding packet failed.");
+        });
+    } else {
+        failureCallback("User not logged in.");
+        return;
+    } 
+}
+
+function deletePacketFromUser(packetId, successCallback, failureCallback)
+{
+    var query = user_server_url + query_delete_packet_from_user;    
+    
+    var sessionId = readSessionIdCookie();
+    if(sessionId !== undefined) {
+        var requestData = {"packet_id": packetId, "session_id": sessionId};
+        $.post(query, requestData, function (response) {
+            successCallback();
+        })
+        .fail(function (xhr, status, error) {
+            failureCallback("Removing packet failed.");
         });
     } else {
         failureCallback("User not logged in.");
