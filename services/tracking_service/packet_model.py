@@ -32,30 +32,30 @@ set to be delivered
 class Packet:
     
     '''
-    packetId: The id of this packet
-    packetRegistrationTime: timestamp when this packet was registered
-    packetSize: string: size of packet
-    packetWeight: floating number: the weight of the packet
-    senderName, senderStreet, senderCity, receiverName, receiverStreet, receiverCity: string
-    senderZIP, receiverZIP: int
+    packet_id: The packet_id of this packet
+    registration_time: timestamp when this packet was registered
+    size: string: size of packet
+    weight: floating number: the weight of the packet
+    sender_name, sender_street, sender_city, receiver_name, receiver_street, receiver_city: string
+    sender_zip, receiver_zip: int
     '''
-    def __init__(self, packetId, packetRegistrationTime, packetSize, packetWeight, senderName, 
-                 senderStreet, senderZip, senderCity, receiverName, 
-                 receiverStreet, receiverZip, receiverCity):
-        self.packetId = packetId
-        self.packetRegistrationTime = packetRegistrationTime
-        self.packetSize = packetSize
-        self.packetWeight = packetWeight
+    def __init__(self, packet_id, registration_time, size, weight, sender_name, 
+                 sender_street, sender_zip, sender_city, receiver_name, 
+                 receiver_street, receiver_zip, receiver_city):
+        self.packet_id = packet_id
+        self.registration_time = registration_time
+        self.size = size
+        self.weight = weight
         
-        self.senderName = senderName
-        self.senderStreet = senderStreet
-        self.senderZip = senderZip
-        self.senderCity = senderCity
+        self.sender_name = sender_name
+        self.sender_street = sender_street
+        self.sender_zip = sender_zip
+        self.sender_city = sender_city
         
-        self.receiverName = receiverName
-        self.receiverStreet = receiverStreet
-        self.receiverZip = receiverZip
-        self.receiverCity = receiverCity
+        self.receiver_name = receiver_name
+        self.receiver_street = receiver_street
+        self.receiver_zip = receiver_zip
+        self.receiver_city = receiver_city
         
         self.stations = list()
         self.deliveryTime = None
@@ -83,20 +83,20 @@ class Packet:
     def toJson(self):
         pDict = dict()
         
-        pDict.update({'id':str(self.packetId)})
-        pDict.update({'packetRegistrationTime': str(self.packetRegistrationTime)})
-        pDict.update({'size':str(self.packetSize)})
-        pDict.update({'weight':str(self.packetWeight)})
+        pDict.update({'packet_id':str(self.packet_id)})
+        pDict.update({'registration_time': str(self.registration_time)})
+        pDict.update({'size':str(self.size)})
+        pDict.update({'weight':str(self.weight)})
                 
-        pDict.update({'sender_name':str(self.senderName)})
-        pDict.update({'sender_street':str(self.senderStreet)})
-        pDict.update({'sender_zip':str(self.senderZip)})
-        pDict.update({'sender_city':str(self.senderCity)})
+        pDict.update({'sender_name':str(self.sender_name)})
+        pDict.update({'sender_street':str(self.sender_street)})
+        pDict.update({'sender_zip':str(self.sender_zip)})
+        pDict.update({'sender_city':str(self.sender_city)})
         
-        pDict.update({'receiver_name':str(self.receiverName)})
-        pDict.update({'receiver_street':str(self.receiverStreet)})
-        pDict.update({'receiver_zip':str(self.receiverZip)})
-        pDict.update({'receiver_city':str(self.receiverCity)})
+        pDict.update({'receiver_name':str(self.receiver_name)})
+        pDict.update({'receiver_street':str(self.receiver_street)})
+        pDict.update({'receiver_zip':str(self.receiver_zip)})
+        pDict.update({'receiver_city':str(self.receiver_city)})
         
         if self.deliveryTime != None:
             pDict.update({'deliveryTime': str(self.deliveryTime)})
@@ -133,31 +133,31 @@ class PacketStore:
     '''
     def addPacket(self, eventTime, eventPayload):        
         try:            
-            packetId = eventPayload['id']
-            packetSize = eventPayload['size']
-            packetWeight = eventPayload['weight']
-            packetRegistrationTime = eventTime
+            packet_id = eventPayload['packet_id']
+            size = eventPayload['size']
+            weight = eventPayload['weight']
+            registration_time = eventTime
             
-            senderName = eventPayload['sender_name']
-            senderStreet = eventPayload['sender_street']
-            senderZip = eventPayload['sender_zip']
-            senderCity = eventPayload['sender_city']
+            sender_name = eventPayload['sender_name']
+            sender_street = eventPayload['sender_street']
+            sender_zip = eventPayload['sender_zip']
+            sender_city = eventPayload['sender_city']
             
-            receiverName = eventPayload['receiver_name']
-            receiverStreet = eventPayload['receiver_street']
-            receiverZip = eventPayload['receiver_zip']
-            receiverCity = eventPayload['receiver_city']
+            receiver_name = eventPayload['receiver_name']
+            receiver_street = eventPayload['receiver_street']
+            receiver_zip = eventPayload['receiver_zip']
+            receiver_city = eventPayload['receiver_city']
             
         except (Exception) as e:
             print("Missing information in register event.")
             return False
                 
-        packet = Packet(packetId, packetRegistrationTime, packetSize, packetWeight, senderName, 
-                 senderStreet, senderZip, senderCity, receiverName, 
-                 receiverStreet, receiverZip, receiverCity)
+        packet = Packet(packet_id, registration_time, size, weight, sender_name, 
+                 sender_street, sender_zip, sender_city, receiver_name, 
+                 receiver_street, receiver_zip, receiver_city)
         self.packets.append(packet)
         
-        #print('Added packet with id: ' + str(packetId))
+        #print('Added packet with packet_id: ' + str(packet_id))
         
         return True
         
@@ -185,7 +185,7 @@ class PacketStore:
         packet.updateLocation(eventTime, stationLocation, stationVehicle)
         if self.updateCallback:
             self.updateCallback(packet_id, eventTime, stationLocation, stationVehicle)
-        #print("Updated packet (id=" + packet_id + ") location to " + stationLocation + ".")
+        #print("Updated packet (packet_id=" + packet_id + ") location to " + stationLocation + ".")
 
     '''
     Marks a packet as delivered.
@@ -194,12 +194,12 @@ class PacketStore:
     '''
     def packetDelivered(self, eventTime, eventPayload):
         try:
-            packetId = eventPayload['packet_id']
+            packet_id = eventPayload['packet_id']
         except(Exception) as e:
-            print("Missing packet id in update event.")
+            print("Missing packet packet_id in update event.")
             return
         
-        packet = self.findPacket(packetId)
+        packet = self.findPacket(packet_id)
         
         if(packet is None):
             print("Packet not found")
@@ -207,25 +207,25 @@ class PacketStore:
             
         packet.setDelivered(eventTime)
         if self.deliverCallback:
-            self.deliverCallback(packetId, eventTime)
-        #print("Packet (id: " + packetId + ") delivered, time " + str(eventTime))
+            self.deliverCallback(packet_id, eventTime)
+        #print("Packet (packet_id: " + packet_id + ") delivered, time " + str(eventTime))
     
     '''
-    Returns the Packet with the given packetId, or None if no packet has the given id
+    Returns the Packet with the given packet_id, or None if no packet has the given packet_id
     '''
-    def findPacket(self, packetId):
+    def findPacket(self, packet_id):
         for p in self.packets:
-            if(str(p.packetId) == str(packetId)):
+            if(str(p.packet_id) == str(packet_id)):
                 return p
         return None
         
     '''
     Returns the a dictionary containing all information about the packet with the
-    given packetId.
-    Returns None if no packet with the given id was found
+    given packet_id.
+    Returns None if no packet with the given packet_id was found
     '''
-    def packetStatus(self, packetId):
-        packet = self.findPacket(packetId)
+    def packetStatus(self, packet_id):
+        packet = self.findPacket(packet_id)
 
         if packet is None:
             print("Packet not found.")
@@ -237,5 +237,5 @@ class PacketStore:
         s = ""
         
         for p in self.packets:
-            s = s + str(p.id) + "\n"
+            s = s + str(p.packet_id) + "\n"
         return s

@@ -7,6 +7,8 @@ import time
 import json
 import multiprocessing
 
+
+
 class RestSimulation():
     def __init__(self, baseurl, headers, fakeDataProvider):
         self.baseurl = baseurl
@@ -21,12 +23,12 @@ class RestSimulation():
         while not self.threadStop.is_set():
             #print("register")
             packet = self.fakeDataProvider.getRandomPacket()
-            registerRequest = urllib.request.Request(self.baseurl + 'register',
+            registerRequest = urllib.request.Request(self.baseurl + '/register',
                 data = json.dumps(packet).encode('utf8'),
                 headers = self.headers)
             response = urllib.request.urlopen(registerRequest)
             responseJson = json.loads(response.read().decode('utf8'))
-            self.packetList.append(responseJson['id'])
+            self.packetList.append(responseJson['packet_id'])
             #time.sleep(randint(100,200)/1000.0)
         print("register stoped")
 
@@ -35,16 +37,19 @@ class RestSimulation():
         while not self.threadStop.is_set():
             if len(self.packetList) < 1:
                 continue
-            data = {}
-            data['station'] = self.fakeDataProvider.getRandomCity()
-            data['vehicle'] = self.fakeDataProvider.getRandomVehicle()
+            data = {'vehicle' : self.fakeDataProvider.getRandomVehicle(),
+                    'station' : self.fakeDataProvider.getRandomStation()}
             with self.lock:
                 #print("update")
-                id = self._getRandomId()
-                updateRequest = urllib.request.Request(self.baseurl + 'packet/' + id +'/update',
+                packet_id = self._getRandomId()
+                updateRequest = urllib.request.Request(self.baseurl + '/packet/' + packet_id +'/update',
                                                        data = json.dumps(data).encode('utf8'),
                                                        headers = self.headers)
-                urllib.request.urlopen(updateRequest)
+                try:
+                    urllib.request.urlopen(updateRequest)
+                except urllib.error.HTTPError as e:
+                    error_message = e.read()
+                    print(error_message)
             #time.sleep(randint(100,200)/1000.0)
         print("update stoped")
 
@@ -55,12 +60,16 @@ class RestSimulation():
                 continue
             with self.lock:
                 #print("deliver")
-                id = self._getRandomId()
-                deliverRequest = urllib.request.Request(self.baseurl + 'packet/' + id +'/delivered',
+                packet_id = self._getRandomId()
+                deliverRequest = urllib.request.Request(self.baseurl + '/packet/' + packet_id +'/delivered',
                                                         data=json.dumps({}).encode('utf8'),
                                                         headers = self.headers)
-                urllib.request.urlopen(deliverRequest)
-                self.packetList.remove(id)
+                try:
+                    urllib.request.urlopen(deliverRequest)
+                except urllib.error.HTTPError as e:
+                    error_message = e.read()
+                    print(error_message)
+                self.packetList.remove(packet_id)
             #time.sleep(randint(100,200)/1000.0)
         print("deliver stoped")
     
@@ -73,9 +82,10 @@ class RestSimulation():
         self.threadStop.set()
 
 if __name__ == '__main__':
-    SIMULATION_TIME = 120 # Seconds
+    SIMULATION_TIME = 10 # Seconds
     fakeDataProvider = FakeDataProvider('fakedata.json')
-    restSimulation = RestSimulation('http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8000/',
+    #restSimulation = RestSimulation('http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8000/',
+    restSimulation = RestSimulation('http://0.0.0.0:8000',
                                     {"Content-Type":"application/json"},
                                     fakeDataProvider)
     restSimulation.threadStop.clear()
@@ -90,3 +100,5 @@ if __name__ == '__main__':
         t.start()
 
     time.sleep(SIMULATION_TIME)
+    
+    restSimulation.stopThreads()

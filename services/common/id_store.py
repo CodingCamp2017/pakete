@@ -14,8 +14,12 @@ Stores packet_ids of all packets that are currently in the delivery chain
 (registered but not yet delivered).
 '''
 class IDStore:
-    def __init__(self, verbose=False):
-        self.packet_map = {}
+    def __init__(self, version, addPredicate, deletePredicate, storeTransform = lambda eventtype, old, payload:None, verbose=False):
+        self.packet_map = {}#dict packet_id -> (state, storeTransform(payload))
+        self.version = version
+        self.addPred = addPredicate
+        self.deletePred = deletePredicate
+        self.storeTransform = storeTransform
         self.verbose = verbose
     
     '''
@@ -28,47 +32,48 @@ class IDStore:
             event = json.loads(string)
             version = event["version"]
             event_type = event["type"]
-            if (version == 2 and (event_type == PACKET_STATE_REGISTERED
-                or event_type == PACKET_STATE_UPDATE_LOCATION
-                or event_type == PACKET_STATE_DELIVERED)):
+            if (version == self.version):
                     payload = event["payload"]
                     if self.verbose:
                         print("Read: "+string)
-                    if(event_type == PACKET_STATE_REGISTERED):
-                        self.update(payload["id"], event_type)
+                    packet_id = payload['packet_id']
+                    if packet_id in self.packet_map:
+                        self._update_packet(packet_id, event_type, payload)
                     else:
-                        self.update(payload["packet_id"], event_type)
+                        self._add_packet(packet_id, event_type, payload)
             elif self.verbose:
                 print("Skipped")
         except json.JSONDecodeError:
             print("Skipped")
-            
+
+    def _add_packet(self, packet_id, event_type, payload):
+        if self.addPred(event_type, payload):
+            if self.verbose:
+                print("Added packet "+packet_id)
+            self.packet_map[packet_id] = (event_type, self.storeTransform(event_type, None, payload))
+
+    def _update_packet(self, packet_id, event_type, payload):
+        current_state, data = self.packet_map[packet_id]
+        if self.deletePred(event_type, payload, current_state):
+            if self.verbose:
+                print("Removed packet "+packet_id)
+            del self.packet_map[packet_id]
+        else:
+            if self.verbose:
+                print("Updated packet "+packet_id+" from "+current_state+" to "+event_type)
+            self.packet_map[packet_id] = (event_type, self.storeTransform(event_type, data, payload))
     '''
-    Returns true if the packet with the given id can be updated with the given state
-    '''
-    def check_package_state(self, packet_id, state):
-        return (packet_id in self.packet_map and state != PACKET_STATE_REGISTERED) or (not packet_id in self.packet_map and state == PACKET_STATE_REGISTERED)
-            
-    '''
-    Returns true if the packet with the given id is in the delivery chain
+    Returns true if the packet with the given packet_id is in the delivery chain
     '''
     def packet_in_store(self, packet_id):
         return packet_id in self.packet_map
-            
-    '''
-    Updates the packet_map. If the state is register the packet will be added to the map.
-    If the state is update, its state will be updated, if the state is delivered, the packet will be deleted from the packet_map
-    '''
-    def update(self, packet_id, state):
-        if not self.check_package_state(packet_id, state):
-            pass
-            #print("Package "+str(packet_id)+" has not yet been registered or has been delivered")
-        elif state == PACKET_STATE_DELIVERED:
-            del self.packet_map[packet_id]
-        else:
-            self.packet_map[packet_id] = state
 
-                    
+    def get_data_for_packet(self, packet_id):
+        if packet_id in self.packet_map:
+            state, data = self.packet_map[packet_id]
+            return data
+        else:
+            return None
 '''
 Consumer that reads the packet topic and updates IDStore
 '''

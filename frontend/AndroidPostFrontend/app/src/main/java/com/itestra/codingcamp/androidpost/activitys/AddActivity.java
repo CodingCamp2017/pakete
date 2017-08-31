@@ -58,7 +58,7 @@ public class AddActivity extends BaseActivity {
             @Override
             public void onReady(AsyncTaskResult result) {
                 try {
-                    packet_id = result.getResult().getString("id");
+                    packet_id = result.getResult().getString("packet_id");
                     Toast.makeText(AddActivity.this, "Registered package: "+packet_id, Toast.LENGTH_LONG).show();
                 } catch (InvalidValueException e) {
                     inputMap.get(e.getKey()).setError(e.getMessage());

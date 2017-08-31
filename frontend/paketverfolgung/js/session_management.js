@@ -15,9 +15,9 @@ function writeSessioIdCookie(serverResponseJson, email) {
     document.cookie = "user_email=" + email + ";" + expires + ";path=/";
 }
 
-function clearSessionIdCookie() {
-    document.cookie = "session_id=;";
-    document.cookie = "user_email=;";
+function clearCookies() {
+    document.cookie = "session_id=;expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+    document.cookie = "user_email=;expires=Thu, 01 Jan 1970 00:00:01 GMT;";
 }
 
 function readSessionIdCookie() {
