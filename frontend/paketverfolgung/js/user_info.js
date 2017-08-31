@@ -49,7 +49,7 @@ function loadUserPackets() {
     });
 }
 
-$("#add_packet_button").click(function() {
+$("#add_packet_button").submit(function () {   
     var packetId = $("#add_packet_id").val();    
     addPacketToUser(packetId, function() {
         //success
@@ -59,6 +59,7 @@ $("#add_packet_button").click(function() {
         // failure
         errorMessage(message);       
     });
+    return false;
 });
 
 $("#button_delete_user").click(function() {

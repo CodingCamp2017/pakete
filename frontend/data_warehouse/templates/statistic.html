@@ -2,7 +2,7 @@
     <div class="card-body">
       	<h4 class="card-title"><i ng-hide="dataLoaded" class="fa fa-refresh fa-spin"></i><i class="fa fa-refresh refreshlink" ng-click="setData()" ng-show="dataLoaded"></i> {{$ctrl.name}}</h4>
       	<select ng-model="$ctrl.type" ng-options="x for x in type_options"></select>
-      	<input type="checkbox" ng-model="all_time" id="all_time_chk" /><label for="all_time_chk">Gesamter Zeitraum</label>
+      	<input type="checkbox" ng-model="all_time" id="all_time_chk_{{random_id}}" /><label for="all_time_chk_{{random_id}}">Gesamter Zeitraum</label>
       	<div ng-hide="all_time">
 	      	<div style="display: inline; padding:5px">
 	      		<a ng-click="openFromCalendar()"><i class="fa fa-calendar"></i>Von: {{from_date_nice}}</a>

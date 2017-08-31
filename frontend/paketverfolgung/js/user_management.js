@@ -15,15 +15,16 @@ function registerUser(email, password, successCallback, failureCallback) {
         return;
     }
     
-    var query = user_server_url + query_register_user;    
-    var requestData = {"email" : email, "password" : password};
-    
-    $.post(query, requestData, function(response) {     
+    var query = user_server_url + query_register_user;
+    var requestData = {"email": email, "password": password};
+
+    $.post(query, requestData, function (response) {
         successCallback();
-      })
-      .fail(function(xhr, status, error) {
-        failureCallback("Unable to register user.");
-	 });
+    })
+    .fail(function (response) {    
+        console.log(response);
+        failureCallback(errorMessageJson(response, "Unable to register user."));
+    });
 }
 
 function loginUser(email, password, successCallback, failureCallback) {
@@ -39,8 +40,8 @@ function loginUser(email, password, successCallback, failureCallback) {
         writeSessioIdCookie(response, email);
         successCallback();
     })
-    .fail(function (xhr, status, error) {
-        failureCallback("Login failed.");
+    .fail(function (response) {
+        failureCallback(errorMessageJson(response, "Login failed."));
     });
 }
 
@@ -54,8 +55,8 @@ function addPacketToUser(packetId, successCallback, failureCallback)
         $.post(query, requestData, function (response) {
             successCallback();
         })
-        .fail(function (xhr, status, error) {
-            failureCallback("Adding packet failed.");
+        .fail(function (response) {
+            failureCallback(errorMessageJson(response, "Adding packet failed."));
         });
     } else {
         failureCallback("User not logged in.");
@@ -73,8 +74,8 @@ function deletePacketFromUser(packetId, successCallback, failureCallback)
         $.post(query, requestData, function (response) {
             successCallback();
         })
-        .fail(function (xhr, status, error) {
-            failureCallback("Removing packet failed.");
+        .fail(function (response) {
+            failureCallback(errorMessageJson(response, "Removing packet failed."));
         });
     } else {
         failureCallback("User not logged in.");
@@ -91,7 +92,7 @@ function deleteUser(successCallback, failureCallback)
             clearCookies();
             successCallback();
         })
-        .fail(function (xhr, status, error) {
+        .fail(function (response) {
             failureCallback("Unable to delete user.");
         });
     }   
@@ -104,6 +105,9 @@ function getUserPackets(successCallback, failureCallback)
         var query = user_server_url + query_get_user_packets + "/" + sessionId;
         $.get(query, function (responseData) {
             successCallback(responseData['packets']);
+        })
+        .fail(function(response) {
+            failureCallback(errorMessageJson(response, "Getting packet failed."));
         });
     } else {
         failureCallback("User not logged in.");
@@ -121,8 +125,8 @@ function logoutUser(successCallback, failureCallback)
             clearCookies();
             successCallback();
         })
-        .fail(function (xhr, status, error) {
-            failureCallback("Logging out user failed.");
+        .fail(function (response) {
+            failureCallback(errorMessageJson(response, "Logging out user failed."));
         });
     } else {
         failureCallback("User not logged in.");
