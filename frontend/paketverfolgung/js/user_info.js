@@ -1,8 +1,33 @@
 var tracking_server_url = "http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8001/";
 
+var user_info_subscribed_ids = new Set();
+var user_info_socket = null;
+
 $(function () {
+    initSocket();
     loadUserPackets();
 });
+
+function initSocket() {
+    user_info_socket = io.connect('http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8001/packetStatus');//http://localhost:8001/
+
+    user_info_socket.on('update', function (socketResponse) {
+        console.log(socketResponse);
+        loadUserPackets();
+        if (socketResponse.packet_id !== undefined) {
+            infoMessage("Das Paket mit der ID " + socketResponse.packet_id + " wurde an einen neuen Standort registriert.");
+            return;
+        }
+        if (socketResponse.location === undefined) {
+            addRow("envelope-o", $("#receiver_city").val(), socketResponse.deliveryTime, getReciver());
+            infoMessage("Ihr Paket ist da, schauen Sie in ihren Briefkasten.");
+        } else {
+            addRow(socketResponse.vehicle, socketResponse.location, socketResponse.time);
+            infoMessage("Ihr Paket wurde soeben in " + socketResponse.location + " gemeldet!");
+
+        }
+    });  
+}
 
 function loadUserPackets() {
     getUserPackets(function (packetIds) {
@@ -11,7 +36,11 @@ function loadUserPackets() {
 
         for (var i = 0; i < packetIds.length; i++) {
             var packet = packetIds[i];
-            loadPacketInfo(i, packet);
+            loadPacketInfo(packet);
+            if (!user_info_subscribed_ids.has(packet)) {
+                user_info_subscribed_ids.add(packet);
+                user_info_socket.emit('subscribe', {packet_id: packet});
+            }
         }
     }, function (message) {
         // failure
@@ -44,7 +73,7 @@ $("#button_delete_user").click(function() {
     });
 });
 
-function loadPacketInfo(index, packetId) {
+function loadPacketInfo(packetId) {
     $.get(tracking_server_url + "packetStatus/" + packetId, function (responseData) {        
         var sender = responseData.sender_name + ", " + responseData.sender_city;        
         var receiver = responseData.receiver_name + ", " + responseData.receiver_city;    
