@@ -22,15 +22,21 @@
   app.controller('ChartController', ['$scope', '$http', '$attrs', '$element', function ($scope, $http, $attrs, $element) {
     $scope.labels = [];
     $scope.series = ['Pakete'];
-    $scope.data = [[]];    
+    $scope.data   = [[]];    
     $scope.type_options = ["line", "pie", "bar"];
-    $scope.type = $scope.type_options[0];
-    $scope.options = { legend: { display: true } };    
+    $scope.type     = $scope.type_options[0];
+    $scope.options  = { legend: { display: true } };    
+    $scope.all_time = true
 
     $scope.dataLoaded = false
 
     $scope.from_date = new Date(0)
     $scope.to_date = new Date()
+
+    $scope.from_date_obj = new Date(0)
+    $scope.to_date_obj = new Date()
+
+    $scope.no_data_available = false
 
     $scope.information_options = {
         "sizes"         : {"url" : "size", "type" : 1},
@@ -40,14 +46,31 @@
         "location_hour" : {"url" : "location_vehicle_current/hour", "type" : 3}
     }
 
-    /*
+    
     $scope.$watch('from_date', function (value) {
       try {
-       $scope.from_date = new Date(value);
+       $scope.from_date_obj = new Date(value);
       } catch(e) {
         console.log(e)
       }
-    }); */
+    });
+
+    $scope.$watch('to_date', function (value) {
+      try {
+       $scope.to_date_obj = new Date(value);
+      } catch(e) {
+        console.log(e)
+      }
+    });
+
+    /*
+    $scope.$watch('to_date', function (value) {
+      try {
+       $scope.to_date = new Date(value);
+      } catch(e) {
+        console.log(e)
+      }
+    });*/
 
 
     $scope.openFromCalendar = function() {
@@ -61,8 +84,17 @@
     $scope.setData = function() {      
       $scope.dataLoaded = false
 
+      var time_filter_url_string = ""
+      console.log($scope.to_date)
+      if (!$scope.all_time) {
+        var from_unix = Math.floor($scope.from_date_obj.getTime()/1000)
+        var to_unix = Math.floor($scope.to_date_obj.getTime()/1000)
+        time_filter_url_string = from_unix + "/" + to_unix + "/"
+      }
+      
+
       var information = $scope.information_options[$attrs.information]
-      var url = "http://localhost:8000/" + information["url"]
+      var url = "http://localhost:8000/" + time_filter_url_string + information["url"]
       var result_type = information["type"]
 
       $scope.series = $scope.series.slice(0,0)
@@ -70,11 +102,12 @@
         $scope.series.push("Pakete")
       }
 
-      $http.get(url).then(function success(response) {        
+      $http.get(url).then(function success(response) {      
+        console.log($element)
         
         $scope.data = $scope.data.slice(0,0)
         $scope.labels = $scope.labels.slice(0,0)
-        
+
         if (result_type == 3) {
           for (var key in response.data.values) {
             if (response.data.values.hasOwnProperty(key)) {
