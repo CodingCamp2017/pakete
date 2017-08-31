@@ -61,6 +61,7 @@ $("#button_logout_user").click(function () {
     }, function (message) {
         // failure
         errorMessage(message);
+        clearCookies();
     });
 });
 

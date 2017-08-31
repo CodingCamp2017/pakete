@@ -20,7 +20,7 @@ srv = WarehouseService(mykafka.create_consumer('ec2-35-159-21-220.eu-central-1.c
 
 groupby_map = {
     'hour':'%H',
-    'day':'%Y%m%d',
+    'day':'%d.%m.%Y',
     'week':'%A'
 }
 
