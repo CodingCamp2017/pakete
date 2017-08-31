@@ -3,8 +3,10 @@
 import sys
 import os
 sys.path.append(os.path.relpath('../mykafka'))
+sys.path.append(os.path.relpath('../common'))
 
 import mykafka
+from constants import PACKET_TOPIC, PACKET_EVENT_VERSION, PACKET_STATE_REGISTERED, PACKET_STATE_UPDATE_LOCATION, PACKET_STATE_DELIVERED
 import json
 import threading
 
@@ -43,17 +45,17 @@ class TrackingService:
                 print('Event information missing.')
                 return
 
-            if eventVersion != 2:
+            if eventVersion != 3:
                 #print('Unexpected event version (expected: 1, found: ' + str(eventVersion) + ')')
                 return
 
-            if eventType == 'registered':
+            if eventType == PACKET_STATE_REGISTERED:
                 self.packetStore.addPacket(eventTime, eventPayload)
 
-            if eventType == 'updated_location':
+            if eventType == PACKET_STATE_UPDATE_LOCATION:
                 self.packetStore.updatePacket(eventTime, eventPayload)
 
-            if eventType == 'delivered':
+            if eventType == PACKET_STATE_DELIVERED:
                 self.packetStore.packetDelivered(eventTime, eventPayload)
 
         '''
@@ -70,7 +72,7 @@ class TrackingService:
                 return "Consumer already running."
 
         '''
-        Returns the packet status of the given id or None no packet was found
+        Returns the packet status of the given packet_id or None no packet was found
         '''
         def packetStatus(self, packet_id):
             dictPacketStatus = self.packetStore.packetStatus(packet_id)

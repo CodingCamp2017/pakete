@@ -1,16 +1,17 @@
 import sys
 import os
 sys.path.append(os.path.relpath('../mykafka'))
-sys.path.append(os.path.relpath('../post_service'))
+sys.path.append(os.path.relpath('../common'))
 
+from constants import PACKET_TOPIC, PACKET_STATE_REGISTERED, PACKET_STATE_UPDATE_LOCATION
+import distribution_center
 import mykafka
 import threading
 import json
 import urllib
+import urllib.request
 import signal
-from post_service import PostService
 import time
-import http.client
 
 from threading import Lock
 
@@ -20,139 +21,172 @@ p = print
 def print(*a, **b):
 	with mylock:
 		p(*a, **b)
+        
 
-
-distributionCenter = {0 : {'station' : 'Brief Leipzig', 'zip' : '04158', 'city' : 'Leipzig', 'street': 'Poststr. 28'},
-                      1 : {'station' : 'Brief Neubrandenburg', 'zip' : '17235', 'city' : 'Neustrelitz', 'street': 'Bürgerseeweg 27'},
-                      2 : {'station' : 'Brief Hamburg-Süd', 'zip' : '21035', 'city' : 'Hamburg', 'street': 'Rungedamm 37'},
-                      3 : {'station' : 'Brief Kassel', 'zip' : '34355', 'city' : 'Staufenberg', 'street': 'Im Rotte 2'},
-                      4 : {'station' : 'Brief Essen', 'zip' : '46282', 'city' : 'Dorsten', 'street': 'Lünsingskuhle 70'},
-                      5 : {'station' : 'Brief Koblenz', 'zip' : '56566', 'city' : 'Neuwied', 'street': 'Rostocker Str. 14'},
-                      6 : {'station' : 'Paketzentrum Obertshausen', 'zip' : '63179', 'city' : 'Obertshausen', 'street': 'Im Birkengrund'},
-                      7 : {'station' : 'Brief Reutlingen', 'zip' : '72184', 'city' : 'Eutingen im Gäu', 'street': 'Am Flugplatz 14'},
-                      8 : {'station' : 'Brief Augsburg', 'zip' : '86154', 'city' : 'Augsburg', 'street': 'Stuttgarter Str. 33'},
-                      9 : {'station' : 'Brief Nürnberg', 'zip' : '90475', 'city' : 'Nürnberg', 'street': 'Am Tower 10'}}
+MAX_NUMBER = len(distribution_center.names)
 
 
 class DistributionService(threading.Thread):
     
-    def __init__(self, center_id, threadStop):
+    def __init__(self, center_id, threadStop, baseurl):
         
         threading.Thread.__init__(self)
         self.center_id = center_id
-        self.baseurl = 'ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8000'
+        self.station = distribution_center.names[center_id]
+        self.baseurl = baseurl
         self.headers = {'Content-Type':'application/json'}
         self.threadStop = threadStop
         self.lock = threading.Lock()
-        self.post_service = PostService(mykafka.create_producer('ec2-35-159-21-220.eu-central-1.compute.amazonaws.com', 9092))
         
     def _zip_in_purview(self, zip_code):
         return zip_code[0] == str(self.center_id)
         
     def _transport_packet(self, center_id, vehicle, packet_id):
-        with self.lock:
-            data = {'vehicle' : vehicle, 'packet_id' : packet_id}
-            data.update(distributionCenter[center_id])
-            self.post_service.update_package_location(data)
-            print(str(packet_id) + ' in ' + vehicle + ' with destination ' + str(center_id))
+        time.sleep(1)
+        data = {'vehicle' : vehicle, 
+                'packet_id' : packet_id,
+                'station' : distribution_center.names[center_id]}
+    
+        updateRequest = urllib.request.Request(self.baseurl + '/packet/' + packet_id +'/update',
+                                               data = json.dumps(data).encode('utf8'),
+                                               headers = self.headers)
+        try:
+            urllib.request.urlopen(updateRequest)
+        except urllib.error.HTTPError as e:
+            error_message = e.read()
+            print(error_message)
+        #print(str(packet_id) + ' in ' + vehicle + ' with destination ' + str(center_id))
+        if not self.center_id:
+            print('\t Transport to ' +str(center_id)+ ' with ' + vehicle + ' done.')
             
     def _deliver_packet(self, packet_id):
-        with self.lock:
-            self.post_service.mark_delivered({'packet_id' : packet_id})
-            print(str(packet_id) + ' delivered')
+        time.sleep(1)
+        deliverRequest = urllib.request.Request(self.baseurl + '/packet/' + packet_id +'/delivered',
+                                                data=json.dumps({}).encode('utf8'),
+                                                headers = self.headers)
+        try:
+            urllib.request.urlopen(deliverRequest)
+        except urllib.error.HTTPError as e:
+            error_message = e.read()
+            print(error_message)
+        if not self.center_id:
+            print('\t Delivery done.')
+        #äprint(str(packet_id) + ' delivered')
         
     def _update_registered_packet(self, packet):
         # update location: distribution center
-        self._transport_packet(self.center_id, 'center', packet['id'])
+        self._transport_packet(self.center_id, 'center', packet['packet_id'])
         # update location: transport to next distribution center
-        self._transport_packet(int(packet['receiver_zip'][0]), 'car', packet['id'])
+        self._transport_packet(int(packet['receiver_zip'][0]), 'car', packet['packet_id'])
             
     def _deliver_updated_packet(self, packet):
         # update location: distribution center
-        self._transport_packet(self.center_id, 'center', packet['id'])
+        self._transport_packet(self.center_id, 'center', packet['packet_id'])
         # update location: transport to next distribution center
-        self._deliver_packet(packet['id'])
+        self._deliver_packet(packet['packet_id'])
         
         
     def run(self):
-        consumer = mykafka.create_consumer('ec2-35-159-21-220.eu-central-1.compute.amazonaws.com', 9092, 'packet', from_beginning=False)
+        consumer = mykafka.create_consumer('ec2-35-159-21-220.eu-central-1.compute.amazonaws.com', 9092, PACKET_TOPIC, from_beginning=False)
+        time.sleep(1)
         while not self.threadStop.is_set():
+            print('Starting ' + str(self.center_id))
             for event in consumer:
+                #time.sleep(1)
+                print(str(self.center_id) + ' consumes event')
+                
                 eventJson = json.loads(event.value.decode('utf-8'))
                 try:
                     eventVersion = eventJson['version']
                     eventType = eventJson['type']
                     eventPayload = eventJson['payload']
+                    packet_id = eventPayload['packet_id']
                 except(Exception) as e:
                     print('Event information missing.')
                     return
-                try:
-                    print(eventPayload['id'] + ' is consumed: event type is ' + eventType)
-                except KeyError:
-                    print(event)
                     
-                if eventVersion != 2:
-                    print('Unexpected event version (expected: 1, found: ' + str(eventVersion) + ')')
+                if eventVersion != 3:
+                    print('Skipping event with version older than 3 (found: ' + str(eventVersion) + ')')
                     return
                 
-                if eventType == 'registered' and eventPayload['sender_zip'][0] == str(self.center_id):
+                #print('-----------------')
+                
+                if (eventType == PACKET_STATE_REGISTERED and 
+                    eventPayload['sender_zip'][0] == str(self.center_id)):
                     if eventPayload['receiver_zip'][0] == str(self.center_id):
+                        if not self.center_id:
+                            print('impossible case')
+                        #print(self.station + ' detected registered packet ' + packet_id[0:6] + ' and started delivery')
                         self._deliver_updated_packet(eventPayload)
                     else:
+                        if not self.center_id:
+                            print('Updating registered packet ' + packet_id)
+                        #print(self.station + ' detected registered packet ' + packet_id[0:6] + ' and updated location')
                         self._update_registered_packet(eventPayload)
-                        print('DIST-CENTER '+str(self.center_id)+': UPDATED REGISTERED PACKET')
                     
-                if eventType == 'updated_location':# and eventPayload['station'] == distributionCenter[self.center_id]['station'] and eventPayload['vehicle'] is not 'center':
-                    print(eventPayload['station'], distributionCenter[self.center_id]['station'])
-                    print(eventPayload['vehicle'], 'center')
+                elif (eventType == PACKET_STATE_UPDATE_LOCATION and 
+                      eventPayload['station'] == self.station and 
+                      not (eventPayload['vehicle'] == 'center')):
+                    if not self.center_id:
+                        print('Delivering updated packet ' + packet_id)
+                    #print(self.station + ' detected updated packet ' + packet_id[0:6] + ' and started delivery')
                     self._deliver_updated_packet(eventPayload)
-                    print('DIST-CENTER '+str(self.center_id)+': DELIVERED UPDATED PACKET')
-        print('DIST-CENTER '+str(self.center_id)+' ***stopped***')
 
 class Tester(threading.Thread):
 
-    def __init__(self, threadStop):
+    def __init__(self, threadStop, baseurl, headers):
         threading.Thread.__init__(self)
-        self.post_service = PostService(mykafka.create_producer('ec2-35-159-21-220.eu-central-1.compute.amazonaws.com', 9092))
         self.threadStop = threadStop
+        self.baseurl = baseurl
+        self.headers = headers
 
     def run(self):
         packet = {'sender_name' : 'Otto Hahn',
                   'sender_street' : 'Veilchenweg 2324',
-                  'sender_zip' : '12345',
+                  'sender_zip' : '02345',
                   'sender_city' : 'Hamburg',
                   'receiver_name' : 'Lise Meitner',
                   'receiver_street' : 'Amselstraße 7',
-                  'receiver_zip' : '01234',
+                  'receiver_zip' : '11234',
                   'receiver_city' : 'Berlin',
                   'size' : 'big',
                   'weight' : '200'}
-        while not self.threadStop.is_set():
-            packet_id = self.post_service.register_package(packet)
+        #while not self.threadStop.is_set():
+        for i in range(10):
+            time.sleep(1)
+            registerRequest = urllib.request.Request(self.baseurl + '/register',
+                data = json.dumps(packet).encode('utf8'),
+                headers = self.headers)
+            response = urllib.request.urlopen(registerRequest)
+            packet_id = json.loads(response.read().decode('utf8'))['packet_id']
             print(str(packet_id) + ' REGISTERED')
-            time.sleep(5)
+        #t
         
 if __name__ == '__main__':
     
-    SIMULATION_TIME = 30 # Seconds
+    post_service_url = 'http://0.0.0.0:43747'
+    headers = {"Content-Type":"application/json"}
+    
+    SIMULATION_TIME = 10 # Seconds
     threadStop = threading.Event()
     
-    def sigint_handler(signum, frame):
-        print('Interrupted')
-        threadStop.set()
+    #def sigint_handler(signum, frame):
+    #    print('Interrupted')
+    #    threadStop.set()
     
-    signal.signal(signal.SIGINT, sigint_handler)
+    #signal.signal(signal.SIGINT, sigint_handler)
     
     threadStop.clear()
     #tester = Tester(threadStop)
     #dist = DistributionService(0, threadStop)
-    threads = list()
+
+    
+    threads = [Tester(threadStop, post_service_url, headers)]
     for i in range(2):
-        threads.append(DistributionService(i, threadStop))
-    threads.append(Tester(threadStop))
+        threads.append(DistributionService(i, threadStop, post_service_url))
     
     for t in threads:
-        t.daemon = True
+        #t.daemon = True
         t.start()
 
     time.sleep(SIMULATION_TIME)

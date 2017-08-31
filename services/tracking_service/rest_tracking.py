@@ -21,8 +21,6 @@ import packet_regex
 from Exceptions import InvalidActionException, TYPE_INVALID_KEY, TYPE_NO_DATA_FOUND, TYPE_KEY_NOT_FOUND
 
 
-
-
 app = Flask(__name__)#Initialize flask
 socketio = SocketIO(app)
 # Create the TrackingService

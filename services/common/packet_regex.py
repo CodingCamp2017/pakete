@@ -7,7 +7,7 @@ regex_name = '[\w ]+'#Multiple words separated by spaces
 regex_id = '(\d|[a-f]){8}-(\d|[a-f]){4}-(\d|[a-f]){4}-(\d|[a-f]){4}-(\d|[a-f]){12}'#uuid format: 8-4-4-4-12 chars in hex range
 regex_zip = '\d{5}'#zipcode is exaclty 5 digits
 regex_street = '[\w( \-\.)?]+'#multiple word separated either by spaces, '.' or '-'
-regex_city = '[\w( \-)?]+'#multiple word separated either by spaces, '-'
+regex_city = '[\w( \/\.\-)?]+'#multiple word separated either by spaces, '-'
 regex_size = '(small|normal|big)'
 regex_weight = '[+-]?(\d*\.)?\d+'#a floating point value, decimal separator is '.'
 regex_vehicle = '(car|foot|plane|rocket|ship|train|truck|center|failed)'
@@ -22,8 +22,8 @@ This lists the required keys and a regex for the value of the registerPacket
 command
 '''
 syntax_register = [('sender_name', regex_name),
-                   ('sender_street',regex_street),
-                   ('sender_zip', regex_zip),
+                   ('sender_street',regex_street), 
+                   ('sender_zip', regex_zip), 
                    ('sender_city', regex_city),
                    ('receiver_name', regex_name),
                    ('receiver_street', regex_street),
@@ -35,8 +35,8 @@ syntax_register = [('sender_name', regex_name),
 This lists the required keys and a regex for the value of the updateLocation
 command
 '''
-syntax_update = [('station', regex_city),
-                 ('packet_id', regex_id),
+syntax_update = [('packet_id', regex_id),
+                 ('station', regex_city),
                  ('vehicle', regex_vehicle)]
 '''
 This lists the required keys and a regex for the value of the delivered command
@@ -45,7 +45,8 @@ syntax_delivered = [('packet_id', regex_id)]
 '''
 This lists the required keys and a regex for the value of the addUser command
 '''
-syntax_add_user = [('email', regex_email),('password', regex_password)]
+syntax_add_user = [('email', regex_email),
+                   ('password', regex_password)]
 '''
 This lists the required keys and a regex for the value of the authenticateUser
 command
@@ -63,8 +64,13 @@ syntax_update_user_adress = [('email', regex_email),
 '''
 This lists the required keys and a regex for the value of the addPacketToUser command
 '''
-syntax_add_packet_to_user = [('packet', regex_id),
+syntax_add_packet_to_user = [('packet_id', regex_id),
                              ('session_id', regex_session_id)]
+'''
+This lists the required keys and a regex for the value of the removePacketFromUser command
+'''
+syntax_remove_packet_from_user = [('packet_id', regex_id),
+                                  ('session_id', regex_session_id)]
 '''
 This lists the required keys and a regex for the value of commands that require only a session id
 '''
@@ -84,9 +90,8 @@ Returns the first key from the given dictionary that is not present in req_list.
 Returns None if every key in the dictionary is present in req_list.
 '''
 def get_first_not_contained(dic, req_list):
-    req_list_keys = [key for (key, value) in req_list]
     for (key, value) in dic:
-        if(not key in req_list_keys):
+        if(not key in req_list.keys()):
             return key
     return None
 
@@ -103,9 +108,9 @@ def check_json_regex(dic, req_list):
             raise InvalidActionException(Exceptions.TYPE_INVALID_KEY, key, "Invalid type for key "+key+"; expected string")
         elif(not regex_matches_exactly(regex, dic[key])):
             raise InvalidActionException(Exceptions.TYPE_INVALID_KEY, key, "Invalid value: "+str(dic[key])+" for key "+key)
-    if(len(dic) != len(req_list)):
-        raise InvalidActionException(Exceptions.TYPE_INVALID_KEY, str(get_first_not_contained(dic, req_list)), "Unknown keys in "+json.dumps(dic))
-
+#    if(len(dic) != len(req_list)):
+#        raise InvalidActionException(Exceptions.TYPE_INVALID_KEY, str(get_first_not_contained(dic, req_list)), "Unknown keys in "+json.dumps(dic))
+                
 def test_check_json_regex():
     req = [("a", "\\d{2}"), ("b", "hgf")]
     dic = {'a':'45', 'b':'hgf'}
@@ -133,10 +138,6 @@ def test_check_json_regex():
     except InvalidActionException as e:
         pass
     print("test_checkAvailable#4")
-
-
-
-
-
+          
 if __name__ == '__main__':
     test_check_json_regex()
