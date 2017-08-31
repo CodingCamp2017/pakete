@@ -36,9 +36,14 @@ def restRegister():
         if 'auto_deliver' not in data:
             data['auto_deliver'] = False
         elif not isinstance(data['auto_deliver'], bool):
-            err_msg = 'Invalid value for auto_deliver flag! Type is ' + str(type(data['auto_deliver'])) + ', value is ' + str(data['auto_deliver'])
-            print(err_msg)
-            return rest_common.create_response(400, err_msg)
+            if isinstance(data['auto_deliver'], str) and data['auto_deliver'].lower() == 'true':
+                data['auto_deliver'] = True
+            elif isinstance(data['auto_deliver'], str) and data['auto_deliver'].lower() == 'false':
+                data['auto_deliver'] = False
+            else:
+                err_msg = 'Invalid value for auto_deliver flag! Type is ' + str(type(data['auto_deliver'])) + ', value is ' + str(data['auto_deliver'])
+                print(err_msg)
+                return rest_common.create_error_response(400, err_msg)
         packet_id = post_service.register_packet(data)
         return rest_common.create_response(200, {"packet_id":str(packet_id)})
     except Exceptions.InvalidActionException as e:
