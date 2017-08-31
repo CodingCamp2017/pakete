@@ -42,10 +42,11 @@
                 </table>
 
                 <br>
-                <h2>Pakte hinzufügen</h2>               
-                <input type="text" class="form-control" placeholder="Paket ID" id="add_packet_id" /><br>
-                <input type="submit"  value="Paket hinzufügen" id="add_packet_button" class="btn btn-primary" />
-
+                <h2>Pakte hinzufügen</h2>      
+                <form id='add_packet_button'>
+                    <input type="text" class="form-control" placeholder="Paket ID" id="add_packet_id" /><br>
+                    <input type="submit"  value="Paket hinzufügen" class="btn btn-primary" />
+                </form>
                 <br>
                 <br>
                 <h2>Account entfernen</h2>
