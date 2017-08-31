@@ -17,15 +17,15 @@
       tooltips: { enabled: false }
     });
     */
-  });  
+  });
 
   app.controller('ChartController', ['$scope', '$http', '$attrs', '$element', function ($scope, $http, $attrs, $element) {
     $scope.labels = [];
     $scope.series = ['Pakete'];
-    $scope.data = [[]];    
+    $scope.data = [[]];
     $scope.type_options = ["line", "pie", "bar"];
     $scope.type = $scope.type_options[0];
-    $scope.options = { legend: { display: true } };    
+    $scope.options = { legend: { display: true } };
 
     $scope.dataLoaded = false
 
@@ -37,7 +37,22 @@
         "vehicles"      : {"url" : "location_vehicle_current", "type" : 1},
         "avg_delivery"  : {"url" : "average_delivery/day", "type" : 2},
         "location_day"  : {"url" : "location_vehicle_current/day", "type" : 3},
-        "location_hour" : {"url" : "location_vehicle_current/hour", "type" : 3}
+        "location_hour" : {"url" : "location_vehicle_current/hour", "type" : 3},
+        "avg_weight_day":{"url" : "average_weight/day", "type" : 2},
+        "registrations_day":{"url" : "registration/day", "type" : 2},
+        "registrations_hour":{"url" : "registration/hour", "type" : 2},
+        "addresses"     : {"url" : "location_address_current", "type" : 1,
+        "filterfun": function (text, zahl) {
+            return text != "registert" && text != "delivery" && zahl >= 5
+        }},
+        "city_send"     : {"url" : "sender_city", "type" : 1,
+        "filterfun" : function (text, zahl) {
+            return zahl > 100
+        }},
+        "city_receive"     : {"url" : "receiver_city", "type" : 1,
+        "filterfun" : function (text, zahl) {
+            return zahl > 100
+        }}
     }
 
     /*
@@ -51,14 +66,14 @@
 
 
     $scope.openFromCalendar = function() {
-      $element.find("#from_picker input").trigger("click")      
+      $element.find("#from_picker input").trigger("click")
     }
 
     $scope.openToCalendar = function() {
-      $element.find("#to_picker input").trigger("click")      
+      $element.find("#to_picker input").trigger("click")
     }
 
-    $scope.setData = function() {      
+    $scope.setData = function() {
       $scope.dataLoaded = false
 
       var information = $scope.information_options[$attrs.information]
@@ -70,59 +85,64 @@
         $scope.series.push("Pakete")
       }
 
-      $http.get(url).then(function success(response) {        
-        
+      $http.get(url).then(function success(response) {
+
         $scope.data = $scope.data.slice(0,0)
         $scope.labels = $scope.labels.slice(0,0)
-        
+
         if (result_type == 3) {
           for (var key in response.data.values) {
             if (response.data.values.hasOwnProperty(key)) {
               // Add all keynames in response (car, train, ...) as own series
               for (var keyname in Object.keys(response.data.values[key])) {
                 if ($scope.series.indexOf(Object.keys(response.data.values[key])[keyname]) == -1) {
-                  $scope.series.push(Object.keys(response.data.values[key])[keyname])                          
-                }                
+                  $scope.series.push(Object.keys(response.data.values[key])[keyname])
+                }
               }
             }
           }
 
           for (var i = 0; i < $scope.series.length; ++i) {
-            var new_data_arr = []            
+            var new_data_arr = []
             for (var j = 0; j < Object.keys(response.data.values).length; ++j) {
               new_data_arr.push(0)
             }
             $scope.data.push(new_data_arr)
           }
         } else {
+          // Type 1, 2
           $scope.data.push([])
         }
 
         var didx = 0
         for (var key in response.data.values) {
-          if (response.data.values.hasOwnProperty(key)) {            
+          if (response.data.values.hasOwnProperty(key)) {
             if (result_type == 3) {
               // Add all keynames in response (car, train, ...) as own series
               for (var keyname in Object.keys(response.data.values[key])) {
                 var keyname_str = Object.keys(response.data.values[key])[keyname]
-                var series_idx = $scope.series.indexOf(keyname_str)                
+                var series_idx = $scope.series.indexOf(keyname_str)
                 $scope.data[series_idx][didx] = response.data.values[key][keyname_str]
-                
+
                 if ($scope.labels.indexOf(key) == -1) {
                   $scope.labels.push(key)
                 }
               }
             } else {
-              $scope.data[0].push(response.data.values[key])          
-              $scope.labels.push(key)
+              // Type 1, 2
+              let value = response.data.values[key]
+              if (!information.filterfun || information.filterfun(key, value)) {
+                $scope.data[0].push(value)
+                $scope.labels.push(key)
+              }
             }
           }
           didx++
         }
 
         $scope.dataLoaded = true
-      }, function error() { 
-        console.log("error");        
+      }, function error() {
+        console.log("error");
       })
     }
 
@@ -153,7 +173,7 @@
 
   app.component("statistic", {
     "templateUrl": "templates/statistic.html",
-    "bindings": {"name" : "@", "type" : "@"},    
+    "bindings": {"name" : "@", "type" : "@"},
     "controller": 'ChartController'
   });
 
@@ -162,28 +182,28 @@
   app.controller('PieCtrl', ['$scope', '$http', function ($scope, $http) {
     $scope.labels = [];
     $scope.data = [];
-    $scope.options = { legend: { display: true } };    
+    $scope.options = { legend: { display: true } };
 
     $scope.dataLoaded = false;
 
     $scope.setData = function() {
       $scope.dataLoaded = false
 
-      $http.get("http://localhost:8000/getSizeDistribution").then(function success(response) {                   
-        console.log(response.data)      
+      $http.get("http://localhost:8000/getSizeDistribution").then(function success(response) {
+        console.log(response.data)
         $scope.data = $scope.data.slice(0,0)
         $scope.labels = $scope.labels.slice(0,0)
 
         for (var key in response.data.values) {
-          if (response.data.values.hasOwnProperty(key)) {            
-            $scope.data.push(response.data.values[key])          
+          if (response.data.values.hasOwnProperty(key)) {
+            $scope.data.push(response.data.values[key])
             $scope.labels.push(key)
           }
         }
 
         $scope.dataLoaded = true
-      }, function error() { 
-        alert("error");        
+      }, function error() {
+        alert("error");
       })
     }
 
@@ -191,7 +211,7 @@
 
   }]);
 
-  
+
   app.controller('MenuCtrl', ['$scope', function ($scope) {
     $scope.isCollapsed = true;
     $scope.charts = ['Line', 'Bar', 'Doughnut', 'Pie', 'Polar Area', 'Radar', 'Horizontal Bar', 'Bubble', 'Base'];
@@ -216,7 +236,7 @@
     }, 500);
   }]);
 
-  
+
 
   app.controller('PolarAreaCtrl', ['$scope', function ($scope) {
     $scope.labels = ['Download Sales', 'In-Store Sales', 'Mail Sales', 'Telesales', 'Corporate Sales'];
