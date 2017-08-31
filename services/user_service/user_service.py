@@ -66,13 +66,9 @@ class UserService:
             return email[0]
             
     def _packet_added_to_user(self, email, packet_id):
-        print('checking ' + email + ', id: ' + packet_id)       
-        self.p_cur.execute('SELECT (packet) FROM followed_packets WHERE email=?', (email,))
-        result = self.u_cur.fetchone();  
-        # TODO does not seem to return results
-        if result:
-            return True
-        return False
+        #print('checking ' + email + ', id: ' + packet_id)       
+        result = self.p_cur.execute('SELECT EXISTS(SELECT 1 FROM followed_packets WHERE email=? AND packet=?)', (email,packet_id,)).fetchone()
+        return True if result[0] else False
 
     '''
     Throws InvalidSessionIdException, SessionElapsedException
@@ -160,6 +156,22 @@ class UserService:
         if email:
             self._send_user_event(constants.USER_EVENT_ADDED_PACKET, UserPacketEvent(email, data['packet_id']))
     # TODO remove packet from user
+
+    def remove_packet_from_user(self, data):
+        packet_regex.check_json_regex(data, packet_regex.syntax_remove_packet_from_user)
+        self._check_session_active(data['session_id'])
+        if not self.idstore.packet_in_store(data['packet']):
+            raise PacketNotFoundException
+        email = self._get_email_of_user(data['session_id'])
+        
+        #check if packet already added to user
+        if self._packet_added_to_user(email, data['packet']):
+            self.p_cur.execute('DELETE FROM followed_packets WHERE email=? AND packet=?',
+                               (email, data['packet']))
+            self._update_session_id_timestamp(data['session_id'])
+            self.u_con.commit()
+        else:
+            raise NoSuchPacketAddedException
 
     def get_packets_from_user(self, data):
         packet_regex.check_json_regex(data, packet_regex.syntax_session_id)

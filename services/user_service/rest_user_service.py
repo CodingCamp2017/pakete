@@ -11,7 +11,6 @@ import mykafka
 
 import getopt
 from Exceptions import *
-#InvalidActionException, UserExistsException, UserUnknownException, SessionElapsedException, InvalidPasswortException, PacketNotFoundException, NoPacketException, InvalidSessionIdException, NoSessionIdException
 from flask import Flask, request
 from user_service import UserService
 

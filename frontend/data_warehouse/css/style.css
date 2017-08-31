@@ -1,0 +1,44 @@
+/*!
+ * Start Bootstrap - 2 Col Portfolio (http://startbootstrap.com/template-overviews/2-col-portfolio)
+ * Copyright 2013-2017 Start Bootstrap
+ * Licensed under MIT (https://github.com/BlackrockDigital/startbootstrap-2-col-portfolio/blob/master/LICENSE)
+ */
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  padding-top: 54px;
+  margin-bottom: 60px;
+}
+
+@media (min-width: 992px) {
+  body {
+    padding-top: 56px;
+  }
+}
+
+.portfolio-item {
+  margin-bottom: 30px;
+}
+
+.pagination {
+  margin-bottom: 30px;
+}
+
+.footer {
+	position: absolute; 
+	bottom: 0; 
+	width:100%; 
+	height: 50px; 
+	padding-top: 15px;
+}
+
+.maincontainer {
+	padding: 20px
+}
+
+.chart {
+	height: 250px;
+}
