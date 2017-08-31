@@ -9,7 +9,7 @@ sys.path.append(os.path.relpath('../rest_common'))
 import rest_common
 
 import getopt
-from Exceptions import InvalidActionException, UserExistsException, UserUnknownException, SessionElapsedException, InvalidPasswortException, PacketNotFoundException, NoPacketException, InvalidSessionIdException, NoSessionIdException, PacketAlreadyAddedException
+from Exceptions import *
 from flask import Flask, request
 from user_service import UserService
 
@@ -79,6 +79,29 @@ def restAddPacket():
         return rest_common.create_error_response(401, e)
     except PacketNotFoundException as e:
         return rest_common.create_error_response(410, e)
+    except PacketAlreadyAddedException as e:
+        return rest_common.create_error_response(409, e)
+
+@app.route('/remove_packet_from_user', methods=['POST'])
+def restRemovePacket():
+    try:
+        data = rest_common.get_rest_data(request)
+        user_service.remove_packet_from_user(data)
+        return rest_common.create_response(200)
+    except NoPacketException as e:
+        return rest_common.create_error_response(421, e)
+    except (InvalidSessionIdException, NoSessionIdException) as e:
+        return rest_common.create_error_response(422, e)
+    except InvalidActionException as e:
+        return rest_common.create_error_response(400, e)
+    except UserUnknownException as e:
+        return rest_common.create_error_response(404, e)
+    except SessionElapsedException as e:
+        return rest_common.create_error_response(401, e)
+    except PacketNotFoundException as e:
+        return rest_common.create_error_response(410, e)
+    except NoSuchPacketAddedException as e:
+        return rest_common.create_error_response(428, e)
     except PacketAlreadyAddedException as e:
         return rest_common.create_error_response(409, e)
     

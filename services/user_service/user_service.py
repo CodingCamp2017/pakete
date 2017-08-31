@@ -5,7 +5,7 @@ sys.path.append(os.path.relpath('../mykafka'))
 
 import packet_regex
 from id_store import IDStore, IDUpdater
-from Exceptions import UserExistsException, UserUnknownException, SessionElapsedException, PacketAlreadyAddedException, InvalidPasswortException, PacketNotFoundException, InvalidSessionIdException
+from Exceptions import *
 
 import sqlite3 as sql
 from passlib.hash import pbkdf2_sha256
@@ -129,7 +129,21 @@ class UserService:
         self._update_session_id_timestamp(data['session_id'])
         self.u_con.commit()
         
-    # TODO remove packet from user
+    def remove_packet_from_user(self, data):
+        packet_regex.check_json_regex(data, packet_regex.syntax_remove_packet_from_user)
+        self._check_session_active(data['session_id'])
+        if not self.idstore.packet_in_store(data['packet']):
+            raise PacketNotFoundException
+        email = self._get_email_of_user(data['session_id'])
+        
+        #check if packet already added to user
+        if self._packet_added_to_user(email, data['packet']):
+            self.p_cur.execute('DELETE FROM followed_packets WHERE email=? AND packet=?',
+                               (email, data['packet']))
+            self._update_session_id_timestamp(data['session_id'])
+            self.u_con.commit()
+        else:
+            raise NoSuchPacketAddedException
         
     def get_packets_from_user(self, data):        
         packet_regex.check_json_regex(data, packet_regex.syntax_session_id)

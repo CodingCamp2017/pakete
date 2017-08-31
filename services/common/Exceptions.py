@@ -78,3 +78,6 @@ class NoPacketException(Exception):
 
 class PacketAlreadyAddedException(Exception):
     pass
+
+class NoSuchPacketAddedException(Exception):
+    pass
