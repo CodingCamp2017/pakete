@@ -13,6 +13,7 @@ from Exceptions import InvalidActionException, UserExistsException, UserUnknownE
 from flask import Flask, request, session
 from datetime import timedelta
 from user_service import UserService
+import signal
 
 
 app = Flask(__name__)
@@ -20,6 +21,13 @@ app.secret_key = "hallo blub foo bar"
 app.config['SESSION_TYPE'] = 'filesystem'
 
 user_service = UserService()
+
+def sigint_handler(signum, frame):
+    print("Interrupted")
+    user_service.close()
+
+signal.signal(signal.SIGINT, sigint_handler)
+
 
 @app.before_request
 def make_session_permanent():
