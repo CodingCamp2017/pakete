@@ -16,6 +16,10 @@ from kafka.errors import KafkaError
 import uuid
 
 VERSION = 3
+#add all registered packets
+add  = lambda state, payload: state == PACKET_STATE_REGISTERED
+#remove if delivered
+delete = lambda newstate, payload, oldstate: newstate == PACKET_STATE_DELIVERED
 
 '''
 The Post-Service provides a web interface to register packets, update their
@@ -27,7 +31,7 @@ class PostService:
     '''
     def __init__(self, producer):
         self.producer = producer
-        self.idstore = IDStore()
+        self.idstore = IDStore(VERSION, add, delete)
         self.updater = IDUpdater(self.idstore)
         self.updater.start()
     '''
@@ -35,7 +39,7 @@ class PostService:
     '''
     def assign_packet_id(self):
         return str(uuid.uuid4())
-    
+
     '''
     Sends a register event to kafka and thereby registers a packet. jobj is a
     dictionary that contains the data needed.
@@ -54,7 +58,7 @@ class PostService:
         except KafkaError as e:
             raise Exceptions.CommandFailedException("Kafka Error: "+str(e))
         return packet_id
-    
+
     '''
     Updates the location of a packet by sending a updateLocation event to kafka. jobj is a
     dictionary that contains the data needed.
@@ -65,14 +69,14 @@ class PostService:
     def update_packet_location(self, jobj):
         #print("Update packet Location: "+str(jobj))
         packet_id = jobj["packet_id"]
-        if not self.idstore.check_packet_state(packet_id, PACKET_STATE_UPDATE_LOCATION):
+        if not self.idstore.packet_in_store(packet_id):
             raise Exceptions.InvalidActionException(Exceptions.TYPE_INVALID_KEY, "packet_id", "Packet with id '"+packet_id+"' has not yet been registered or has been delivered")
         packet_regex.check_json_regex(jobj, packet_regex.syntax_update)
         try:
             mykafka.sendSync(self.producer, PACKET_TOPIC, PACKET_STATE_UPDATE_LOCATION, VERSION, jobj)
         except KafkaError as e:
             raise Exceptions.CommandFailedException("Kafka Error: "+str(e))
-    
+
     '''
     Sends a mark as delivered event to kafka. jobj is a
     dictionary that contains the data needed.
@@ -84,14 +88,14 @@ class PostService:
         #print("Mark delivered: "+str(jobj))
         packet_regex.check_json_regex(jobj, packet_regex.syntax_delivered)
         packet_id = jobj["packet_id"]
-        if not self.idstore.check_packet_state(packet_id, PACKET_STATE_UPDATE_LOCATION):
+        if not self.idstore.packet_in_store(packet_id):
             raise Exceptions.InvalidActionException(Exceptions.TYPE_INVALID_KEY, "packet_id", "Packet with id '"+packet_id+"' has not yet been registered or has been delivered")
         try:
             mykafka.sendSync(self.producer, PACKET_TOPIC, PACKET_STATE_DELIVERED, VERSION, jobj)
         except KafkaError as e:
             raise Exceptions.CommandFailedException("Kafka Error: "+str(e))
-        
-        
+
+
 def test_regex():
     fakedata = json.load(codecs.open('fakedata.json', 'r', 'utf-8-sig'))['data']
 
@@ -104,6 +108,6 @@ def test_regex():
             print('City \'' + fakedata[i]['city'] + '\' does not match regex.')
         if not packet_regex.regex_matches_exactly(packet_regex.regex_weight, str(fakedata[i]['weight'])):
             print('Weight \'' + fakedata[i]['weight'] + '\' does not match regex.')
-            
+
 if __name__ == '__main__':
     test_regex()

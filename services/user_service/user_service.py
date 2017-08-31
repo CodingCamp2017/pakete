@@ -16,6 +16,11 @@ from passlib.hash import pbkdf2_sha256
 from datetime import datetime
 import uuid
 
+#add all registered packets
+add = lambda state, payload: state == constants.PACKET_STATE_REGISTERED
+#never remove a packet
+delete = lambda newstate, payload, oldstate: False
+
 class UserService:
 
     def __init__(self, producer):
@@ -48,7 +53,7 @@ class UserService:
             self.p_con = sql.connect('followed_packets_database.db', check_same_thread=False)
             self.p_cur = self.p_con.cursor()
 
-        self.idstore = IDStore(False)
+        self.idstore = IDStore(3, add, delete)
         self.updater = IDUpdater(self.idstore)
         self.updater.start()
 
