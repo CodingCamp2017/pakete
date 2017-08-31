@@ -1,6 +1,8 @@
 (function () {
   'use strict';
 
+  var base_server_url = "http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8003/";
+
   var app = angular.module("app", ['chart.js', 'ui.bootstrap', '720kb.datepicker']);
 
   app.config(function (ChartJsProvider) {
@@ -8,15 +10,6 @@
     ChartJsProvider.setOptions({
       colors: ['#97BBCD', '#DCDCDC', '#F7464A', '#46BFBD', '#FDB45C', '#949FB1', '#4D5360']
     });
-    // Configure all doughnut charts
-    /*
-    ChartJsProvider.setOptions('doughnut', {
-      cutoutPercentage: 60
-    });
-    ChartJsProvider.setOptions('bubble', {
-      tooltips: { enabled: false }
-    });
-    */
   });
 
   let size_compare_weight = ['small', 'normal', 'big']
@@ -146,7 +139,7 @@
       }
 
       var information = $scope.information_options[$attrs.information]
-      var url = "http://localhost:8000/" + time_filter_url_string + information["url"]
+      var url = base_server_url + time_filter_url_string + information["url"]
       var result_type = information["type"]
 
       $scope.series = $scope.series.slice(0,0)
@@ -159,7 +152,7 @@
       $http.get(url).then(function success(response) {
         $scope.no_data_available = Object.keys(response.data.values).length < 1
 
-	//transform the data into array of key, value pairs
+	     //transform the data into array of key, value pairs
         var statistic_data = []
         for (var datakey in response.data.values) {
           statistic_data.push({key:datakey, value:response.data.values[datakey]})
