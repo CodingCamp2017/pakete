@@ -6,7 +6,7 @@ names = {0 : 'Paketzentrum Leipzig',
          5 : 'Paketzentrum Koblenz',
          6 : 'Paketzentrum Obertshausen',
          7 : 'Paketzentrum Reutlingen',
-         8 : 'Paketzentrum Augsburg',
+         8 : 'DHL Frachtzentrum Aschheim-Freising',
          9 : 'Paketzentrum Nürnberg'}
 
 
