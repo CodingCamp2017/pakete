@@ -9,7 +9,6 @@ import mykafka
 import json
 import model
 import threading
-import pandas as pd
 import numpy as np
 
 import time
