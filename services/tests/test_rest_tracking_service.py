@@ -1,7 +1,6 @@
 import json
 import urllib.request
 import uuid
-import time
 
 url = 'http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com'
 post_port = 8000
@@ -46,5 +45,4 @@ def trackPacket(packet_id):
 
 if __name__ == '__main__':
     packet_id = registerPacket()['packet_id']
-    time.sleep(2)
     trackPacket(packet_id)
