@@ -142,7 +142,7 @@ class WarehouseService:
             values = {}
             for packet_id, packet_data in self.packets.items(filter):
                     timestamp = packet_data.getDate(timefilter)
-                    self.__addSumDataSet("summe", str(int(packet_data.get("weight")) - int(packet_data.get("register_time"))), 'count', values, timestamp)
+                    self.__addSumDataSet("summe", str(float(packet_data.get("weight"))), 'count', values, timestamp)
             return self.__calcArvages("summe", 'count', values)
 
 
@@ -400,7 +400,7 @@ class WarehouseService:
 if __name__ == "__main__":
     consumer = mykafka.create_consumer('ec2-35-159-21-220.eu-central-1.compute.amazonaws.com', 9092, 'packet')
     srv = WarehouseService(consumer)
-    '''
+
     while(True):
         time.sleep(3)
         print("Anzahl Pakete: " + str(srv.getPacketCount()))
@@ -413,9 +413,9 @@ if __name__ == "__main__":
         #print("Lieferzeit: " + str(srv.getAverageDeliveryTimeByTime('%Y-%m-%d %H')))
         #print("Lieferzeit: " + str(srv.getAverageDeliveryTimeByTime('%Y-%m-%d')))
 
-        ##druchschnittliches Gewicht auf Zeit TODO
-        #print("Gewicht: " + str(srv.getAverageWeightByTime("%Y-%m-%d %H")))
-
+        ##druchschnittliches Gewicht auf Zeit TODO'''
+        print("Gewicht: " + str(srv.getAverageWeightByTime("%Y-%m-%d %H")))
+'''
         ##Data of Values TODO Number TODO Text
         #print("Anzahl Sender_name "+str(srv.getCountOfKey("sender_name")))
         #print("Anzahl Sender_name nach Zeit: " + str(srv.getCountOfKeyByTime("sender_name", '%Y-%m-%d %H')))
