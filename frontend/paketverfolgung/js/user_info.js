@@ -50,7 +50,11 @@ function loadPacketInfo(index, packetId) {
         var receiver = responseData.receiver_name + ", " + responseData.receiver_city;    
         var currentLocation = sender;
         
-        if(responseData.stations !== undefined && responseData.stations.length > 0) {
+        
+        if(responseData.deliveryTime !== undefined){
+            currentLocation = receiver;
+        }
+        else if(responseData.stations !== undefined && responseData.stations.length > 0) {
             var currentLocationStation = responseData.stations[responseData.stations.length - 1];
             currentLocation = currentLocationStation.location;
         }
