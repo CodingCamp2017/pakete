@@ -13,6 +13,8 @@ $(function() {
         // failure
         packetTable_clear();
         errorMessage(message);
+        
+        packetTable_addRow("packetId", "sender", "receiver", "currentLocation");
    });
 });
 
@@ -53,7 +55,7 @@ function loadPacketInfo(index, packetId) {
             currentLocation = currentLocationStation.location;
         }
         
-        packetTable_addRow(index, packetId, sender, receiver, currentLocation);
+        packetTable_addRow(packetId, sender, receiver, currentLocation);
     })
     .fail(function (xhr, status, error) {
         console.log('error loading packetInfo, id: ' + packetId);
@@ -64,9 +66,10 @@ function packetTable_clear() {
     $('#table_user_packets > tbody').html("");
 }
 
-function packetTable_addRow(index, packetId, sender, receiver, currentLocation) {
+function packetTable_addRow(packetId, sender, receiver, currentLocation) {
     var cols = '<td>' + sender + '</td>';
     cols = cols + '<td>' + receiver + '</td>';
     cols = cols + '<td><a href="index.php?packet_id=' + packetId + '">' + currentLocation +'</a></td>';
+    cols = cols + '<td><button type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button></td>';
     $('#table_user_packets > tbody:last-child').append('<tr>' + cols + '</tr>');
 }
