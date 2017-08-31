@@ -67,6 +67,9 @@ function showPathInMap(map, stations) {
             realIdx++;
         }
 
+        console.log("coords")
+        console.log(coords)
+
         if (coords.length > 1) {
             var path = new google.maps.Polyline({
                 path: coords,
@@ -79,8 +82,8 @@ function showPathInMap(map, stations) {
             path.setMap(map);
             zoomToObject(map, path);
         } else {
-            map.setCenter(coords[0]);
-            map.setZoom(8);
+            map.setCenter({"lat" : 48.1654138, "lng" : 11.5712153}); // Itestra
+            map.setZoom(14);
         }
     });
 }
