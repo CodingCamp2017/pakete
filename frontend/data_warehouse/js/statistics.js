@@ -22,32 +22,83 @@
   app.controller('ChartController', ['$scope', '$http', '$attrs', '$element', function ($scope, $http, $attrs, $element) {
     $scope.labels = [];
     $scope.series = ['Pakete'];
-    $scope.data = [[]];    
+    $scope.data   = [[]];    
     $scope.type_options = ["line", "pie", "bar"];
-    $scope.type = $scope.type_options[0];
-    $scope.options = { legend: { display: true } };    
+    $scope.type     = $scope.type_options[0];
+    $scope.options  = { legend: { display: true } };    
+    $scope.all_time = true
 
     $scope.dataLoaded = false
 
     $scope.from_date = new Date(0)
+    $scope.from_date_obj = new Date(0)   
+    $scope.from_date_nice = "-" 
+
     $scope.to_date = new Date()
+    $scope.to_date_obj = new Date()
+    $scope.to_date_nice = ""
+
+    $scope.no_data_available = false
 
     $scope.information_options = {
         "sizes"         : {"url" : "size", "type" : 1},
         "vehicles"      : {"url" : "location_vehicle_current", "type" : 1},
         "avg_delivery"  : {"url" : "average_delivery/day", "type" : 2},
         "location_day"  : {"url" : "location_vehicle_current/day", "type" : 3},
-        "location_hour" : {"url" : "location_vehicle_current/hour", "type" : 3}
+        "location_hour" : {"url" : "location_vehicle_current/hour", "type" : 3},
+        "avg_weight_day":{"url" : "average_weight/day", "type" : 2},
+        "registrations_day":{"url" : "registration/day", "type" : 2},
+        "registrations_hour":{"url" : "registration/hour", "type" : 2},
+        "addresses"     : {"url" : "location_address_current", "type" : 1,
+        "filterfun": function (text, zahl) {
+            return text != "registert" && text != "delivery" && zahl >= 5
+        }},
+        "city_send"     : {"url" : "sender_city", "type" : 1,
+        "filterfun" : function (text, zahl) {
+            return zahl > 100
+        }},
+        "city_receive"     : {"url" : "receiver_city", "type" : 1,
+        "filterfun" : function (text, zahl) {
+            return zahl > 100
+        }}
     }
 
-    /*
+    var getDateString = function(obj) {
+      return obj.getDate() + "." + (obj.getMonth()+1) + "." + obj.getFullYear()
+    }
+    
     $scope.$watch('from_date', function (value) {
       try {
-       $scope.from_date = new Date(value);
+       $scope.from_date_obj = new Date(value);
+       $scope.from_date_nice = getDateString($scope.from_date_obj);
+       $scope.setData();
       } catch(e) {
         console.log(e)
       }
-    }); */
+    });
+
+    $scope.$watch('to_date', function (value) {
+      try {
+       $scope.to_date_obj = new Date(value);
+       $scope.to_date_nice = getDateString($scope.to_date_obj);
+       $scope.setData();
+      } catch(e) {
+        console.log(e)
+      }
+    });
+
+    $scope.$watch('all_time', function(value) {
+      $scope.setData();
+    });
+
+    /*
+    $scope.$watch('to_date', function (value) {
+      try {
+       $scope.to_date = new Date(value);
+      } catch(e) {
+        console.log(e)
+      }
+    });*/
 
 
     $scope.openFromCalendar = function() {
@@ -61,8 +112,16 @@
     $scope.setData = function() {      
       $scope.dataLoaded = false
 
+      var time_filter_url_string = ""
+      console.log($scope.to_date)
+      if (!$scope.all_time) {
+        var from_unix = Math.floor($scope.from_date_obj.getTime()/1000)
+        var to_unix = Math.floor($scope.to_date_obj.getTime()/1000)
+        time_filter_url_string = from_unix + "/" + to_unix + "/"
+      }
+
       var information = $scope.information_options[$attrs.information]
-      var url = "http://localhost:8000/" + information["url"]
+      var url = "http://localhost:8000/" + time_filter_url_string + information["url"]
       var result_type = information["type"]
 
       $scope.series = $scope.series.slice(0,0)
@@ -70,7 +129,8 @@
         $scope.series.push("Pakete")
       }
 
-      $http.get(url).then(function success(response) {        
+      $http.get(url).then(function success(response) {   
+        $scope.no_data_available = Object.keys(response.data.values).length < 1
         
         $scope.data = $scope.data.slice(0,0)
         $scope.labels = $scope.labels.slice(0,0)
@@ -95,6 +155,7 @@
             $scope.data.push(new_data_arr)
           }
         } else {
+          // Type 1, 2
           $scope.data.push([])
         }
 
@@ -113,8 +174,12 @@
                 }
               }
             } else {
-              $scope.data[0].push(response.data.values[key])          
-              $scope.labels.push(key)
+              // Type 1, 2
+              let value = response.data.values[key]
+              if (!information.filterfun || information.filterfun(key, value)) {
+                $scope.data[0].push(value)
+                $scope.labels.push(key)
+              }
             }
           }
           didx++
