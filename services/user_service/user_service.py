@@ -58,13 +58,9 @@ class UserService:
             return email[0]
             
     def _packet_added_to_user(self, email, packet_id):
-        print('checking ' + email + ', id: ' + packet_id)       
-        self.p_cur.execute('SELECT (packet) FROM followed_packets WHERE email=?', (email,))
-        result = self.u_cur.fetchone();  
-        # TODO does not seem to return results
-        if result:
-            return True
-        return False
+        #print('checking ' + email + ', id: ' + packet_id)       
+        result = self.p_cur.execute('SELECT EXISTS(SELECT 1 FROM followed_packets WHERE email=? AND packet=?)', (email,packet_id,)).fetchone()
+        return True if result[0] else False
 
     def _check_session_active(self, session_id):
         self.u_cur.execute('SELECT session_id_timestamp FROM users WHERE session_id=?', (session_id,))
