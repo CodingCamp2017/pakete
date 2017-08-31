@@ -47,19 +47,19 @@
   app.controller('ChartController', ['$scope', '$http', '$attrs', '$element', function ($scope, $http, $attrs, $element) {
     $scope.labels = [];
     $scope.series = ['Pakete'];
-    $scope.data   = [[]];    
+    $scope.data   = [[]];
     $scope.type_options = ["line", "pie", "bar"];
     $scope.type     = $scope.type_options[0];
-    $scope.options  = { legend: { display: true } };    
+    $scope.options  = { legend: { display: true } };
     $scope.all_time = true
 
-    $scope.colours = ['#72C02C', '#3498DB', '#717984', '#F1C40F'];
+    $scope.colours = ['#3498DB', '#72C02C', '#717984', '#F1C40F'];
 
     $scope.dataLoaded = false
 
     $scope.from_date = new Date(0)
-    $scope.from_date_obj = new Date(0)   
-    $scope.from_date_nice = "-" 
+    $scope.from_date_obj = new Date(0)
+    $scope.from_date_nice = "-"
 
     $scope.to_date = new Date()
     $scope.to_date_obj = new Date()
@@ -102,7 +102,7 @@
     var getDateString = function(obj) {
       return obj.getDate() + "." + (obj.getMonth()+1) + "." + obj.getFullYear()
     }
-    
+
     $scope.$watch('from_date', function (value) {
       try {
        $scope.from_date_obj = new Date(value);
@@ -128,17 +128,17 @@
     });
 
     $scope.openFromCalendar = function() {
-      $element.find("#from_picker input").trigger("click")      
+      $element.find("#from_picker input").trigger("click")
     }
 
     $scope.openToCalendar = function() {
-      $element.find("#to_picker input").trigger("click")      
+      $element.find("#to_picker input").trigger("click")
     }
 
-    $scope.setData = function() {      
+    $scope.setData = function() {
       $scope.dataLoaded = false
 
-      var time_filter_url_string = ""      
+      var time_filter_url_string = ""
       if (!$scope.all_time) {
         var from_unix = Math.floor($scope.from_date_obj.getTime()/1000)
         var to_unix = Math.floor($scope.to_date_obj.getTime()/1000)
@@ -156,9 +156,9 @@
       }
 
       $scope.error_occured = false
-      $http.get(url).then(function success(response) {   
+      $http.get(url).then(function success(response) {
         $scope.no_data_available = Object.keys(response.data.values).length < 1
-        
+
 	//transform the data into array of key, value pairs
         var statistic_data = []
         for (var datakey in response.data.values) {
@@ -172,7 +172,7 @@
 
         $scope.data = $scope.data.slice(0,0)
         $scope.labels = $scope.labels.slice(0,0)
-        
+
         if (result_type == 3) {
           for(var i=0; i< statistic_data.length; ++i) {
             let datapoint = statistic_data[i]
@@ -220,10 +220,10 @@
         }
 
         $scope.dataLoaded = true
-      }, function error() { 
+      }, function error() {
         console.log("error");
         $scope.error_occured = true
-        $scope.dataLoaded = true        
+        $scope.dataLoaded = true
       })
     }
 
@@ -254,7 +254,7 @@
 
   app.component("statistic", {
     "templateUrl": "templates/statistic.html",
-    "bindings": {"name" : "@", "type" : "@"},    
+    "bindings": {"name" : "@", "type" : "@"},
     "controller": 'ChartController'
   });
 
