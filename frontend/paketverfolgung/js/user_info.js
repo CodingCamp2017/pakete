@@ -1,12 +1,13 @@
+var tracking_server_url = "http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8001/";
+
 $(function() {
-    getUserPackets(function(packetNames) {
+    getUserPackets(function(packetIds) {
         // success
         packetTable_clear();
 
-        for (var i = 0; i < packetNames.length; i++) {
-            var packet = packetNames[i];
-            var link = "<a href='index.php?packet_id=" + packet + "'>" + packet + "</a>";
-            packetTable_addRow(i, link);
+        for (var i = 0; i < packetIds.length; i++) {
+            var packet = packetIds[i];
+            loadPacketInfo(i, packet);
         }
    }, function(message) {
         // failure
@@ -41,10 +42,31 @@ $("#button_delete_user").click(function() {
     });
 });
 
+function loadPacketInfo(index, packetId) {
+    $.get(tracking_server_url + "packetStatus/" + packetId, function (responseData) {        
+        var sender = responseData.sender_name + ", " + responseData.sender_city;        
+        var receiver = responseData.receiver_name + ", " + responseData.receiver_city;    
+        var currentLocation = sender;
+        
+        if(responseData.stations !== undefined && responseData.stations.length > 0) {
+            var currentLocationStation = responseData.stations[responseData.stations.length - 1];
+            currentLocation = currentLocationStation.location;
+        }
+        
+        packetTable_addRow(index, packetId, sender, receiver, currentLocation);
+    })
+    .fail(function (xhr, status, error) {
+        console.log('error loading packetInfo, id: ' + packetId);
+    });
+}
+
 function packetTable_clear() {
     $('#table_user_packets > tbody').html("");
 }
 
-function packetTable_addRow(index, packetName) {
-    $('#table_user_packets > tbody:last-child').append('<tr><th scope="row">' + index + '</th><td>' + packetName + '</td></tr>');
+function packetTable_addRow(index, packetId, sender, receiver, currentLocation) {
+    var cols = '<td>' + sender + '</td>';
+    cols = cols + '<td>' + receiver + '</td>';
+    cols = cols + '<td><a href="index.php?packet_id=' + packetId + '">' + currentLocation +'</a></td>';
+    $('#table_user_packets > tbody:last-child').append('<tr>' + cols + '</tr>');
 }

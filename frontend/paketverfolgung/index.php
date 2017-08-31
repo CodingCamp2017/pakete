@@ -3,6 +3,9 @@
     <head>
         <title>Post Kundenservice</title>
         
+        <!-- Styles -->
+        <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">    
+        <link href="css/style.css" rel="stylesheet">       
         <?php include('html/head.html'); ?>
     </head>
     
@@ -12,8 +15,8 @@
         <div class="row justify-content-center">
             <div class="col-8">
                 <br>
-                <div id="info_message_container" class="alert alert-success">info</div>
-                <div id="error_message_container" class="alert alert-warning">error</div>
+                <div style="display: none" id="info_message_container" class="alert alert-success">info</div>
+                <div style="display: none" id="error_message_container" class="alert alert-warning">error</div>
                 <!-- Spinning wheel-->
                 <div hidden class="mx-auto pageContent" id="spinner">
                     <i class="fa fa-spinner fa-spin" style="font-size:50px" ></i>
