@@ -31,7 +31,8 @@ $(function() {
   //Send registation
   $("#register_form").submit(function() {
 	  //Does User exist?
-	  
+	
+	
 	if($("#email").val().length!==0){
 		//TODO
 		showError("email");
@@ -42,6 +43,7 @@ $(function() {
 	}else{
 		$("#email").removeClass("error");
 	}
+	
     var data = {"sender_name" :     $("#sender_name").val(),
 				"sender_street" :   $("#sender_street").val(),
                 "sender_zip" :      $("#sender_zip").val(),
@@ -51,9 +53,10 @@ $(function() {
                 "receiver_zip" :    $("#receiver_zip").val(),
                 "receiver_city" :   $("#receiver_city").val(),
                 "size" :            $('input[name=size]:checked').val(),
-                "weight" :          $("#weight").val().replace(',',".")
+                "weight" :          $("#weight").val().replace(',',"."),
+				'auto_deliver':		$('#auto_deliver').prop("checked")
                 }
-
+		console.log(data);
       var set = "#register_form fieldset";
       var butt = "#register_packet_button";
       var jqxhr = $.post(server_url + "register", data, function(obj) {
