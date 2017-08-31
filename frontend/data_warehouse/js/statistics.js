@@ -17,20 +17,26 @@
       tooltips: { enabled: false }
     });
     */
-  });
+  });  
 
   app.controller('ChartController', ['$scope', '$http', '$attrs', '$element', function ($scope, $http, $attrs, $element) {
     $scope.labels = [];
     $scope.series = ['Pakete'];
-    $scope.data = [[]];
+    $scope.data   = [[]];    
     $scope.type_options = ["line", "pie", "bar"];
-    $scope.type = $scope.type_options[0];
-    $scope.options = { legend: { display: true } };
+    $scope.type     = $scope.type_options[0];
+    $scope.options  = { legend: { display: true } };    
+    $scope.all_time = true
 
     $scope.dataLoaded = false
 
     $scope.from_date = new Date(0)
     $scope.to_date = new Date()
+
+    $scope.from_date_obj = new Date(0)
+    $scope.to_date_obj = new Date()
+
+    $scope.no_data_available = false
 
     $scope.information_options = {
         "sizes"         : {"url" : "size", "type" : 1},
@@ -55,29 +61,55 @@
         }}
     }
 
-    /*
+    
     $scope.$watch('from_date', function (value) {
       try {
-       $scope.from_date = new Date(value);
+       $scope.from_date_obj = new Date(value);
       } catch(e) {
         console.log(e)
       }
-    }); */
+    });
+
+    $scope.$watch('to_date', function (value) {
+      try {
+       $scope.to_date_obj = new Date(value);
+      } catch(e) {
+        console.log(e)
+      }
+    });
+
+    /*
+    $scope.$watch('to_date', function (value) {
+      try {
+       $scope.to_date = new Date(value);
+      } catch(e) {
+        console.log(e)
+      }
+    });*/
 
 
     $scope.openFromCalendar = function() {
-      $element.find("#from_picker input").trigger("click")
+      $element.find("#from_picker input").trigger("click")      
     }
 
     $scope.openToCalendar = function() {
-      $element.find("#to_picker input").trigger("click")
+      $element.find("#to_picker input").trigger("click")      
     }
 
-    $scope.setData = function() {
+    $scope.setData = function() {      
       $scope.dataLoaded = false
 
+      var time_filter_url_string = ""
+      console.log($scope.to_date)
+      if (!$scope.all_time) {
+        var from_unix = Math.floor($scope.from_date_obj.getTime()/1000)
+        var to_unix = Math.floor($scope.to_date_obj.getTime()/1000)
+        time_filter_url_string = from_unix + "/" + to_unix + "/"
+      }
+      
+
       var information = $scope.information_options[$attrs.information]
-      var url = "http://localhost:8000/" + information["url"]
+      var url = "http://localhost:8000/" + time_filter_url_string + information["url"]
       var result_type = information["type"]
 
       $scope.series = $scope.series.slice(0,0)
@@ -85,25 +117,26 @@
         $scope.series.push("Pakete")
       }
 
-      $http.get(url).then(function success(response) {
-
+      $http.get(url).then(function success(response) {      
+        console.log($element)
+        
         $scope.data = $scope.data.slice(0,0)
         $scope.labels = $scope.labels.slice(0,0)
-
+        
         if (result_type == 3) {
           for (var key in response.data.values) {
             if (response.data.values.hasOwnProperty(key)) {
               // Add all keynames in response (car, train, ...) as own series
               for (var keyname in Object.keys(response.data.values[key])) {
                 if ($scope.series.indexOf(Object.keys(response.data.values[key])[keyname]) == -1) {
-                  $scope.series.push(Object.keys(response.data.values[key])[keyname])
-                }
+                  $scope.series.push(Object.keys(response.data.values[key])[keyname])                          
+                }                
               }
             }
           }
 
           for (var i = 0; i < $scope.series.length; ++i) {
-            var new_data_arr = []
+            var new_data_arr = []            
             for (var j = 0; j < Object.keys(response.data.values).length; ++j) {
               new_data_arr.push(0)
             }
@@ -116,14 +149,14 @@
 
         var didx = 0
         for (var key in response.data.values) {
-          if (response.data.values.hasOwnProperty(key)) {
+          if (response.data.values.hasOwnProperty(key)) {            
             if (result_type == 3) {
               // Add all keynames in response (car, train, ...) as own series
               for (var keyname in Object.keys(response.data.values[key])) {
                 var keyname_str = Object.keys(response.data.values[key])[keyname]
-                var series_idx = $scope.series.indexOf(keyname_str)
+                var series_idx = $scope.series.indexOf(keyname_str)                
                 $scope.data[series_idx][didx] = response.data.values[key][keyname_str]
-
+                
                 if ($scope.labels.indexOf(key) == -1) {
                   $scope.labels.push(key)
                 }
@@ -141,8 +174,8 @@
         }
 
         $scope.dataLoaded = true
-      }, function error() {
-        console.log("error");
+      }, function error() { 
+        console.log("error");        
       })
     }
 
@@ -173,7 +206,7 @@
 
   app.component("statistic", {
     "templateUrl": "templates/statistic.html",
-    "bindings": {"name" : "@", "type" : "@"},
+    "bindings": {"name" : "@", "type" : "@"},    
     "controller": 'ChartController'
   });
 
@@ -182,28 +215,28 @@
   app.controller('PieCtrl', ['$scope', '$http', function ($scope, $http) {
     $scope.labels = [];
     $scope.data = [];
-    $scope.options = { legend: { display: true } };
+    $scope.options = { legend: { display: true } };    
 
     $scope.dataLoaded = false;
 
     $scope.setData = function() {
       $scope.dataLoaded = false
 
-      $http.get("http://localhost:8000/getSizeDistribution").then(function success(response) {
-        console.log(response.data)
+      $http.get("http://localhost:8000/getSizeDistribution").then(function success(response) {                   
+        console.log(response.data)      
         $scope.data = $scope.data.slice(0,0)
         $scope.labels = $scope.labels.slice(0,0)
 
         for (var key in response.data.values) {
-          if (response.data.values.hasOwnProperty(key)) {
-            $scope.data.push(response.data.values[key])
+          if (response.data.values.hasOwnProperty(key)) {            
+            $scope.data.push(response.data.values[key])          
             $scope.labels.push(key)
           }
         }
 
         $scope.dataLoaded = true
-      }, function error() {
-        alert("error");
+      }, function error() { 
+        alert("error");        
       })
     }
 
@@ -211,7 +244,7 @@
 
   }]);
 
-
+  
   app.controller('MenuCtrl', ['$scope', function ($scope) {
     $scope.isCollapsed = true;
     $scope.charts = ['Line', 'Bar', 'Doughnut', 'Pie', 'Polar Area', 'Radar', 'Horizontal Bar', 'Bubble', 'Base'];
@@ -236,7 +269,7 @@
     }, 500);
   }]);
 
-
+  
 
   app.controller('PolarAreaCtrl', ['$scope', function ($scope) {
     $scope.labels = ['Download Sales', 'In-Store Sales', 'Mail Sales', 'Telesales', 'Corporate Sales'];
