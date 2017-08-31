@@ -138,6 +138,13 @@ class WarehouseService:
                     self.__addSumDataSet("summe", str(int(packet_data.get("delivery_time")) - int(packet_data.get("register_time"))), 'count', values, timestamp)
             return self.__calcArvages("summe", 'count', values)
 
+        def getAverageWeightByTime(self,timefilter,filter = Filter()):
+            values = {}
+            for packet_id, packet_data in self.packets.items(filter):
+                    timestamp = packet_data.getDate(timefilter)
+                    self.__addSumDataSet("summe", str(int(packet_data.get("weight")) - int(packet_data.get("register_time"))), 'count', values, timestamp)
+            return self.__calcArvages("summe", 'count', values)
+
 
         def getAverageStationCount(self,filter = Filter()):
             delivered_count = 0
