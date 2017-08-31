@@ -9,7 +9,6 @@ import mykafka
 import json
 import model
 import threading
-import numpy as np
 
 import time
 class Filter:
