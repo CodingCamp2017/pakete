@@ -16,6 +16,10 @@ from kafka.errors import KafkaError
 import uuid
 
 VERSION = 3
+#add all registered packets
+add  = lambda state, payload: state == PACKET_STATE_REGISTERED
+#remove if delivered
+delete = lambda newstate, payload, oldstate: newstate == PACKET_STATE_DELIVERED
 
 '''
 The Post-Service provides a web interface to register packets, update their
@@ -27,7 +31,7 @@ class PostService:
     '''
     def __init__(self, producer):
         self.producer = producer
-        self.idstore = IDStore()
+        self.idstore = IDStore(VERSION, add, delete)
         self.updater = IDUpdater(self.idstore)
         self.updater.start()
     '''
@@ -65,7 +69,7 @@ class PostService:
     def update_packet_location(self, data):
         #print("Update packet Location: "+str(data))
         packet_id = data["packet_id"]
-        if not self.idstore.check_packet_state(packet_id, PACKET_STATE_UPDATE_LOCATION):
+        if not self.idstore.packet_in_store(packet_id):
             raise Exceptions.InvalidActionException(Exceptions.TYPE_INVALID_KEY, "packet_id", "Packet with id '"+packet_id+"' has not yet been registered or has been delivered")
         packet_regex.check_json_regex(data, packet_regex.syntax_update)
         try:
@@ -84,7 +88,7 @@ class PostService:
         #print("Mark delivered: "+str(data))
         packet_regex.check_json_regex(data, packet_regex.syntax_delivered)
         packet_id = data["packet_id"]
-        if not self.idstore.check_packet_state(packet_id, PACKET_STATE_UPDATE_LOCATION):
+        if not self.idstore.packet_in_store(packet_id):
             raise Exceptions.InvalidActionException(Exceptions.TYPE_INVALID_KEY, "packet_id", "Packet with id '"+packet_id+"' has not yet been registered or has been delivered")
         try:
             mykafka.sendSync(self.producer, PACKET_TOPIC, PACKET_STATE_DELIVERED, VERSION, data)
