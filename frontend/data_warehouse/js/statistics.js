@@ -39,6 +39,7 @@
     $scope.to_date_nice = ""
 
     $scope.no_data_available = false
+    $scope.error_occured = false
 
     $scope.information_options = {
         "sizes"         : {"url" : "size", "type" : 1},
@@ -118,6 +119,7 @@
         $scope.series.push("Pakete")
       }
 
+      $scope.error_occured = false
       $http.get(url).then(function success(response) {   
         $scope.no_data_available = Object.keys(response.data.values).length < 1
         
@@ -177,6 +179,8 @@
         $scope.dataLoaded = true
       }, function error() { 
         console.log("error");
+        $scope.error_occured = true
+        $scope.dataLoaded = true        
       })
     }
 

@@ -15,7 +15,7 @@
 	      	</div>
       	</div>
       	
-        <div id="container" class="container" ng-hide="no_data_available">
+        <div id="container" class="container" ng-hide="no_data_available || error_occured">
            	<div class="panel-body">
                	<canvas id="chart_test" ng-if="$ctrl.type === 'pie'" class="chart chart-pie" chart-data="data" chart-labels="labels" chart-series="series" chart-options="options" chart-dataset-override="datasetOverride" chart-colors="colors" style="height: 100px"></canvas>
                	<canvas id="chart_test" ng-if="$ctrl.type === 'line'" class="chart chart-line" chart-data="data" chart-labels="labels" chart-series="series" chart-options="options" chart-dataset-override="datasetOverride" chart-colors="colors"></canvas>
@@ -25,6 +25,10 @@
 
         <div ng-show="no_data_available" class="bg-warning">
         	Für diesen Zeitraum gibt es keine Daten!
+        </div>
+
+        <div ng-show="error_occured" class="bg-danger">
+        	Daten konnten nicht geladen werden
         </div>
     </div>
 </div>
