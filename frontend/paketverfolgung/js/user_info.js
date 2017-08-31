@@ -9,15 +9,10 @@ $(function() {
             var packet = packetIds[i];
             loadPacketInfo(i, packet);
         }
-        packetTable_addRow(0, "sender", "receiver", "currentLocation");
    }, function(message) {
         // failure
         packetTable_clear();
         errorMessage(message);
-        
-        console('FAIL');
-        
-        packetTable_addRow(0, "sender", "receiver", "currentLocation");
    });
 });
 
@@ -65,8 +60,9 @@ function loadPacketInfo(index, packetId) {
     });
 }
 
-function deletePacketFromUser(packetId) {
-    if(packetId !== undefined && packetId > 0) {
+function removePacketFromUser(packetId) {
+    console.log('delete id ' + packetId);
+    if(packetId !== undefined && packetId.length > 0) {
         deletePacketFromUser(packetId, function() {
             //success
             packetTable_clear();
@@ -77,6 +73,8 @@ function deletePacketFromUser(packetId) {
             packetTable_clear();
             errorMessage(message);
         });
+    } else {
+        errorMessage("Unable to remove packet " + packetId + ".");
     }
 }
 
@@ -88,6 +86,6 @@ function packetTable_addRow(packetId, sender, receiver, currentLocation) {
     var cols = '<td>' + sender + '</td>';
     cols = cols + '<td>' + receiver + '</td>';
     cols = cols + '<td><a href="index.php?packet_id=' + packetId + '">' + currentLocation +'</a></td>';
-    cols = cols + '<td><button type="button" class="close" aria-label="Close" onclick="deletePacketFromUser(' + packetId + ');"><span aria-hidden="true">&times;</span></button></td>';
+    cols = cols + '<td><button type="button" class="close" aria-label="Close" onclick="removePacketFromUser(\'' + packetId + '\');"><span aria-hidden="true">&times;</span></button></td>';
     $('#table_user_packets > tbody:last-child').append('<tr>' + cols + '</tr>');
 }
