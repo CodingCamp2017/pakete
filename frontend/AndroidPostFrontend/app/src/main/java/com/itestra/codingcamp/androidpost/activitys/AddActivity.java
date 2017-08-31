@@ -49,7 +49,7 @@ public class AddActivity extends BaseActivity {
 
     @Override
     void sendData() {
-        HashMap<String, String> data = getPacketData();
+        HashMap<String, Object> data = getPacketData();
 
         ProgressDialog dialog = ProgressDialog.show(this, "Anfrage wird verarbeitet", "Paket wird angelegt");
         dialog.setCancelable(false);
@@ -129,8 +129,8 @@ public class AddActivity extends BaseActivity {
         }
     }
 
-    private HashMap<String, String> getPacketData() {
-        HashMap<String, String> data = new HashMap<>();
+    private HashMap<String, Object> getPacketData() {
+        HashMap<String, Object> data = new HashMap<>();
         for (Map.Entry<String, TextView> entry : inputMap.entrySet()) {
             if(entry.getValue() instanceof EditText)
             {
@@ -138,6 +138,7 @@ public class AddActivity extends BaseActivity {
             }
         }
         data.put("size", getSelectedSize());
+        data.put("auto_deliver", ((ToggleButton)findViewById(R.id.toggle_auto_deliver)).isChecked());
 
         return data;
     }

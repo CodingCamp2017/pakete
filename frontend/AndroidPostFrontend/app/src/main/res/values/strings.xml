@@ -16,6 +16,7 @@
     <string name="packet_size_small">Small</string>
     <string name="packet_size_normal">Normal</string>
     <string name="packet_size_big">Big</string>
+    <string name="auto_deliver">Auto deliver</string>
     <string name="edittext_packet_weight">Weight</string>
     <string name="edittext_packet_id">Packet ID</string>
     <string name="edit_text_packet_station">Packet Station</string>

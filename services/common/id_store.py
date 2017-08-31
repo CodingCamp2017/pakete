@@ -5,7 +5,6 @@ import os
 
 
 sys.path.append(os.path.relpath('../mykafka'))
-sys.path.append(os.path.relpath('../common'))
 import mykafka
 
 from constants import PACKET_TOPIC, PACKET_STATE_REGISTERED, PACKET_STATE_UPDATE_LOCATION, PACKET_STATE_DELIVERED
@@ -15,7 +14,7 @@ Stores packet_ids of all packets that are currently in the delivery chain
 (registered but not yet delivered).
 '''
 class IDStore:
-    def __init__(self, verbose=True):
+    def __init__(self, verbose=False):
         self.packet_map = {}
         self.verbose = verbose
     
@@ -62,7 +61,8 @@ class IDStore:
     '''
     def update(self, packet_id, state):
         if not self.check_package_state(packet_id, state):
-            print("Package "+str(packet_id)+" has not yet been registered or has been delivered")
+            pass
+            #print("Package "+str(packet_id)+" has not yet been registered or has been delivered")
         elif state == PACKET_STATE_DELIVERED:
             del self.packet_map[packet_id]
         else:

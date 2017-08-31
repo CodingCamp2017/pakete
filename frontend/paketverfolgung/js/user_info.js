@@ -1,32 +1,30 @@
 $(function() {
-   getUserPackets(function(packetNames) {
-       // success
-       packetTable_clear();
+    getUserPackets(function(packetNames) {
+        // success
+        packetTable_clear();
 
-       console.log(packetNames);
-       for(var i = 0; i < packetNames.length; i++) {
-            packetTable_addRow(i, packetNames[i]);
-       }
-   }, function() {
-       // failure
-       packetTable_clear();
-       packetTable_addRow('-', "Error loading packets");
+        for (var i = 0; i < packetNames.length; i++) {
+            var packet = packetNames[i];
+            var link = "<a href='index.php?packet_id=" + packet + "'>" + packet + "</a>";
+            packetTable_addRow(i, link);
+        }
+   }, function(message) {
+        // failure
+        packetTable_clear();
+        errorMessage(message);
    });
 });
 
 $("#add_packet_button").click(function() {
-    var packetId = $("#add_packet_id").val();
-    
+    var packetId = $("#add_packet_id").val();    
     addPacketToUser(packetId, function() {
         //success
         packetTable_clear();
-       packetTable_addRow('-', "Packet added");
-        
-    }, function() {
+        infoMessage("Packet added.");      
+    }, function(message) {
         // failure
         packetTable_clear();
-       packetTable_addRow('-', "Error adding packet");
-        
+        errorMessage(message);       
     });
 });
 
@@ -34,13 +32,12 @@ $("#button_delete_user").click(function() {
     deleteUser(function() {
         //success
         packetTable_clear();
-       packetTable_addRow('-', "User deleted");
-        
-    }, function() {
+        setLoginbarStatus();
+        infoMessage("User deleted.");      
+    }, function(message) {
         // failure
         packetTable_clear();
-       packetTable_addRow('-', "Error deleting user");
-        
+        errorMessage(message);      
     });
 });
 
