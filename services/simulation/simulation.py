@@ -6,6 +6,7 @@ import codecs
 import json
 import sys
 import os
+import multiprocessing
 sys.path.append(os.path.relpath('../mykafka'))
 sys.path.append(os.path.relpath('../common'))
 sys.path.append(os.path.relpath('../post_service'))
@@ -51,12 +52,11 @@ def create_random_packet():
 def simulate_register():
     while not threadStop.is_set():
         packet = create_random_packet()
-        with lock:
-            packet_id = post_service.register_packet(packet)
-            packetList.append(packet_id)
-        #time.sleep(randint(100,2000)/1000.0)
+        packet_id = post_service.register_packet(packet)
+        packetList.append(packet_id)
 
 def simulate_update():
+    time.sleep(1)
     while not threadStop.is_set():
         if not fakedata:
             continue
@@ -65,35 +65,40 @@ def simulate_update():
         with lock:
             if not packetList:
                 continue
-            packet_id = packetList[randint(0, len(packetList)-1)]
+            packet_id = packetList[0]
             try:
                 post_service.update_packet_location({'packet_id':packet_id,'station':fakecity, 'vehicle':vehicle})
             except InvalidActionException as e:
-                pass
+                print(e)
         #time.sleep(randint(500,2000)/1000.0)
 
 def simulate_deliver():
+    time.sleep(1)
     while not threadStop.is_set():
         with lock:
             if not packetList:
                 continue
-            packet_id = packetList[randint(0, len(packetList)-1)]
+            packet_id = packetList[0]
             try:
                 post_service.mark_delivered({'packet_id':packet_id})
             except InvalidActionException as e:
-                pass
+                print(e)
             packetList.remove(packet_id) 
         #time.sleep(randint(1000,4000)/1000.0)
 
 if __name__ == '__main__':
+    SIMULATION_TIME = 300 
     threadStop.clear()
     threads = list()
-    threads.append(threading.Thread(target=simulate_register))
-    threads.append(threading.Thread(target=simulate_update))
+    for i in range(int(multiprocessing.cpu_count()/2)):
+        threads.append(threading.Thread(target=simulate_register))
+        threads.append(threading.Thread(target=simulate_update))
     threads.append(threading.Thread(target=simulate_deliver))
     
     for t in threads:
+        daemon = True
         t.start()
 
-    for t in threads:
-        t.join()
+    time.sleep(SIMULATION_TIME)
+    
+    threadStop.set()

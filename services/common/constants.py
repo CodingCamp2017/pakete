@@ -16,7 +16,7 @@ PACKET_STATE_DELIVERED = 'delivered'
 '''
 The topic where all packet related events are stored to
 '''
-PACKET_TOPIC = 'packet'
+PACKET_TOPIC = 'packet_simulation'
 PACKET_EVENT_VERSION = 3
 
 USER_TOPIC = 'users'
