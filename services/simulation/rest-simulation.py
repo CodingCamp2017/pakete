@@ -85,7 +85,7 @@ if __name__ == '__main__':
     SIMULATION_TIME = 10 # Seconds
     fakeDataProvider = FakeDataProvider('fakedata.json')
     #restSimulation = RestSimulation('http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8000/',
-    restSimulation = RestSimulation('http://0.0.0.0:44653',
+    restSimulation = RestSimulation('http://0.0.0.0:8000',
                                     {"Content-Type":"application/json"},
                                     fakeDataProvider)
     restSimulation.threadStop.clear()

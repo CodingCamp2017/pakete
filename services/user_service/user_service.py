@@ -1,13 +1,11 @@
 import sys
 import os
 sys.path.append(os.path.relpath('../common'))
-import constants
-from user_events import UserEvent, UserPacketEvent
 sys.path.append(os.path.relpath('../mykafka'))
+import constants
 import mykafka
-
+from user_events import UserEvent, UserPacketEvent
 from kafka.errors import KafkaError
-
 import packet_regex
 from id_store import IDStore, IDUpdater
 from Exceptions import *
@@ -61,6 +59,15 @@ class UserService:
         email = self.u_cur.fetchone()
         if email:
             return email[0]
+            
+    def _packet_added_to_user(self, email, packet_id):
+        print('checking ' + email + ', id: ' + packet_id)       
+        self.p_cur.execute('SELECT (packet) FROM followed_packets WHERE email=?', (email,))
+        result = self.u_cur.fetchone();  
+        # TODO does not seem to return results
+        if result:
+            return True
+        return False
 
     '''
     Throws InvalidSessionIdException, SessionElapsedException
@@ -134,6 +141,11 @@ class UserService:
         if not self.idstore.packet_in_store(data['packet_id']):
             raise PacketNotFoundException('No packet with id '+data['packet_id']+' found')
         email = self._get_email_of_user(data['session_id'])
+        
+        #check if packet already added to user
+        if self._packet_added_to_user(email, data['packet']):
+            raise PacketAlreadyAddedException
+        
         self.p_cur.execute('INSERT INTO followed_packets (email, packet) VALUES (?,?)',
                            (email, data['packet_id']))
         self._update_session_id_timestamp(data['session_id'])

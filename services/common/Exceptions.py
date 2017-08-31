@@ -75,3 +75,6 @@ class NoSessionIdException(Exception):
 
 class NoPacketException(Exception):
     pass
+
+class PacketAlreadyAddedException(Exception):
+    pass

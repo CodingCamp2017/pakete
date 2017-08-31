@@ -130,10 +130,6 @@ def test_check_json_regex():
     except InvalidActionException as e:
         pass
     print("test_checkAvailable#4")
-          
 
-        
-    
-        
 if __name__ == '__main__':
     test_check_json_regex()

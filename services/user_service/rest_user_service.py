@@ -4,10 +4,9 @@
 import sys
 import os
 
-
+sys.path.append(os.path.relpath('../mykafka'))
 sys.path.append(os.path.relpath('../rest_common'))
 import rest_common
-sys.path.append(os.path.relpath('../mykafka'))
 import mykafka
 
 import getopt
@@ -80,6 +79,8 @@ def restAddPacket():
         return rest_common.create_error_response(422, e)
     except PacketNotFoundException as e:
         return rest_common.create_error_response(410, e)
+    except PacketAlreadyAddedException as e:
+        return rest_common.create_error_response(409, e)
     except CommandFailedException as e:
         return rest_common.create_error_response(504, e)
 
@@ -148,6 +149,5 @@ if __name__ == '__main__':
         else:
             print("Unknown option "+opt)
             sys.exit(1)
-
 
     app.run(debug=True, port=port, host="0.0.0.0")

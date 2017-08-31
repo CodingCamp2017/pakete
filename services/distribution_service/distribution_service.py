@@ -3,7 +3,7 @@ import os
 sys.path.append(os.path.relpath('../mykafka'))
 sys.path.append(os.path.relpath('../common'))
 
-from constants import PACKET_TOPIC, PACKET_STATE_REGISTERED, PACKET_STATE_UPDATE_LOCATION, PACKET_STATE_DELIVERED
+from constants import PACKET_TOPIC, PACKET_STATE_REGISTERED, PACKET_STATE_UPDATE_LOCATION
 import distribution_center
 import mykafka
 import threading

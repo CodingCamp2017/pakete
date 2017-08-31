@@ -11,13 +11,20 @@
 
         <div class="row justify-content-center">
             <div class="col-8">
-                <h1 class="mt-5">Paketnachverfolgung</h1>
-
+                <br>
+                <div id="info_message_container" class="alert alert-success">info</div>
+                <div id="error_message_container" class="alert alert-warning">error</div>
+                <!-- Spinning wheel-->
+                <div hidden class="mx-auto pageContent" id="spinner">
+                    <i class="fa fa-spinner fa-spin" style="font-size:50px" ></i>
+                </div>
+                
+                <h1 class="mt-5">Paketnachverfolgung</h1>                
 
                 <!-- Paket Suche -->
                 <div class="mx-auto pageContent" id="update_container">
 
-                <form id="update_form">
+                <form id="search_id">
                 <fieldset>
                   <input type="text" class="form-control" placeholder="ID" id="packet_id" /><br>
                   <input type="submit"  value="Paket suchen" id="update_packet_button" class="btn btn-primary" />
@@ -86,20 +93,16 @@
 	
                 <!--Neue Suche-->
             </div>	
-                
-           
-
-            <!--bestätigung ID-->
-            <div class="mx-auto pageContent" >
-                <i hidden class="fa fa-spinner fa-spin" style="font-size:50px" id="spinner"></i><br/>
-                  <div hidden id="server_answer"></div>
-            </div>
+          
              <div id="map"></div>	  
             <!-- /.container -->
             </div>
         </div>    
 
         <?php include('html/scripts.html'); ?>
+        <script src="js/tracking.js"></script>
+        <script src="js/map.js"></script>
+        <!--<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyASQQsfeuEWdnMjDjSKS8HhIjl6Gr6Qzfo&callback=initMap"></script>-->
+        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyASQQsfeuEWdnMjDjSKS8HhIjl6Gr6Qzfo"></script>
   </body>
-
 </html>

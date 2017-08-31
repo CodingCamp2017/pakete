@@ -41,13 +41,13 @@ class IDStore:
             print("Skipped")
             
     '''
-    Returns true if the packet with the given packet_id can be updated with the given state
+    Returns true if the packet with the given id can be updated with the given state
     '''
     def check_packet_state(self, packet_id, state):
         return (packet_id in self.packet_map and state != PACKET_STATE_REGISTERED) or (not packet_id in self.packet_map and state == PACKET_STATE_REGISTERED)
             
     '''
-    Returns true if the packet with the given packet_id is in the delivery chain
+    Returns true if the packet with the given id is in the delivery chain
     '''
     def packet_in_store(self, packet_id):
         return packet_id in self.packet_map
