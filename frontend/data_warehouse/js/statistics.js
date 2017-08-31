@@ -46,6 +46,8 @@
     $scope.options  = { legend: { display: true } };
     $scope.all_time = true
 
+    $scope.random_id = Math.floor(Math.random()*100000000)
+
     $scope.colours = ['#3498DB', '#72C02C', '#717984', '#F1C40F'];
 
     $scope.dataLoaded = false
