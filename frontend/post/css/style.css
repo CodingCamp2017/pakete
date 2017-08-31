@@ -23,7 +23,10 @@ body {
 	border-radius: 5px; 
 	border:#FF0000 1px solid;
 }
-
+.autodef{
+	margin-left: 40px;
+	margin-right: 4px;
+	}
 @media (min-width: 992px) {
     body {
         padding-top: 56px;
