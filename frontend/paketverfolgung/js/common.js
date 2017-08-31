@@ -19,6 +19,19 @@ function clearMessage() {
     $('#error_message_container').hide();
 }
 
+function errorMessageJson(response, fallback) {
+    if(response['responseJSON'] !== undefined) {
+        var json = response['responseJSON'];    
+        console.log(json);
+        if('error' in json && json['error'].length > 0) {
+            return json['error'];
+        } else if('message' in json && json['message'].length > 0) {
+            return json['message'];
+        }
+    }   
+    return fallback;
+}
+
 function setLoginbarStatus() {
     // shows login promt if no user logged in, else user mail adress
     if(userLoggedIn()) {
@@ -65,7 +78,7 @@ $("#button_logout_user").click(function () {
     });
 });
 
-$("#button_login_user").click(function () {
+$("#login_form").click(function () {
     var login_email = $("#email").val();
     var login_password = $("#password").val();
 

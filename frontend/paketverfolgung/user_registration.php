@@ -26,9 +26,11 @@
                     <h1>Neuen Benutzer registrieren</h1>
 
                     <form id="register_form">
-                        <input type="text" class="form-control" placeholder="Email" id="register_email" /><br>
-                        <input type="password" class="form-control" placeholder="Choose a password" id="register_password" /><br>
-                        <input type="button" value="Registrieren" id="register_button" class="btn btn-primary" />
+                        <fieldset>
+                            <input type="text" class="form-control" placeholder="Email" id="register_email" /><br>
+                            <input type="password" class="form-control" placeholder="Choose a password" id="register_password" /><br>
+                            <input type="submit" value="Registrieren" class="btn btn-primary" />
+                        </fieldset>
                     </form>
                 </div>
             </div>
