@@ -8,6 +8,7 @@ from flask import Flask, request
 
 sys.path.append(os.path.relpath('../common'))
 import packet_regex
+import constants
 sys.path.append(os.path.relpath('../rest_common'))
 sys.path.append(os.path.relpath('../mykafka'))
 import rest_common
@@ -16,7 +17,7 @@ import mykafka
 
 app = Flask(__name__)#Initialize flask
 
-srv = WarehouseService(mykafka.create_consumer('ec2-35-159-21-220.eu-central-1.compute.amazonaws.com', 9092, 'packet'))
+srv = WarehouseService(mykafka.create_consumer('ec2-35-159-21-220.eu-central-1.compute.amazonaws.com', 9092, constants.PACKET_TOPIC))
 
 groupby_map = {
     'hour':'%H',

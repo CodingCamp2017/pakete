@@ -1,7 +1,8 @@
 (function () {
   'use strict';
 
-  var base_server_url = "http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8003/";
+  //var base_server_url = "http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8003/";
+  var base_server_url = "http://localhost:8000/";
 
   var app = angular.module("app", ['chart.js', 'ui.bootstrap', '720kb.datepicker']);
 
