@@ -17,13 +17,14 @@ class Filter:
     __start = 0
     __end = -1
     def __init__(self,start = 0,end=-1):
-        self.__start = start
-        self.__end = end
+        self.__start = int(start)
+        self.__end = int(end)
 
-    def accept(self, timestame):
+    def accept(self, time):
+        time = int(time)
         if(self.__end == -1):
             return True
-        return self.__start < timestame & self.__end > timestame
+        return self.__start <= time and self.__end >= time
 '''
 This consumer listens to the topic packet and builds the internal packet history
 model.
@@ -152,7 +153,7 @@ class WarehouseService:
             return self.getPacketCount() /stationcount*1.0
 
 
-        def getAverageWeightByTime(self,timefilter,filter = Filter()):
+        def ByTime(self,timefilter,filter = Filter()):
             values = {}
 
             for packet_id, packet_data in self.packets.items(filter):
@@ -309,12 +310,90 @@ class WarehouseService:
         def _getDate(self,UNIXTime,timefilter):
             return datetime.datetime.fromtimestamp(int(UNIXTime)).strftime(timefilter)
 
+        def getTimespentIn(self,ByName=False,filter = Filter()):
+            if ByName:
+                name = 'station_name'
+            else:
+                name = 'vehicle'
+            values = {}
+            counts = {}
+            for packet_id, packet_data in self.packets.items(filter):
+                start = int(packet_data.get('register_time'))
 
+                list = packet_data.get('stations')
+                for i in range(len(list)):
+                    currendstation = packet_data.get('stations')[i]
+                    ziel = int(currendstation['station_time'])
+                    key = currendstation[name]
+                    if not key in values:
+                        values[key] = 0
+                        counts[key] = 0
+                    values[key] += ziel-start
+                    counts[key] +=1
+                    start = ziel
+                if packet_data.has('delivery_time'):
+                    ziel = int(packet_data.get('delivery_time'))
 
+                    if not 'delivery' in values:
+                        values['delivery'] = 0
+                        counts['delivery'] = 0
+                    values['delivery'] += ziel - start
+                    counts['delivery'] += 1
 
+                out = {}
+                for key,value in values.items():
+                    out[key] = values[key]/counts[key]
+            return out;
+        # end of FKT
+        def getTimespentInByTime(self,timefilter,ByName=False,filter = Filter()):
+            if ByName:
+                name = 'station_name'
+            else:
+                name = 'vehicle'
+            values = {}
+            for packet_id, packet_data in self.packets.items(filter):
+                start = int(packet_data.get('register_time'))
+                timestamp = packet_data.getDate(timefilter)
+                list = packet_data.get('stations')
+                for i in range(len(list)):
+                    currendstation = packet_data.get('stations')[i]
+                    ziel = int(currendstation['station_time'])
+                    key = currendstation[name]
+                    if not timestamp in values:
+                        values[timestamp] = {'values' : {} , 'counts' : {}}
+
+                    if not key in values[timestamp]['values']:
+                        values[timestamp]['values'][key] = 0
+                        values[timestamp]['counts'][key] = 0
+
+                    values[timestamp]['values'][key] += ziel-start
+                    values[timestamp]['counts'][key] += 1
+                    start = ziel
+                    timestamp = self._getDate(ziel, timefilter)
+                if packet_data.has('delivery_time'):
+                    ziel = int(packet_data.get('delivery_time'))
+                    if not timestamp in values:
+                        values[timestamp] = {'values' : {} , 'counts' : {}}
+
+                    if not 'delivery' in values[timestamp]['values']:
+                        values[timestamp]['values']['delivery'] = 0
+                        values[timestamp]['counts']['delivery'] = 0
+
+                    values[timestamp]['values']['delivery'] += ziel - start
+                    values[timestamp]['counts']['delivery'] += 1
+
+                out = {}
+                for time in values:
+                    tmp = {}
+                    for key,value in values[time]['values'].items():
+                        tmp[key] = values[time]['values'][key]/values[time]['counts'][key]
+                    out[time] = tmp
+            return out;
+        # end of FKT
 if __name__ == "__main__":
     consumer = mykafka.create_consumer('ec2-35-159-21-220.eu-central-1.compute.amazonaws.com', 9092, 'packet')
     srv = WarehouseService(consumer)
+    '''
     while(True):
         time.sleep(3)
         print("Anzahl Pakete: " + str(srv.getPacketCount()))
@@ -334,32 +413,35 @@ if __name__ == "__main__":
         #print("Anzahl Sender_name "+str(srv.getCountOfKey("sender_name")))
         #print("Anzahl Sender_name nach Zeit: " + str(srv.getCountOfKeyByTime("sender_name", '%Y-%m-%d %H')))
         #print("Anzahl sender_city "+str(srv.getCountOfKey("sender_city")))
-        #print("Anzahl sender_city "+str(srv.getCountOfKey("size")))
+        print("Anzahl sender_city "+str(srv.getCountOfKey("size")))
 
         ##Current Location of Packs TODO
-        # print(srv.getCountOfCurrendLocationOfPackets())
-        # print(srv.getCountOfCurrendLocationOfPackets(True))
+        #print(srv.getCountOfCurrendLocationOfPackets())
+        #rint(srv.getCountOfCurrendLocationOfPackets(True))
 
         ##Location by Time TODO
-        # print(srv.getCountOfLacationByTime('%w'))
-        # print(srv.getCountOfLacationByTime('%Y-%m-%d %H'))
-        # print(srv.getCountOfLacationByTime('%Y-%m-%d'))
-        # print(srv.getCountOfLacationByTime('%Y-%m-%d',False,False))
-        # print(srv.getCountOfLacationByTime('%Y-%m-%d',False,False,False))
-        # print(srv.getCountOfLacationByTime('%Y-%m-%d',False,True,False))
-        # print(srv.getCountOfLacationByTime('%Y-%m-%d', True))
-        # print(srv.getCountOfLacationByTime('%Y-%m-%d', True, False))
-        # print(srv.getCountOfLacationByTime('%Y-%m-%d', True, False, False))
-        # print(srv.getCountOfLacationByTime('%Y-%m-%d', True, True, False))
-        # print("Anzahl Sender_name von Otto Hahn: " + str(srv.getCountOfKeyValue("sender_name", "Otto Hahn")))
-        # print("Anzahl Sender_name von Otto Hahn: " + str(srv.getCountOfKeyValueByTime("sender_name", "Otto Hahn", '%Y-%m-%d %H')))
-        # print("Anzahl Sender_name nach Zeit: " + str(srv.getCountOfKeyByTime("sender_name", '%Y-%m-%d %H')))#
+        #print(srv.getCountOfLacationByTime('%w'))
+        #print(srv.getCountOfLacationByTime('%Y-%m-%d %H'))
+        #print(srv.getCountOfLacationByTime('%Y-%m-%d'))
+        #print(srv.getCountOfLacationByTime('%Y-%m-%d',False,False))
+        #print(srv.getCountOfLacationByTime('%Y-%m-%d',False,False,False))
+        #print(srv.getCountOfLacationByTime('%Y-%m-%d',False,True,False))
+        #print(srv.getCountOfLacationByTime('%Y-%m-%d', True))
+        #print(srv.getCountOfLacationByTime('%Y-%m-%d', True, False))
+        #print(srv.getCountOfLacationByTime('%Y-%m-%d', True, False, False))
+        #print(srv.getCountOfLacationByTime('%Y-%m-%d', True, True, False))
+        #print("Anzahl Sender_name von Otto Hahn: " + str(srv.getCountOfKeyValue("sender_name", "Otto Hahn")))
+        #print("Anzahl Sender_name von Otto Hahn: " + str(srv.getCountOfKeyValueByTime("sender_name", "Otto Hahn", '%Y-%m-%d %H')))
+        #print("Anzahl Sender_name nach Zeit: " + str(srv.getCountOfKeyByTime("sender_name", '%Y-%m-%d %H')))#
 
         ##Registration TODO
         #print(srv.getCountOfRegistrationByTime("%Y-%m-%d %H"))
         #print(srv.getCountOfDeliveredByTime("%Y-%m-%d %H"))
 
-
+        print(srv.getTimespentInByTime("%Y-%m-%d %H"))
+        print(srv.getTimespentInByTime("%Y-%m-%d %H",True))
+        print(srv.getTimespentInByTime("%w"))
+    '''
 
 
 
