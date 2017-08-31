@@ -3,8 +3,8 @@ import os
 sys.path.append(os.path.relpath('../mykafka'))
 sys.path.append(os.path.relpath('../common'))
 
+from constants import PACKET_TOPIC, PACKET_STATE_REGISTERED, PACKET_STATE_UPDATE_LOCATION, PACKET_STATE_DELIVERED
 import distribution_center
-import constants
 import mykafka
 import threading
 import json
@@ -87,11 +87,12 @@ class DistributionService(threading.Thread):
         
         
     def run(self):
-        consumer = mykafka.create_consumer('ec2-35-159-21-220.eu-central-1.compute.amazonaws.com', 9092, 'packet', from_beginning=False)
+        consumer = mykafka.create_consumer('ec2-35-159-21-220.eu-central-1.compute.amazonaws.com', 9092, PACKET_TOPIC, from_beginning=False)
+        time.sleep(1)
         while not self.threadStop.is_set():
             print('Starting ' + str(self.center_id))
             for event in consumer:
-                time.sleep(1)
+                #time.sleep(1)
                 print(str(self.center_id) + ' consumes event')
                 
                 eventJson = json.loads(event.value.decode('utf-8'))
@@ -108,9 +109,10 @@ class DistributionService(threading.Thread):
                     print('Skipping event with version older than 3 (found: ' + str(eventVersion) + ')')
                     return
                 
-                print('-----------------')
+                #print('-----------------')
                 
-                if eventType == constants.PACKET_STATE_REGISTERED and eventPayload['sender_zip'][0] == str(self.center_id):
+                if (eventType == PACKET_STATE_REGISTERED and 
+                    eventPayload['sender_zip'][0] == str(self.center_id)):
                     if eventPayload['receiver_zip'][0] == str(self.center_id):
                         if not self.center_id:
                             print('impossible case')
@@ -122,7 +124,9 @@ class DistributionService(threading.Thread):
                         #print(self.station + ' detected registered packet ' + packet_id[0:6] + ' and updated location')
                         self._update_registered_packet(eventPayload)
                     
-                elif (eventType == constants.PACKET_STATE_UPDATE_LOCATION) and (eventPayload['station'] == self.station) and not (eventPayload['vehicle'] == 'center'):
+                elif (eventType == PACKET_STATE_UPDATE_LOCATION and 
+                      eventPayload['station'] == self.station and 
+                      not (eventPayload['vehicle'] == 'center')):
                     if not self.center_id:
                         print('Delivering updated packet ' + packet_id)
                     #print(self.station + ' detected updated packet ' + packet_id[0:6] + ' and started delivery')
@@ -148,8 +152,8 @@ class Tester(threading.Thread):
                   'size' : 'big',
                   'weight' : '200'}
         #while not self.threadStop.is_set():
-        time.sleep(1)
         for i in range(10):
+            time.sleep(1)
             registerRequest = urllib.request.Request(self.baseurl + '/register',
                 data = json.dumps(packet).encode('utf8'),
                 headers = self.headers)
@@ -160,7 +164,7 @@ class Tester(threading.Thread):
         
 if __name__ == '__main__':
     
-    post_service_url = 'http://0.0.0.0:8000'
+    post_service_url = 'http://0.0.0.0:43747'
     headers = {"Content-Type":"application/json"}
     
     SIMULATION_TIME = 10 # Seconds

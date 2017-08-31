@@ -7,6 +7,7 @@ import time
 import json
 import signal
 import urllib
+import urllib.request
 import multiprocessing
 
 class Provider():
@@ -29,6 +30,7 @@ class TransportSimulation():
         connection = http.client.HTTPConnection(self.baseurl)
         while not self.threadStop.is_set():
             #print("register")
+            time.sleep(1)
             name1 = self.fakeDataProvider.getRandomName()
             address1 = self.fakeDataProvider.getRandomAddress()
             name2 = self.fakeDataProvider.getRandomName()
@@ -66,10 +68,11 @@ class TransportSimulation():
 
 if __name__ == '__main__':
     
+    post_service_url = 'http://0.0.0.0:8000'
     local_post_host = 'http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8000'
     
-    SIMULATION_TIME = 60 # Seconds
-    transportSimulation = TransportSimulation(local_post_host,
+    SIMULATION_TIME = 10 # Seconds
+    transportSimulation = TransportSimulation(post_service_url,
                                     {"Content-Type":"application/json"})
     transportSimulation.threadStop.clear()
     threads = list()
@@ -80,11 +83,11 @@ if __name__ == '__main__':
         t.daemon = True
         t.start()
         
-    def sigint_handler(signum, frame):
-        print('Interrupted')
-        transportSimulation.threadStop.set()
+    #def sigint_handler(signum, frame):
+     #   print('Interrupted')
+      #  transportSimulation.threadStop.set()
     
-    signal.signal(signal.SIGINT, sigint_handler)
+    #signal.signal(signal.SIGINT, sigint_handler)
 
     time.sleep(SIMULATION_TIME)
     transportSimulation.threadStop.set()
