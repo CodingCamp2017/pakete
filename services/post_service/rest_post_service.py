@@ -31,7 +31,8 @@ this server.
 @app.route('/register', methods=['POST'])
 def restRegister():
     try:
-        data = rest_common.get_rest_data(request)
+        request_data = rest_common.get_rest_data(request)
+        data = copy_dict(request_data)
         if 'auto_deliver' not in data:
             data['auto_deliver'] = False
         elif data['auto_deliver'] not in [True, False]:
