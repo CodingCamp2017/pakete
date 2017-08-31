@@ -32,6 +32,13 @@
     $scope.from_date = new Date(0)
     $scope.to_date = new Date()
 
+    $scope.information_options = {
+        "sizes"         : {"url" : "size", "type" : 1},
+        "vehicles"      : {"url" : "location_vehicle_current", "type" : 1},
+        "avg_delivery"  : {"url" : "average_delivery/day", "type" : 2},
+        "location_day"  : {"url" : "location_vehicle_current/day", "type" : 3},
+        "location_hour" : {"url" : "location_vehicle_current/hour", "type" : 3}
+    }
 
     /*
     $scope.$watch('from_date', function (value) {
@@ -41,6 +48,7 @@
         console.log(e)
       }
     }); */
+
 
     $scope.openFromCalendar = function() {
       $element.find("#from_picker input").trigger("click")      
@@ -53,21 +61,63 @@
     $scope.setData = function() {      
       $scope.dataLoaded = false
 
-      if ($attrs.information == "sizes") {
-        var url = "http://localhost:8000/getSizeDistribution";
-      } else if($attrs.information == "registrations") {
-        var url = "http://localhost:8000/getRegistrationsPerDay";
+      var information = $scope.information_options[$attrs.information]
+      var url = "http://localhost:8000/" + information["url"]
+      var result_type = information["type"]
+
+      $scope.series = $scope.series.slice(0,0)
+      if (result_type != 3) {
+        $scope.series.push("Pakete")
       }
 
-      $http.get(url).then(function success(response) {
-        $scope.data[0] = $scope.data[0].slice(0,0)
+      $http.get(url).then(function success(response) {        
+        
+        $scope.data = $scope.data.slice(0,0)
         $scope.labels = $scope.labels.slice(0,0)
+        
+        if (result_type == 3) {
+          for (var key in response.data.values) {
+            if (response.data.values.hasOwnProperty(key)) {
+              // Add all keynames in response (car, train, ...) as own series
+              for (var keyname in Object.keys(response.data.values[key])) {
+                if ($scope.series.indexOf(Object.keys(response.data.values[key])[keyname]) == -1) {
+                  $scope.series.push(Object.keys(response.data.values[key])[keyname])                          
+                }                
+              }
+            }
+          }
 
+          for (var i = 0; i < $scope.series.length; ++i) {
+            var new_data_arr = []            
+            for (var j = 0; j < Object.keys(response.data.values).length; ++j) {
+              new_data_arr.push(0)
+            }
+            $scope.data.push(new_data_arr)
+          }
+        } else {
+          $scope.data.push([])
+        }
+
+        var didx = 0
         for (var key in response.data.values) {
           if (response.data.values.hasOwnProperty(key)) {            
-            $scope.data[0].push(response.data.values[key])          
-            $scope.labels.push(key)
+            if (result_type == 3) {
+              // Add all keynames in response (car, train, ...) as own series
+              for (var keyname in Object.keys(response.data.values[key])) {
+                var keyname_str = Object.keys(response.data.values[key])[keyname]
+                var series_idx = $scope.series.indexOf(keyname_str)                
+                $scope.data[series_idx][didx] = response.data.values[key][keyname_str]
+                
+                if ($scope.labels.indexOf(key) == -1) {
+                  $scope.labels.push(key)
+                }
+              }
+            } else {
+              $scope.data[0].push(response.data.values[key])          
+              $scope.labels.push(key)
+            }
           }
+          didx++
         }
 
         $scope.dataLoaded = true
@@ -107,6 +157,8 @@
     "controller": 'ChartController'
   });
 
+  /*
+
   app.controller('PieCtrl', ['$scope', '$http', function ($scope, $http) {
     $scope.labels = [];
     $scope.data = [];
@@ -139,7 +191,7 @@
 
   }]);
 
-  /*
+  
   app.controller('MenuCtrl', ['$scope', function ($scope) {
     $scope.isCollapsed = true;
     $scope.charts = ['Line', 'Bar', 'Doughnut', 'Pie', 'Polar Area', 'Radar', 'Horizontal Bar', 'Bubble', 'Base'];
