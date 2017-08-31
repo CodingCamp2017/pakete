@@ -1,6 +1,6 @@
 <div class="card">
     <div class="card-body">
-      	<h4 class="card-title anfragelink"><i ng-hide="dataLoaded" class="fa fa-refresh fa-spin"></i><i class="fa fa-refresh" ng-click="setData()" ng-show="dataLoaded"></i> {{$ctrl.name}}</h4>
+      	<h4 class="card-title"><i ng-hide="dataLoaded" class="fa fa-refresh fa-spin"></i><i class="fa fa-refresh refreshlink" ng-click="setData()" ng-show="dataLoaded"></i> {{$ctrl.name}}</h4>
       	<select ng-model="$ctrl.type" ng-options="x for x in type_options"></select>
       	<input type="checkbox" ng-model="all_time" id="all_time_chk" /><label for="all_time_chk">Gesamter Zeitraum</label>
       	<div ng-hide="all_time">
@@ -17,7 +17,7 @@
       	
         <div id="container" class="container" ng-hide="no_data_available">
            	<div class="panel-body">
-               	<canvas id="chart_test" ng-if="$ctrl.type === 'pie'" class="chart chart-pie" chart-data="data" chart-labels="labels" chart-series="series" chart-options="options" chart-dataset-override="datasetOverride" chart-colors="colors"></canvas>
+               	<canvas id="chart_test" ng-if="$ctrl.type === 'pie'" class="chart chart-pie" chart-data="data" chart-labels="labels" chart-series="series" chart-options="options" chart-dataset-override="datasetOverride" chart-colors="colors" style="height: 100px"></canvas>
                	<canvas id="chart_test" ng-if="$ctrl.type === 'line'" class="chart chart-line" chart-data="data" chart-labels="labels" chart-series="series" chart-options="options" chart-dataset-override="datasetOverride" chart-colors="colors"></canvas>
                	<canvas id="chart_test" ng-if="$ctrl.type === 'bar'" class="chart chart-bar" chart-data="data" chart-labels="labels" chart-series="series" chart-options="options" chart-dataset-override="datasetOverride" chart-colors="colors"></canvas>
           	</div>
