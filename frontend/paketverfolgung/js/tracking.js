@@ -34,6 +34,7 @@ $(function() {
     var urlId = getUrlParameter("packet_id");
     if(urlId !== undefined && urlId.length > 0) {
         current_id = urlId;
+        $('#packet_id').val(current_id)
         trackPacketId(current_id);
     }
 });
