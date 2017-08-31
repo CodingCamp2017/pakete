@@ -59,12 +59,12 @@ function trackPacketId(packetId) {
         //Liste
         //Erste Spalte
         $("#regloc").text(responseData.sender_city);
-        $("#regdate").text(getDate(responseData.packetRegistrationTime));
+        $("#regdate").text(getDate(responseData.registration_time));
         //Restliche Spalten
         removeRows();
 
         // TODO whole address, not only city
-        stations = [{"vehicle": "envelope", "address": getAbsender(), "time": getDate(responseData.packetRegistrationTime)}];
+        stations = [{"vehicle": "envelope", "address": getAbsender(), "time": getDate(responseData.registration_time)}];
 
         var arrayLength = responseData.stations.length;
         for (var i = 0; i < arrayLength; i++) {
