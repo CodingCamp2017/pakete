@@ -52,10 +52,10 @@ $("#button_logout_user").click(function () {
         setLoginbarStatus();
         infoMessage("Logout successfull.");
         
-        if(location.pathname !== "/index.php") {
+        if(!location.pathname.endsWith("index.php")) {
             // redirect to index after 1 second
             setTimeout(function () {
-                location = "/index.php";
+                location = "index.php";
             }, 1000); 
         }
     }, function (message) {
