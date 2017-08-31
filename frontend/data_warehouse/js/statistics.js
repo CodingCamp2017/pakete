@@ -45,7 +45,22 @@
         "vehicles"      : {"url" : "location_vehicle_current", "type" : 1},
         "avg_delivery"  : {"url" : "average_delivery/day", "type" : 2},
         "location_day"  : {"url" : "location_vehicle_current/day", "type" : 3},
-        "location_hour" : {"url" : "location_vehicle_current/hour", "type" : 3}
+        "location_hour" : {"url" : "location_vehicle_current/hour", "type" : 3},
+        "avg_weight_day":{"url" : "average_weight/day", "type" : 2},
+        "registrations_day":{"url" : "registration/day", "type" : 2},
+        "registrations_hour":{"url" : "registration/hour", "type" : 2},
+        "addresses"     : {"url" : "location_address_current", "type" : 1,
+        "filterfun": function (text, zahl) {
+            return text != "registert" && text != "delivery" && zahl >= 5
+        }},
+        "city_send"     : {"url" : "sender_city", "type" : 1,
+        "filterfun" : function (text, zahl) {
+            return zahl > 100
+        }},
+        "city_receive"     : {"url" : "receiver_city", "type" : 1,
+        "filterfun" : function (text, zahl) {
+            return zahl > 100
+        }}
     }
 
     var getDateString = function(obj) {
@@ -119,7 +134,7 @@
         
         $scope.data = $scope.data.slice(0,0)
         $scope.labels = $scope.labels.slice(0,0)
-
+        
         if (result_type == 3) {
           for (var key in response.data.values) {
             if (response.data.values.hasOwnProperty(key)) {
@@ -140,6 +155,7 @@
             $scope.data.push(new_data_arr)
           }
         } else {
+          // Type 1, 2
           $scope.data.push([])
         }
 
@@ -158,8 +174,12 @@
                 }
               }
             } else {
-              $scope.data[0].push(response.data.values[key])          
-              $scope.labels.push(key)
+              // Type 1, 2
+              let value = response.data.values[key]
+              if (!information.filterfun || information.filterfun(key, value)) {
+                $scope.data[0].push(value)
+                $scope.labels.push(key)
+              }
             }
           }
           didx++
