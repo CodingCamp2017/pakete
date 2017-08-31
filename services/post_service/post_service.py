@@ -42,7 +42,7 @@ class PostService:
     Raises Exception.CommandFailedException if the underlying kafka service could not acknowledge the event
     '''
     def register_package(self, jobj):
-        print("Register Package: "+str(jobj))
+        #print("Register Package: "+str(jobj))
         packet_regex.check_json_regex(jobj, packet_regex.syntax_register)
         package_id = self.assign_package_id()
         newjobj = { key : value for (key, value) in jobj.items()}
@@ -61,7 +61,7 @@ class PostService:
     Raises Exception.CommandFailedException if the underlying kafka service could not acknowledge the event
     '''
     def update_package_location(self, jobj):
-        print("Update Package Location: "+str(jobj))
+        #print("Update Package Location: "+str(jobj))
         packet_id = jobj["packet_id"]
         if not self.idstore.check_package_state(packet_id, PACKET_STATE_UPDATE_LOCATION):
             raise Exceptions.InvalidActionException(Exceptions.TYPE_INVALID_KEY, "packet_id", "Packet with id '"+packet_id+"' has not yet been registered or has been delivered")
@@ -79,7 +79,7 @@ class PostService:
     Raises Exception.CommandFailedException if the underlying kafka service could not acknowledge the event
     '''
     def mark_delivered(self, jobj):
-        print("Mark delivered: "+str(jobj))
+        #print("Mark delivered: "+str(jobj))
         packet_regex.check_json_regex(jobj, packet_regex.syntax_delivered)
         packet_id = jobj["packet_id"]
         if not self.idstore.check_package_state(packet_id, PACKET_STATE_UPDATE_LOCATION):

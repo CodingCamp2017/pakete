@@ -34,7 +34,8 @@ $(function() {
 	  
 	if($("#email").val().length!==0){
 		//TODO
-		showError("email");		
+		showError("email");
+		errorMessage("Diese Email hat keinen Account. Erstellen sie einen Account auf der Paketverfolgungsseite.")
 		$("#server_answer").prop("hidden",false);
 		$("#server_answer").text("Diese Email hat keinen Account. Erstellen sie einen Account auf der Paketverfolgungsseite.");
 		return false;
@@ -57,8 +58,8 @@ $(function() {
       var butt = "#register_packet_button";
       var jqxhr = $.post(server_url + "register", data, function(obj) {
 		  console.log(obj);
-		serverReturned("Ihr Paket wurde registriert. Es hat die ID " + obj.id,set,butt);
-		$("#qrcode").prop("src","https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + obj.id);
+		serverReturned("Ihr Paket wurde registriert. Es hat die ID " + obj.packet_id,set,butt);
+		$("#qrcode").prop("src","https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + obj.packet_id);
 		//TODO send id an Nutzerkonto
       })
       //.done(function() {
@@ -112,13 +113,16 @@ function waitOnServer(fset,pbutton){
 	$(fset).prop("disabled", true);
 	$(pbutton).prop("hidden",true);
 	$("#spinner").prop("hidden",false);
-	$("#server_answer").prop("hidden",true);
+    $('#info_message_container').hide();	
+    $('#error_message_container').hide();
 }
 function serverReturned(info,fset,pbutton){
 	console.log("Request successful");
 	$(fset).prop("disabled", false);
 	$(pbutton).prop("hidden",false);
-	$("#server_answer").text(info);		
+	if(info !== undefined && info.length > 0) {
+        infoMessage(info);
+    }	
 }
 
 function failReturned(responseText,statu,fset,pbutton){
@@ -144,10 +148,10 @@ function failReturned(responseText,statu,fset,pbutton){
 		}else{
 			errortext += error;
 		}
-	$("#server_answer").text(errortext);
+	errorMessage(errortext);
 	}
 function cleanUp() {
-	$("#server_answer").prop("hidden",false);
+	
 	$("#spinner").prop("hidden",true);
 	//console.log( "finished" );
 }
@@ -159,3 +163,17 @@ function showError(string){
 		$(string).off("keydown");
 	});
 }
+
+
+function errorMessage(message) {
+    $('#info_message_container').hide();
+    $('#error_message_container').html(message).show();    
+}
+
+function infoMessage(message) {
+    $('#error_message_container').hide();
+    $('#info_message_container').html(message).show();
+}
+
+
+

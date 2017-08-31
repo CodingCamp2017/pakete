@@ -1,10 +1,11 @@
 import sys
 import os
 sys.path.append(os.path.relpath('../common'))
+sys.path.append(os.path.relpath('../mykafka'))
 
 import packet_regex
 from id_store import IDStore, IDUpdater
-from Exceptions import UserExistsException, UserUnknownException, SessionElapsedException, InvalidPasswortException, PacketNotFoundException
+from Exceptions import UserExistsException, UserUnknownException, SessionElapsedException, PacketAlreadyAddedException, InvalidPasswortException, PacketNotFoundException, InvalidSessionIdException
 
 import sqlite3 as sql
 from passlib.hash import pbkdf2_sha256
@@ -26,7 +27,7 @@ class UserService:
             self.u_cur.execute('INSERT INTO users (email, password, name, street, zip, city, session_id, session_id_timestamp) VALUES (?,?,?,?,?,?,?,?)',
                                ('dummy_email', '123', '', '', '', '', '', ''))
         except sql.OperationalError:
-            print('User database is locked')
+            #print('User database is locked')
             os.system('mv user_database.db temp.db')
             os.system('cp temp.db user_database.db')
             self.u_con = sql.connect('user_database.db', check_same_thread=False)
@@ -36,7 +37,7 @@ class UserService:
             self.p_cur.execute('INSERT INTO followed_packets (email, packet) VALUES (?,?)',
                                ('dummy_email', '123'))
         except sql.OperationalError:
-            print('Packets database is locked')
+            #print('Packets database is locked')
             os.system('mv followed_packets_database.db temp.db')
             os.system('cp temp.db followed_packets_database.db')
             self.p_con = sql.connect('followed_packets_database.db', check_same_thread=False)
@@ -56,9 +57,21 @@ class UserService:
         if email:
             return email[0]
             
+    def _packet_added_to_user(self, email, packet_id):
+        print('checking ' + email + ', id: ' + packet_id)       
+        self.p_cur.execute('SELECT (packet) FROM followed_packets WHERE email=?', (email,))
+        result = self.u_cur.fetchone();  
+        # TODO does not seem to return results
+        if result:
+            return True
+        return False
+
     def _check_session_active(self, session_id):
         self.u_cur.execute('SELECT session_id_timestamp FROM users WHERE session_id=?', (session_id,))
-        session_id_timestamp = self.u_cur.fetchone()[0]
+        ids = self.u_cur.fetchone()
+        if not ids:
+            raise InvalidSessionIdException
+        session_id_timestamp = ids[0]
         elapsed_time = datetime.now() - datetime.strptime(session_id_timestamp, '%Y-%m-%d %H:%M:%S.%f')
         if elapsed_time.total_seconds() > 600:
             # TODO: remove session id
@@ -88,10 +101,13 @@ class UserService:
         password_hash = self.u_cur.fetchone()[0]
         if not pbkdf2_sha256.verify(data['password'], password_hash):
             raise InvalidPasswortException
+        session_id = str(uuid.uuid1())
+        self.u_cur.execute('UPDATE users SET session_id = ? WHERE email = ?',
+                           (session_id, data['email']))
         self.u_cur.execute('UPDATE users SET session_id_timestamp = ? WHERE email = ?',
                            (str(datetime.now()), data['email']))
         self.u_con.commit()
-        return True
+        return session_id
 
 #    def update_user_adress(self, data):
 #        packet_regex.check_json_regex(data, packet_regex.syntax_update_user_adress)
@@ -104,23 +120,24 @@ class UserService:
     def add_packet_to_user(self, data):
         packet_regex.check_json_regex(data, packet_regex.syntax_add_packet_to_user)
         self._check_session_active(data['session_id'])
-        self._update_session_id_timestamp(data['session_id'])
-        #if not self.idstore.packet_in_store(data['packet']):
-         #   raise PacketNotFoundException
+        if not self.idstore.packet_in_store(data['packet']):
+            raise PacketNotFoundException
         email = self._get_email_of_user(data['session_id'])
+        
+        #check if packet already added to user
+        if self._packet_added_to_user(email, data['packet']):
+            raise PacketAlreadyAddedException
+        
         self.p_cur.execute('INSERT INTO followed_packets (email, packet) VALUES (?,?)',
                            (email, data['packet']))
-        self.u_con.commit()
         self._update_session_id_timestamp(data['session_id'])
+        self.u_con.commit()
         
     # TODO remove packet from user
         
-    def get_packets_from_user(self, userEmail):
-        print('getting packets')
-        
-        return "packets"
-        
-        packet_regex.check_json_regex({'session_id' : session_id}, packet_regex.syntax_session_id)
+    def get_packets_from_user(self, data):        
+        packet_regex.check_json_regex(data, packet_regex.syntax_session_id)
+        session_id = data['session_id']
         self._check_session_active(session_id)
         self._update_session_id_timestamp(session_id)
         email = self._get_email_of_user(session_id)
@@ -128,21 +145,22 @@ class UserService:
         packets = [p[0] for p in self.p_cur.fetchall()]
         return packets
         
-    def logout_user(self, session_id):
-        packet_regex.check_json_regex({'session_id' : session_id}, packet_regex.syntax_session_id)
+    def logout_user(self, data):
+        packet_regex.check_json_regex(data, packet_regex.syntax_session_id)
+        session_id = data['session_id']
         self._check_session_active(session_id)
         self.u_cur.execute('UPDATE users SET session_id = ? WHERE session_id = ?', ('', session_id))
         self.u_cur.execute('UPDATE users SET session_id_timestamp = ? WHERE session_id = ?', ('', session_id))
         self.u_con.commit()
         
-    def delete_user(self, session_id):
-        packet_regex.check_json_regex({'session_id' : session_id}, packet_regex.syntax_session_id)
+    def delete_user(self, data):
+        packet_regex.check_json_regex(data, packet_regex.syntax_session_id)
+        session_id = data['session_id']
         self._check_session_active(session_id)
         email = self._get_email_of_user(session_id)
         self.u_cur.execute('DELETE FROM users WHERE session_id = ?', (session_id,))
         self.p_cur.execute('DELETE FROM followed_packets WHERE email = ?', (email,))
         self.u_con.commit()
-        self.p_con.commit()
         
     def print_databases(self):
         self.u_cur.execute('SELECT * FROM users')

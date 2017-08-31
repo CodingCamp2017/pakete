@@ -104,11 +104,11 @@ public class RestInterface {
         }
     }
 
-    public void sendRequest(String url, Map<String, String> data, ReadyHandler handler) {
+    public void sendRequest(String url, Map<String, Object> data, ReadyHandler handler) {
         AsyncTask<Object, Void, AsyncTaskResult> task = (new AsyncTask<Object, Void, AsyncTaskResult>() {
             @Override
             protected AsyncTaskResult doInBackground(Object... params) {
-                Map<String, String> data = (Map<String, String>)params[0];
+                Map<String, Object> data = (Map<String, Object>)params[0];
                 HttpURLConnection connection = null;
 
                 try {
@@ -146,12 +146,12 @@ public class RestInterface {
         }).execute(data);
     }
 
-    public void newPacket(Map<String, String> data, ReadyHandler handler) {
+    public void newPacket(Map<String, Object> data, ReadyHandler handler) {
         sendRequest(RestInterface.this.url + "register", data, handler);
     }
 
     public void updatePacket(String id, String station, String vehicle, ReadyHandler handler)  {
-        Map<String, String> data = new HashMap<>();
+        Map<String, Object> data = new HashMap<>();
         data.put("station", station);
         data.put("vehicle", vehicle);
 

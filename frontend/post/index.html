@@ -41,10 +41,15 @@
 
 <div class="row justify-content-center">
     <div class="col-8">
+	 
+	
       <!-- Page Content -->
       <div class="mx-auto pageContent" id="register_container">
+	  <br>
+	  <div style="display : none" id="info_message_container" class="alert alert-success">info</div>
+		<div style="display : none" id="error_message_container" class="alert alert-warning">error</div>
         <h1 class="mt-5">Registrierung Pakete</h1>
-        <p>
+        
           <form id="register_form" >   
 			<fieldset>		  
             <p><b>Absender</b><br>
@@ -71,7 +76,7 @@
             <input type="text" class="form-control" placeholder="10" id="weight" /> <br>
             </p>
 			
-			<p><b>E-Mail (optional)</b><br>
+			<p hidden><b>E-Mail (optional)</b><br>
             <input type="text" class="form-control" placeholder="max.mustermann@internetseite.de" id="email" /> <br>
             </p>
 			
@@ -79,7 +84,7 @@
 			
 		    </fieldset>	
 			</form>
-        </p>
+        
       </div>
 
       <div class="mx-auto pageContent" id="update_container">
@@ -137,7 +142,7 @@
 	 
        
 	  <i hidden class="fa fa-spinner fa-spin" style="font-size:50px" id="spinner"></i><br/>
-		<div hidden id="server_answer"></div>
+		
 		 <img id="qrcode" src=""/>
 		
 	  </div>

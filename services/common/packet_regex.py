@@ -35,8 +35,8 @@ syntax_register = [('sender_name', regex_name),
 This lists the required keys and a regex for the value of the updateLocation
 command
 '''
-syntax_update = [('packet_id', regex_id),
-                 ('station', regex_city),
+syntax_update = [('station', regex_city),
+                 ('packet_id', regex_id),
                  ('vehicle', regex_vehicle)]
 '''
 This lists the required keys and a regex for the value of the delivered command
@@ -45,12 +45,7 @@ syntax_delivered = [('packet_id', regex_id)]
 '''
 This lists the required keys and a regex for the value of the addUser command
 '''
-syntax_add_user = [('email', regex_email),
-                   #('name',regex_name),
-                   #('street', regex_street),
-                   #('zip', regex_zip),
-                   #('city', regex_city),
-                   ('password', regex_password)]
+syntax_add_user = [('email', regex_email),('password', regex_password)]
 '''
 This lists the required keys and a regex for the value of the authenticateUser
 command
@@ -89,8 +84,9 @@ Returns the first key from the given dictionary that is not present in req_list.
 Returns None if every key in the dictionary is present in req_list.
 '''
 def get_first_not_contained(dic, req_list):
+    req_list_keys = [key for (key, value) in req_list]
     for (key, value) in dic:
-        if(not key in req_list):
+        if(not key in req_list_keys):
             return key
     return None
 
@@ -103,8 +99,10 @@ def check_json_regex(dic, req_list):
     for (key, regex) in req_list:
         if(not key in dic):
             raise InvalidActionException(Exceptions.TYPE_KEY_NOT_FOUND, key, "Required key: "+key)
+        elif(not isinstance(dic[key],str)):
+            raise InvalidActionException(Exceptions.TYPE_INVALID_KEY, key, "Invalid type for key "+key+"; expected string")
         elif(not regex_matches_exactly(regex, dic[key])):
-            raise InvalidActionException(Exceptions.TYPE_INVALID_KEY, key, "Invalid value: "+dic[key]+" for key "+key)
+            raise InvalidActionException(Exceptions.TYPE_INVALID_KEY, key, "Invalid value: "+str(dic[key])+" for key "+key)
     if(len(dic) != len(req_list)):
         raise InvalidActionException(Exceptions.TYPE_INVALID_KEY, str(get_first_not_contained(dic, req_list)), "Unknown keys in "+json.dumps(dic))
 
