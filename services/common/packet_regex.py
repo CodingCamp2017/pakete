@@ -1,7 +1,6 @@
 from Exceptions import InvalidActionException
 import Exceptions
 import re
-import json
 
 regex_name = '[\w ]+'#Multiple words separated by spaces
 regex_id = '(\d|[a-f]){8}-(\d|[a-f]){4}-(\d|[a-f]){4}-(\d|[a-f]){4}-(\d|[a-f]){12}'#uuid format: 8-4-4-4-12 chars in hex range
@@ -14,9 +13,8 @@ regex_vehicle = '(car|foot|plane|rocket|ship|train|truck|center|failed)'
 regex_email = '[\w\d.+]+@[\w\d]+(?:\.[a-z]{2,4}){1,2}'
 regex_password = '\w{8}'#8 char password
 regex_session_id = '[\w-]+'#alphanumeric and '-'
-
-# Warehouse
 regex_timestamp = '-?\d+'
+
 '''
 This lists the required keys and a regex for the value of the registerPacket
 command

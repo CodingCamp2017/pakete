@@ -44,7 +44,8 @@ class TransportSimulation():
                       'receiver_zip':str(address2['zip']),
                       'receiver_city':address2['city'],
                       'size':self.fakeDataProvider.getRandomSize(),
-                      'weight':str(randint(0, 100))}
+                      'weight':str(randint(0, 100)),
+                      'auto_deliver':True}
             
             registerRequest = urllib.request.Request(self.baseurl + '/register',
                                                     data=json.dumps(packet).encode('utf8'),
@@ -68,8 +69,8 @@ class TransportSimulation():
 
 if __name__ == '__main__':
     
-    post_service_url = 'http://0.0.0.0:8000'
-    local_post_host = 'http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8000'
+    local_post_host = 'http://0.0.0.0:8000'
+    post_service_url = 'http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8000'
     
     SIMULATION_TIME = 10 # Seconds
     transportSimulation = TransportSimulation(post_service_url,

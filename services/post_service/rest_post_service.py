@@ -35,7 +35,7 @@ def restRegister():
         data = copy_dict(request_data)
         if 'auto_deliver' not in data:
             data['auto_deliver'] = False
-        elif data['auto_deliver'] not in [True, False]:
+        elif not isinstance(data['auto_deliver'], bool):
             print('Invalid value for auto_deliver flag!!')
             return rest_common.create_response(400, 'Invalid value for auto_deliver flag!!')
         packet_id = post_service.register_packet(data)

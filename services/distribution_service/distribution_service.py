@@ -3,32 +3,35 @@ import os
 sys.path.append(os.path.relpath('../mykafka'))
 sys.path.append(os.path.relpath('../common'))
 
-from constants import PACKET_TOPIC, PACKET_STATE_REGISTERED, PACKET_STATE_UPDATE_LOCATION
+from id_store import IDStore, IDUpdater
+from constants import PACKET_TOPIC, PACKET_STATE_REGISTERED, PACKET_STATE_UPDATE_LOCATION, PACKET_EVENT_VERSION, PACKET_STATE_DELIVERED
 import distribution_center
 import mykafka
+
 import threading
 import json
 import urllib
 import urllib.request
-import signal
 import time
 
-from threading import Lock
-
-mylock = Lock()
-p = print
-
-def print(*a, **b):
-	with mylock:
-		p(*a, **b)
-        
-
 MAX_NUMBER = len(distribution_center.names)
+
+def addPredicate(event_type, payload):
+    return event_type == PACKET_STATE_REGISTERED and payload['auto_deliver']
+
+def deletePredicate(event_type, payload, current_state):
+    return event_type == PACKET_STATE_DELIVERED
+    
+storeTransform = lambda eventtype, old, payload: {'receiver_zip' : payload['receiver_zip']}
+
+idstore = IDStore(PACKET_EVENT_VERSION, addPredicate, deletePredicate, storeTransform, verbose=False)
+updater = IDUpdater(idstore, from_beginning=False)
+updater.start()
 
 
 class DistributionService(threading.Thread):
     
-    def __init__(self, center_id, threadStop, baseurl):
+    def __init__(self, center_id, idstore, baseurl, threadStop):
         
         threading.Thread.__init__(self)
         self.center_id = center_id
@@ -37,9 +40,19 @@ class DistributionService(threading.Thread):
         self.headers = {'Content-Type':'application/json'}
         self.threadStop = threadStop
         self.lock = threading.Lock()
+        self.idstore = idstore
+        self.updater = IDUpdater(self.idstore)
         
-    def _zip_in_purview(self, zip_code):
-        return zip_code[0] == str(self.center_id)
+    def _this_is_a_register_event_i_need_to_handle(self, event_type, payload):
+        return ((event_type == PACKET_STATE_REGISTERED) and 
+                (payload['receiver_zip'][0] == str(self.center_id)) and
+                payload['auto_deliver'])
+    
+    def _this_is_an_update_event_i_need_to_handle(self, event_type, payload):
+        return (event_type == PACKET_STATE_UPDATE_LOCATION and
+                payload['station'] == self.station and
+                not (payload['vehicle'] == 'center') and
+                self.idstore.packet_in_store['packet_id'])
         
     def _transport_packet(self, center_id, vehicle, packet_id):
         time.sleep(1)
@@ -55,9 +68,7 @@ class DistributionService(threading.Thread):
         except urllib.error.HTTPError as e:
             error_message = e.read()
             print(error_message)
-        #print(str(packet_id) + ' in ' + vehicle + ' with destination ' + str(center_id))
-        if not self.center_id:
-            print('\t Transport to ' +str(center_id)+ ' with ' + vehicle + ' done.')
+        print(str(packet_id) + ' in ' + vehicle + ' from ' + str(self.center_id) + ' to ' + str(center_id))
             
     def _deliver_packet(self, packet_id):
         time.sleep(1)
@@ -69,9 +80,7 @@ class DistributionService(threading.Thread):
         except urllib.error.HTTPError as e:
             error_message = e.read()
             print(error_message)
-        if not self.center_id:
-            print('\t Delivery done.')
-        #äprint(str(packet_id) + ' delivered')
+        print(str(packet_id) + ' delivered from ' + str(self.center_id))
         
     def _update_registered_packet(self, packet):
         # update location: distribution center
@@ -93,14 +102,13 @@ class DistributionService(threading.Thread):
             print('Starting ' + str(self.center_id))
             for event in consumer:
                 #time.sleep(1)
-                print(str(self.center_id) + ' consumes event')
+                #print(str(self.center_id) + ' consumes event')
                 
                 eventJson = json.loads(event.value.decode('utf-8'))
                 try:
                     eventVersion = eventJson['version']
                     eventType = eventJson['type']
                     eventPayload = eventJson['payload']
-                    packet_id = eventPayload['packet_id']
                 except(Exception) as e:
                     print('Event information missing.')
                     return
@@ -111,25 +119,13 @@ class DistributionService(threading.Thread):
                 
                 #print('-----------------')
                 
-                if (eventType == PACKET_STATE_REGISTERED and 
-                    eventPayload['sender_zip'][0] == str(self.center_id)):
+                if self._this_is_a_register_event_i_need_to_handle(eventType, eventPayload):
                     if eventPayload['receiver_zip'][0] == str(self.center_id):
-                        if not self.center_id:
-                            print('impossible case')
-                        #print(self.station + ' detected registered packet ' + packet_id[0:6] + ' and started delivery')
                         self._deliver_updated_packet(eventPayload)
                     else:
-                        if not self.center_id:
-                            print('Updating registered packet ' + packet_id)
-                        #print(self.station + ' detected registered packet ' + packet_id[0:6] + ' and updated location')
                         self._update_registered_packet(eventPayload)
                     
-                elif (eventType == PACKET_STATE_UPDATE_LOCATION and 
-                      eventPayload['station'] == self.station and 
-                      not (eventPayload['vehicle'] == 'center')):
-                    if not self.center_id:
-                        print('Delivering updated packet ' + packet_id)
-                    #print(self.station + ' detected updated packet ' + packet_id[0:6] + ' and started delivery')
+                elif self._this_is_an_update_event_i_need_to_handle(eventType, eventPayload):
                     self._deliver_updated_packet(eventPayload)
 
 class Tester(threading.Thread):
