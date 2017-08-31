@@ -49,7 +49,7 @@ function addPacketToUser(packetId, successCallback, failureCallback)
     
     var sessionId = readSessionIdCookie();
     if(sessionId !== undefined) {
-        var requestData = {"packet": packetId, "session_id": sessionId};
+        var requestData = {"packet_id": packetId, "session_id": sessionId};
         $.post(query, requestData, function (response) {
             successCallback();
         })
@@ -68,7 +68,7 @@ function deleteUser(successCallback, failureCallback)
     if(sessionId !== undefined) {
         var query = user_server_url + query_delete_user;
         $.post(query, {"session_id": sessionId}, function (response) {
-            clearSessionIdCookie();
+            clearCookies();
             successCallback();
         })
         .fail(function (xhr, status, error) {
@@ -98,7 +98,7 @@ function logoutUser(successCallback, failureCallback)
     var sessionId = readSessionIdCookie();
     if (sessionId !== undefined) {
         $.post(query, {'session_id': sessionId}, function (response) {
-            clearSessionIdCookie();
+            clearCookies();
             successCallback();
         })
         .fail(function (xhr, status, error) {

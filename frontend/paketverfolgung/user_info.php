@@ -32,12 +32,11 @@
                             <th>Sender</th>
                             <th>Empfänger</th>
                             <th>Status</th>
+                            <th>Entfernen</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <th scope="row">1</th>
-                            <td>paketname</td>
                         </tr>
                     </tbody>
                 </table>
