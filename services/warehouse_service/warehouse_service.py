@@ -270,9 +270,9 @@ class WarehouseService:
                     else:
                         values[vehicle] +=1;
             if(values['registert'] == 0):
-                values['registert'] = None
+                values.pop('registert', None)
             if (values['delivery'] == 0):
-                values['delivery'] = None
+                values.pop('delivery', None)
             return values;
         # end of FKT
 
