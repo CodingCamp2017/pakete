@@ -1,7 +1,11 @@
 var tracking_server_url = "http://ec2-35-158-239-16.eu-central-1.compute.amazonaws.com:8001/";
 
-$(function() {
-    getUserPackets(function(packetIds) {
+$(function () {
+    loadUserPackets();
+});
+
+function loadUserPackets() {
+    getUserPackets(function (packetIds) {
         // success
         packetTable_clear();
 
@@ -9,22 +13,21 @@ $(function() {
             var packet = packetIds[i];
             loadPacketInfo(i, packet);
         }
-   }, function(message) {
+    }, function (message) {
         // failure
         packetTable_clear();
         errorMessage(message);
-   });
-});
+    });
+}
 
 $("#add_packet_button").click(function() {
     var packetId = $("#add_packet_id").val();    
     addPacketToUser(packetId, function() {
         //success
-        packetTable_clear();
+        loadUserPackets();
         infoMessage("Packet added.");      
     }, function(message) {
         // failure
-        packetTable_clear();
         errorMessage(message);       
     });
 });
@@ -37,7 +40,6 @@ $("#button_delete_user").click(function() {
         infoMessage("User deleted.");      
     }, function(message) {
         // failure
-        packetTable_clear();
         errorMessage(message);      
     });
 });
@@ -65,7 +67,7 @@ function removePacketFromUser(packetId) {
     if(packetId !== undefined && packetId.length > 0) {
         deletePacketFromUser(packetId, function() {
             //success
-            packetTable_clear();
+            loadUserPackets();
             setLoginbarStatus();
             infoMessage("Packet removed from User.");
         }, function (message) {
