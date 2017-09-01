@@ -13,6 +13,7 @@ import json
 import urllib
 import urllib.request
 import time
+from random import randint
 
 MAX_NUMBER = len(distribution_center.names)
 
@@ -22,7 +23,7 @@ def addPredicate(event_type, payload):
 def deletePredicate(event_type, payload, current_state):
     return event_type == PACKET_STATE_DELIVERED
     
-storeTransform = lambda eventtype, old, payload: {'receiver_zip' : payload['receiver_zip']}
+storeTransform = lambda eventtype, old, payload: {'receiver_zip' : payload['receiver_zip']} if eventtype == PACKET_STATE_REGISTERED else old
 
 idstore = IDStore(PACKET_EVENT_VERSION, addPredicate, deletePredicate, storeTransform, verbose=False)
 updater = IDUpdater(idstore, from_beginning=False)
@@ -45,14 +46,14 @@ class DistributionService(threading.Thread):
         
     def _this_is_a_register_event_i_need_to_handle(self, event_type, payload):
         return ((event_type == PACKET_STATE_REGISTERED) and 
-                (payload['receiver_zip'][0] == str(self.center_id)) and
+                (payload['sender_zip'][0] == str(self.center_id)) and
                 payload['auto_deliver'])
     
     def _this_is_an_update_event_i_need_to_handle(self, event_type, payload):
         return (event_type == PACKET_STATE_UPDATE_LOCATION and
                 payload['station'] == self.station and
                 not (payload['vehicle'] == 'center') and
-                self.idstore.packet_in_store['packet_id'])
+                self.idstore.packet_in_store(payload['packet_id']))
         
     def _transport_packet(self, center_id, vehicle, packet_id):
         time.sleep(1)
@@ -86,9 +87,19 @@ class DistributionService(threading.Thread):
         # update location: distribution center
         self._transport_packet(self.center_id, 'center', packet['packet_id'])
         # update location: transport to next distribution center
-        self._transport_packet(int(packet['receiver_zip'][0]), 'car', packet['packet_id'])
+        destination = int(packet['receiver_zip'][0])
+        # for demonstration purposes: Distribution center 1 distributes randomly
+        if self.center_id == 1:
+            destination = randint(0,9)
+        vehicle = ['car', 'train', 'truck'][randint(0,2)]
+        self._transport_packet(destination, vehicle, packet['packet_id'])
             
     def _deliver_updated_packet(self, packet):
+        if self.center_id == 1:
+            destination = randint(0,9)
+            if destination != 1:
+                self._update_registered_packet(packet)
+                return
         # update location: distribution center
         self._transport_packet(self.center_id, 'center', packet['packet_id'])
         # update location: transport to next distribution center
@@ -126,7 +137,12 @@ class DistributionService(threading.Thread):
                         self._update_registered_packet(eventPayload)
                     
                 elif self._this_is_an_update_event_i_need_to_handle(eventType, eventPayload):
-                    self._deliver_updated_packet(eventPayload)
+                    stored_data = self.idstore.get_data_for_packet(eventPayload['packet_id'])
+                    if stored_data['receiver_zip'][0] == str(self.center_id):
+                        self._deliver_updated_packet(eventPayload)
+                    else:
+                        eventPayload.update({'receiver_zip' : stored_data['receiver_zip']})
+                        self._update_registered_packet(eventPayload)
 
 class Tester(threading.Thread):
 

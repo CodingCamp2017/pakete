@@ -11,20 +11,22 @@
         <div class="navbar-collapse collapse" id="navbarResponsive">
             <!-- Login -->
             <div id="login_bar" class="ml-auto">
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item">
-                        <input type="text loginMargin" class="form-control loginMargin" placeholder="E-Mail" id="email" />
-                    </li>
-                    <li class="nav-item loginMargin">
-                        <input type="password" class=" form-control " placeholder="Passwort" id="password" />
-                    </li>
-                    <li class="nav-item">
-                        <input type="submit"  value="Login" id="button_login_user" class="btn btn-primary loginMargin" />
-                    </li>
-                    <li class="nav-item">
-                        <a href="user_registration.php" ><input type="button" value="Registrieren" id="register" class="btn btn-primary loginMargin" /></a>
-                    </li>
-                </ul>
+                <form id='login_form'>
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <input type="text loginMargin" class="form-control loginMargin" placeholder="E-Mail" id="email" />
+                        </li>
+                        <li class="nav-item loginMargin">
+                            <input type="password" class=" form-control " placeholder="Passwort" id="password" />
+                        </li>
+                        <li class="nav-item">
+                            <input type="submit"  value="Login" id="button_login_user" class="btn btn-primary loginMargin" />
+                        </li>
+                        <li class="nav-item">
+                            <a href="user_registration.php" ><input type="button" value="Registrieren" id="register" class="btn btn-primary loginMargin" /></a>
+                        </li>
+                    </ul>
+                </form>
             </div>
             
             <!-- After login -->
