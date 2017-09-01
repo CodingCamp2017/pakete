@@ -26,9 +26,11 @@
     //dd.mm.yyyy
     let splita = a.key.split('.')
     let splitb = b.key.split('.')
-    let dateA = new Date(splita[1]+"-"+splita[0]+"-"+splita[2])
-    let dateB = new Date(splitb[1]+"-"+splitb[0]+"-"+splitb[2])
-    return (dateA > dateB) - (dateA < dateB)
+
+    let dateA = splita[2] + splita[1] + splita[0]
+    let dateB = splitb[2] + splitb[1] + splitb[0]
+    
+    return parseInt(dateA) - parseInt(dateB)
   }
 
   let ascending_values_numeric = function (a, b) {
