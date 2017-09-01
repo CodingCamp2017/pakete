@@ -38,17 +38,14 @@
         </div>
       </div>
     </nav>
-
 <div class="row justify-content-center">
     <div class="col-8">
 	 
-	
+	<div style="display : none" id="info_message_container" class="alert alert-success infobox mx-auto pageContent ">info</div>
+	<div style="display : none" id="error_message_container" class="alert alert-warning infobox mx-auto pageContent">error</div>
       <!-- Page Content -->
       <div class="mx-auto pageContent" id="register_container">
-	  <br>
-	  <div style="display : none" id="info_message_container" class="alert alert-success">info</div>
-		<div style="display : none" id="error_message_container" class="alert alert-warning">error</div>
-        <h1 class="mt-5">Registrierung Pakete</h1>
+	   <h1 class="mt-5">Registrierung Pakete</h1>
         
           <form id="register_form" >   
 			<fieldset>		  
@@ -99,36 +96,37 @@
             <div id="station_container">
              <input type="text" class="form-control" placeholder="Station"  id="station" />            
 			<p>
-			<div class="btn-group" data-toggle="buttons">
-			</label>
-			<label class="btn btn-primary">
-			<input type="radio" name="vehicle" value="center"  id="size_small" /><i class="fa fa-building-o"></i> Warenhaus<br>
-            </label>
-			 <label class="btn btn-primary active">
-			 
-			 <input checked type="radio" name="vehicle" value="car" id="size_small" /><i class="fa fa-car"></i> Auto<br>
-        	</label><label class="btn btn-primary"> 
-			<input type="radio" name="vehicle" value="foot"  id="size_small" /><i class="fa fa-bicycle"></i> Träger<br>
-        	</label><label class="btn btn-primary">
-			<input type="radio" name="vehicle" value="plane"  id="size_small" /><i class="fa fa-plane"></i> Flugzeug<br>
-        	</label>
-			<label class="btn btn-primary">
-			<input type="radio" name="vehicle" value="rocket"  id="size_small" /><i class="fa fa-rocket"></i> Rakete<br>
-            </label>
-			<label class="btn btn-primary">
-			<input type="radio" name="vehicle" value="ship"  id="size_small" /><i class="fa fa-ship"></i> Schiff<br>
-            </label>
-			<label class="btn btn-primary">
-			<input type="radio" name="vehicle" value="train"  id="size_small" /><i class="fa fa-subway"></i> Zug<br>
-            </label>
-			<label class="btn btn-primary">
-			<input type="radio" name="vehicle" value="truck"  id="size_small" /><i class="fa fa-truck"></i> LKW<br>
-            </label>
-			<label class="btn btn-primary">
-			<input type="radio" name="vehicle" value="failed"  id="size_small" /><i class="fa fa-frown-o"></i> Lieferversuch<br>
-            </label>
-			
-			</div>
+				<div class="btn-group Buttons" data-toggle="buttons">
+					</label>
+					<label class="btn btn-primary">
+					 
+					<input type="radio" name="vehicle" value="center"   /><i class="fa fa-building-o"></i> Warenhaus<br>
+					</label>
+					 <label class="btn btn-primary active">
+					
+					 <input checked type="radio" name="vehicle" value="car"/><i class="fa fa-car"></i> Auto<br>
+					</label><label class="btn btn-primary"> 
+					<input type="radio" name="vehicle" value="foot"/><i class="fa fa-bicycle"></i> Träger<br>
+					</label><label class="btn btn-primary">
+					<input type="radio" name="vehicle" value="plane"/><i class="fa fa-plane"></i> Flugzeug<br>
+					</label>
+					<label class="btn btn-primary">
+					<input type="radio" name="vehicle" value="rocket"/><i class="fa fa-rocket"></i> Rakete<br>
+					</label> 
+					<label class="btn btn-primary">
+					<input type="radio" name="vehicle" value="ship"/><i class="fa fa-ship"></i> Schiff<br>
+					</label>
+					<label class="btn btn-primary">
+					<input type="radio" name="vehicle" value="train"/><i class="fa fa-subway"></i> Zug<br>
+					</label>
+					<label class="btn btn-primary">
+					<input type="radio" name="vehicle" value="truck"/><i class="fa fa-truck"></i> LKW<br>
+					</label>
+					<label class="btn btn-primary">
+					<input type="radio" name="vehicle" value="failed"/><i class="fa fa-frown-o"></i> Lieferversuch<br>
+					</label>
+				
+				</div>
 			</div>
 			</p>
 			

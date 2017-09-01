@@ -16,7 +16,7 @@ $(function() {
         console.log(current_id);
         console.log(socketResponse);
         if (current_id !== undefined && socketResponse.packet_id !== undefined && socketResponse.packet_id !== current_id) {
-            serverReturned("Das Paket mit der ID " + socketResponse.packet_id + " wurde an einen neuen Standort registriert.", set, butt);
+            serverReturned("Das Paket mit der ID " + socketResponse.packet_id + " wurde an einem neuen Standort registriert.", set, butt);
             return;
         }
         if (socketResponse.location === undefined) {
