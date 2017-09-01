@@ -85,6 +85,7 @@ class DistributionService(threading.Thread):
         
     def _update_registered_packet(self, packet):
         # update location: distribution center
+        time.sleep(5)
         self._transport_packet(self.center_id, 'center', packet['packet_id'])
         # update location: transport to next distribution center
         destination = int(packet['receiver_zip'][0])
@@ -92,6 +93,7 @@ class DistributionService(threading.Thread):
         if self.center_id == 1:
             destination = randint(0,9)
         vehicle = ['car', 'train', 'truck'][randint(0,2)]
+        time.sleep(3)
         self._transport_packet(destination, vehicle, packet['packet_id'])
             
     def _deliver_updated_packet(self, packet):
@@ -101,6 +103,7 @@ class DistributionService(threading.Thread):
                 self._update_registered_packet(packet)
                 return
         # update location: distribution center
+        time.sleep(3)
         self._transport_packet(self.center_id, 'center', packet['packet_id'])
         # update location: transport to next distribution center
         self._deliver_packet(packet['packet_id'])
