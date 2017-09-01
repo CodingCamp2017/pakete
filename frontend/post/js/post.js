@@ -76,7 +76,7 @@ $(function() {
 	    waitOnServer(set,butt);
       return false;
   });
-
+ 
  //Send Location update
   $("#update_form").submit(function() {
 	if($("#packet_id").val().length ===0){
@@ -141,7 +141,7 @@ function failReturned(responseText,statu,fset,pbutton){
 			var obj = JSON.parse(responseText);
 			if(obj.type == "invalid key"){
 				showError(obj.key);
-				errortext = "Ein Input ist nicht richtig.";
+				errortext = "Eine Eingabe ist nicht richtig.";
 			}else {
 				errortext += "Server meldet: " + obj.message;
 			}
